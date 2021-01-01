@@ -1,10 +1,6 @@
-[package]
-name = "mugen"
-version = "0.1.0"
-authors = ["koopa1338 <sinner1991@gmail.com>"]
-edition = "2018"
-
-[dependencies]
-log = "0.4"
-wasm-logger = "0.2"
-yew = "0.17.4"
+[workspace]
+members = [
+    "mugen-common",
+    "mugen-server",
+    "mugen-ui",
+]
