@@ -1,0 +1,16 @@
+[package]
+name = "mugen-server"
+version = "0.1.0"
+authors = ["koopa1338 <sinner1991@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+actix-files = "0.5.0"
+actix-web = "3.3.2"
+actix-rt = "1.1.1"
+actix-service = "1.0.6"
+env_logger = "0.8.2"
+clap = "2.33.3"
+log = "0.4.11"
+mugen-common = { path = "../mugen-common" }
+tokio = "1.0.1"
