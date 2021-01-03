@@ -1,4 +1,5 @@
 use super::AppRoute;
+use super::navigation::MainNavigation;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{service::RouteService, Switch};
@@ -26,36 +27,9 @@ impl Component for Composer {
     }
 
     fn view(&self) -> Html {
-        let route = self.route_service.get_route();
         html! {
             <>
-                //TODO: put the navigation in own component with property to track active route and
-                //add css class to the relevant menu items
-                <nav class="uk-navbar-container" uk-navbar="">
-                    <div class="uk-navbar-left">
-                        <ul class="uk-navbar-nav">
-                            <li class="uk-active">
-                                <a title="home" href="/app/main">
-                                    <span uk-icon="home"></span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="documents" href="/app/docs">
-                                    <span uk-icon="album"></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="uk-navbar-right">
-                        <ul class="uk-navbar-nav">
-                            <li>
-                                <a title="logout" href="/app/logout">
-                                    <span uk-icon="sign-out"></span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                <MainNavigation/>
                 <div class="uk-container uk-margin">
                     { self.view_main_pane() }
                 </div>
