@@ -6,6 +6,10 @@ use yew_router::Switch;
 pub enum AppRoute {
     #[to = "/app/main"]
     Main,
+    #[to = "/app/docs"]
+    Docs,
+    #[to = "/app/logout"]
+    Logout,
 }
 
 pub use composer::Composer;

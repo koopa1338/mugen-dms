@@ -27,7 +27,38 @@ impl Component for Composer {
 
     fn view(&self) -> Html {
         html! {
-            <div>{"Mugen DMS"}</div>
+            <>
+                <nav class="uk-navbar-container" uk-navbar="">
+                    <div class="uk-navbar-left">
+                        <ul class="uk-navbar-nav">
+                        // TODO: this class should be a property so that the menu of the current
+                        // route is active
+                            <li class="uk-active">
+                                <a title="home" href="/app/main">
+                                    <span uk-icon="home"></span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="documents" href="/app/docs">
+                                    <span uk-icon="album"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="uk-navbar-right">
+                        <ul class="uk-navbar-nav">
+                            <li>
+                                <a title="logout" href="/app/logout">
+                                    <span uk-icon="sign-out"></span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="uk-container uk-margin">
+                    { self.view_main_pane() }
+                </div>
+            </>
         }
     }
 }
@@ -37,7 +68,19 @@ impl Composer {
         let route = self.route_service.get_route();
         match AppRoute::switch(route) {
             Some(AppRoute::Main) => html! {
-                <div>{"MAIN"}</div>
+                <div class="uk-card-default uk-card-body">
+                    <h3 class="uk-card-title">{"Home"}</h3>
+                    <p >{"This is the main route"}</p>
+                </div>
+            },
+            Some(AppRoute::Docs) => html! {
+                <div class="uk-card-default uk-card-body">
+                    <h3 class="uk-card-title">{"Docs"}</h3>
+                    <p>{"This is the docs route"}</p>
+                </div>
+            },
+            Some(AppRoute::Logout) => html! {
+                <div>{ "Logout route, this should logout and redirect to login page" }</div>
             },
             _ => html! {
                 <div>{ "Route not found" }</div>
