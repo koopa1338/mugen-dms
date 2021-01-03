@@ -1,5 +1,4 @@
-Build ui with:
+## Build UI
 
-```sh
-wasm-pack build --debug --no-typescript -d ../target/pkg/debug --out-name mugen_ui --target web
-```
+Run `make debug` for debug or `make release` for release build
+
