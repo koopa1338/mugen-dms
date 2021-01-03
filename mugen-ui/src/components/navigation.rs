@@ -1,14 +1,13 @@
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 
-pub struct MainNavigation {
-}
+pub struct MainNavigation {}
 
 impl Component for MainNavigation {
     type Message = ();
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self{}
+        Self {}
     }
 
     fn update(&mut self, _: Self::Message) -> ShouldRender {
@@ -49,4 +48,3 @@ impl Component for MainNavigation {
         }
     }
 }
-

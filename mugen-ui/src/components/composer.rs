@@ -1,5 +1,5 @@
-use super::AppRoute;
 use super::navigation::MainNavigation;
+use super::AppRoute;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{service::RouteService, Switch};
@@ -63,4 +63,3 @@ impl Composer {
         }
     }
 }
-

@@ -1,7 +1,6 @@
 use yew::{Component, ComponentLink, Html, ShouldRender};
 
-pub struct Login {
-}
+pub struct Login {}
 
 impl Component for Login {
     type Message = ();

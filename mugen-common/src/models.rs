@@ -9,4 +9,3 @@ pub struct Document {
     pub filetype: String, // crate for filetype?
     pub tags: HashSet<String>,
 }
-
