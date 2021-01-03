@@ -26,13 +26,14 @@ impl Component for Composer {
     }
 
     fn view(&self) -> Html {
+        let route = self.route_service.get_route();
         html! {
             <>
+                //TODO: put the navigation in own component with property to track active route and
+                //add css class to the relevant menu items
                 <nav class="uk-navbar-container" uk-navbar="">
                     <div class="uk-navbar-left">
                         <ul class="uk-navbar-nav">
-                        // TODO: this class should be a property so that the menu of the current
-                        // route is active
                             <li class="uk-active">
                                 <a title="home" href="/app/main">
                                     <span uk-icon="home"></span>
