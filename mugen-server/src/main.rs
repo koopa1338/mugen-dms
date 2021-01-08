@@ -10,7 +10,7 @@ use clap::Arg;
 use std::path::PathBuf;
 use std::time::Duration;
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct AppConfig {
     ui: PathBuf,
     pages: PathBuf,
@@ -18,7 +18,7 @@ pub struct AppConfig {
     port: String,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct AppState {
     config: AppConfig,
 }
