@@ -30,6 +30,7 @@ impl Component for Composer {
     fn view(&self) -> Html {
         html! {
             <>
+                //TODO: if we are not authenticated don't render the navigation
                 <MainNavigation/>
                 <div class="uk-container uk-margin uk-align-center">
                     { self.view_main_pane() }
