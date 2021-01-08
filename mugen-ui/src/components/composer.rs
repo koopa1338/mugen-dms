@@ -1,3 +1,4 @@
+use super::login::Login;
 use super::navigation::MainNavigation;
 use super::AppRoute;
 
@@ -30,7 +31,7 @@ impl Component for Composer {
         html! {
             <>
                 <MainNavigation/>
-                <div class="uk-container uk-margin">
+                <div class="uk-container uk-margin uk-align-center">
                     { self.view_main_pane() }
                 </div>
             </>
@@ -55,7 +56,10 @@ impl Composer {
                 </div>
             },
             Some(AppRoute::Logout) => html! {
-                <div>{ "Logout route, this should logout and redirect to login page" }</div>
+                <Login/>
+            },
+            Some(AppRoute::Login) => html! {
+                <Login/>
             },
             _ => html! {
                 <div>{ "Route not found" }</div>

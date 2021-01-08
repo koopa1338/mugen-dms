@@ -12,6 +12,8 @@ pub enum AppRoute {
     Docs,
     #[to = "/app/logout"]
     Logout,
+    #[to = "/app/login"]
+    Login,
 }
 
 pub use composer::Composer;
