@@ -20,7 +20,7 @@ impl Component for Login {
 
     fn view(&self) -> Html {
         html! {
-            <div class="uk-container uk-width-large">
+            <div class="uk-container uk-width-large" id="login-component">
                 <div class="uk-card-default uk-card-body uk-align-center">
                     <h3 class="uk-card-title">{"Login"}</h3>
                     <form>

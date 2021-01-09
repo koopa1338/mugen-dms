@@ -1,5 +1,5 @@
 use super::login::Login;
-use super::navigation::MainNavigation;
+use super::content::Content;
 use super::AppRoute;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
@@ -30,11 +30,7 @@ impl Component for Composer {
     fn view(&self) -> Html {
         html! {
             <>
-                //TODO: if we are not authenticated don't render the navigation
-                <MainNavigation/>
-                <div class="uk-container uk-margin uk-align-center">
-                    { self.view_main_pane() }
-                </div>
+                { self.view_main_pane() }
             </>
         }
     }
@@ -44,18 +40,6 @@ impl Composer {
     fn view_main_pane(&self) -> Html {
         let route = self.route_service.get_route();
         match AppRoute::switch(route) {
-            Some(AppRoute::Main) => html! {
-                <div class="uk-card-default uk-card-body">
-                    <h3 class="uk-card-title">{"Home"}</h3>
-                    <p >{"This is the main route"}</p>
-                </div>
-            },
-            Some(AppRoute::Docs) => html! {
-                <div class="uk-card-default uk-card-body">
-                    <h3 class="uk-card-title">{"Docs"}</h3>
-                    <p>{"This is the docs route"}</p>
-                </div>
-            },
             Some(AppRoute::Logout) => html! {
                 <Login/>
             },
@@ -63,7 +47,7 @@ impl Composer {
                 <Login/>
             },
             _ => html! {
-                <div>{ "Route not found" }</div>
+                <Content/>
             },
         }
     }

@@ -1,4 +1,5 @@
 mod composer;
+mod content;
 mod login;
 mod navigation;
 
@@ -19,3 +20,4 @@ pub enum AppRoute {
 pub use composer::Composer;
 pub use login::Login;
 pub use navigation::MainNavigation;
+pub use content::Content;
