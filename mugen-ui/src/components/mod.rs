@@ -1,6 +1,7 @@
 mod composer;
 mod content;
 mod login;
+mod register;
 mod navigation;
 
 use yew_router::Switch;
@@ -15,9 +16,12 @@ pub enum AppRoute {
     Logout,
     #[to = "/app/login"]
     Login,
+    #[to = "/app/register"]
+    Register,
 }
 
 pub use composer::Composer;
 pub use login::Login;
+pub use register::Register;
 pub use navigation::MainNavigation;
 pub use content::Content;

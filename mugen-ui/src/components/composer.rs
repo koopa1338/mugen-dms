@@ -1,4 +1,5 @@
 use super::login::Login;
+use super::register::Register;
 use super::content::Content;
 use super::AppRoute;
 
@@ -40,6 +41,9 @@ impl Composer {
     fn view_main_pane(&self) -> Html {
         let route = self.route_service.get_route();
         match AppRoute::switch(route) {
+            Some(AppRoute::Register) => html! {
+                <Register/>
+            },
             Some(AppRoute::Logout) => html! {
                 <Login/>
             },
