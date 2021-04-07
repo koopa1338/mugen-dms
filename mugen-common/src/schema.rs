@@ -13,10 +13,11 @@ table! {
     users (id) {
         id -> Int4,
         username -> Text,
-        password -> Text,
+        hash -> Text,
         email -> Text,
         first_name -> Nullable<Text>,
         last_name -> Nullable<Text>,
+        created_at -> Timestamptz,
     }
 }
 

@@ -15,10 +15,11 @@ pub struct UserQuery {
 #[table_name="users"]
 pub struct User {
     pub username: String,
-    pub password: String, //crypted with generated salt by postgres
+    pub hash: String, //crypted with generated salt by postgres
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
+    pub created_at: NaiveDateTime,
 }
 
 
