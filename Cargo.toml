@@ -1,6 +1,5 @@
 [workspace]
 members = [
-    "mugen-common",
-    "mugen-server",
     "mugen-ui",
+    "mugen-server",
 ]
