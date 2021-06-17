@@ -1,10 +1,10 @@
 version: "3.8"
 services:
-    mugendb:
-        image: postgres
-        ports:
-            - "5432:5432"
-        environment:
-            - POSTGRES_USER=mugen
-            - POSTGRES_PASSWORD=mugen
-            - POSTGRES_DB=mugendb
+  mugendb:
+  image: postgres:13
+  ports:
+    - "5432:5432"
+  environment:
+    - POSTGRES_USER=mugen
+    - POSTGRES_PASSWORD=mugen
+    - POSTGRES_DB=mugendb
