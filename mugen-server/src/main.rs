@@ -61,7 +61,7 @@ fn get_config() -> AppConfig {
     let matches = app.get_matches();
     return AppConfig {
         ui: PathBuf::from(matches.value_of("ui").expect("Missing UI parameter")),
-        pages: PathBuf::from(matches.value_of("pages").expect("Missing pages parameter")),
+        pages: PathBuf::from(matches.value_of("static").expect("Missing pages parameter")),
         port: matches.value_of("port").unwrap_or("8080").to_string(),
         slow: matches.is_present("slow"),
     };
