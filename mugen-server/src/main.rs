@@ -1,15 +1,18 @@
 #[macro_use]
 extern crate log;
 
+mod config;
+mod controller;
+mod services;
+mod error;
+
 use actix_files as fs;
 use actix_web::{dev::Service, http, web, App, HttpResponse, HttpServer, Result as WebResult};
-use r2d2::Pool;
-use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
-
 use clap::Arg;
-
+use config::db;
 use std::path::PathBuf;
 use std::time::Duration;
+
 
 #[derive(Debug, Clone)]
 pub struct AppConfig {
@@ -77,21 +80,12 @@ async fn app_page(state: web::Data<AppState>) -> WebResult<fs::NamedFile> {
     Ok(fs::NamedFile::open(state.config.pages.join("index.html"))?)
 }
 
-pub fn get_db_pool() -> Result<Pool<PostgresConnectionManager<NoTls>>, r2d2::Error> {
-    let manager =
-        PostgresConnectionManager::new("host=localhost user=postgres".parse().unwrap(), NoTls);
-
-    r2d2::Pool::builder().max_size(15).build(manager)
-}
-
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
     env_logger::init();
     let config = get_config();
 
-    let pool = get_db_pool().unwrap();
-
-    let _client = pool.get().unwrap();
+    let _pool = db::get_db_pool("localhost");
 
     let addr = format!("127.0.0.1:{}", config.port);
     info!("Listening on {}", addr);
