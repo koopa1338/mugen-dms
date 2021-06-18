@@ -1,4 +1,4 @@
-use crate::schema::*;
+use schema::users;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 
