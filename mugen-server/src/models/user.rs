@@ -1,11 +1,10 @@
 use super::schema::users;
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 use diesel::{Insertable, Queryable};
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Insertable, Queryable)]
-#[table_name="users"]
+#[table_name = "users"]
 pub struct User {
     pub id: i32,
     pub username: String,

@@ -5,6 +5,7 @@ authors = ["koopa1338 <sinner1991@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+actix-cors = "0.5.4"
 actix-files = "0.5.0"
 actix-rt = "2.2.0"
 actix-service = "2.0.0"

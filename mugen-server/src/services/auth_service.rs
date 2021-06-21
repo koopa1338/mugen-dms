@@ -1,10 +1,9 @@
-use crate::error::{ServiceError, ServiceResult};
-use crate::models::user::{User, UserLoginRequestDto, UserLoginResponseDto};
 use crate::config::db::Pool;
+use crate::error::{ServiceError, ServiceResult};
 use crate::models::schema::users::dsl::*;
+use crate::models::user::{User, UserLoginRequestDto, UserLoginResponseDto};
 use bcrypt::verify;
 use diesel::prelude::*;
-
 
 pub fn login(creds: UserLoginRequestDto, pool: &Pool) -> ServiceResult<UserLoginResponseDto> {
     let conn = pool.clone().get().unwrap();
@@ -21,5 +20,7 @@ pub fn login(creds: UserLoginRequestDto, pool: &Pool) -> ServiceResult<UserLogin
             }
         }
     }
-    Err(ServiceError::AuthenticationError("Login failed.".to_string()))
+    Err(ServiceError::AuthenticationError(
+        "Login failed.".to_string(),
+    ))
 }

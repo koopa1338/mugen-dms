@@ -1,6 +1,6 @@
 use super::schema::documents;
-use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, Queryable)]
 pub struct DocumentQuery {
@@ -13,7 +13,7 @@ pub struct DocumentQuery {
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
-#[table_name="documents"]
+#[table_name = "documents"]
 pub struct Document {
     pub created: NaiveDateTime,
     pub last_updated: Option<NaiveDateTime>,

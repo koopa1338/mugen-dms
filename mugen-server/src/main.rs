@@ -5,17 +5,17 @@ extern crate diesel;
 
 mod config;
 mod controller;
-mod services;
 mod error;
 mod models;
+mod services;
 
+use actix_cors::Cors;
 use actix_files as fs;
 use actix_web::{dev::Service, http, web, App, HttpResponse, HttpServer, Result as WebResult};
 use clap::Arg;
 use config::db;
 use std::path::PathBuf;
 use std::time::Duration;
-
 
 #[derive(Debug, Clone)]
 pub struct AppConfig {
@@ -99,6 +99,15 @@ async fn main() -> std::io::Result<()> {
 
         let slow = config.slow;
         App::new()
+            .wrap(actix_web::middleware::Logger::default())
+            .wrap(
+                Cors::default()
+                    .send_wildcard()
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+                    .allowed_headers(vec![http::header::AUTHORIZATION, http::header::ACCEPT])
+                    .allowed_header(http::header::CONTENT_TYPE)
+                    .max_age(3600),
+            )
             .data(pool.clone())
             .app_data(web::PayloadConfig::default().limit(1024 * 1024 * 500))
             .app_data(web::JsonConfig::default().limit(1024 * 1024 * 500))
