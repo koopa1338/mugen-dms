@@ -1,8 +1,8 @@
-use schema::documents;
+use super::schema::documents;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
 
-#[derive(Debug, Clone, Queryable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Queryable)]
 pub struct DocumentQuery {
     pub id: i64,
     pub created: NaiveDateTime,
@@ -12,7 +12,7 @@ pub struct DocumentQuery {
     pub size: i64,
 }
 
-#[derive(Debug, Clone, Insertable)]
+#[derive(Debug, Clone, Deserialize, Serialize, Insertable)]
 #[table_name="documents"]
 pub struct Document {
     pub created: NaiveDateTime,

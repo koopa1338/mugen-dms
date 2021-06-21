@@ -1,25 +1,28 @@
-use schema::users;
+use super::schema::users;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDateTime;
+use diesel::{Insertable, Queryable};
 
-#[derive(Serialize, Deserialize, Debug, Clone, Queryable)]
-pub struct UserQuery {
-    pub id: i32,
-    pub username: String,
-    pub email: String,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-}
 
-#[derive(Serialize, Deserialize, Debug, Clone, Insertable)]
+#[derive(Serialize, Deserialize, Debug, Clone, Insertable, Queryable)]
 #[table_name="users"]
 pub struct User {
+    pub id: i32,
     pub username: String,
-    pub hash: String, //crypted with generated salt by postgres
+    pub password: String,
     pub email: String,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub created_at: NaiveDateTime,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserLoginRequestDto {
+    pub username: String,
+    pub password: String,
+}
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserLoginResponseDto {
+    pub username: String,
+}

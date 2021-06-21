@@ -1,15 +1,11 @@
+use actix_web::{web, HttpResponse, Result};
+use crate::models::user::UserLoginRequestDto;
+use crate::services::auth_service;
 use crate::config::db::Pool;
 
-use actix_web::{web, HttpResponse, Result};
-use serde::Deserialize;
-
-#[derive(Deserialize)]
-pub struct Credentials {
-    username: String,
-    password: String,
-}
-
-pub async fn login(creds: web::Json<Credentials>, pool: web::Data<Pool>) -> Result<HttpResponse> {
-    // get result of auth_service::login(creds, &pool);
-    unimplemented!();
+pub async fn login(creds: web::Json<UserLoginRequestDto>, pool: web::Data<Pool>) -> Result<HttpResponse> {
+    match auth_service::login(creds.into_inner(), pool.as_ref()) {
+        Ok(_) => Ok(HttpResponse::Ok().finish()),
+        Err(_) => Ok(HttpResponse::Unauthorized().finish()),
+    }
 }

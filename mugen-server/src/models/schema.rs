@@ -12,11 +12,11 @@ table! {
 table! {
     users (id) {
         id -> Int4,
-        username -> Text,
-        hash -> Text,
-        email -> Text,
-        first_name -> Nullable<Text>,
-        last_name -> Nullable<Text>,
+        username -> Varchar,
+        password -> Varchar,
+        email -> Varchar,
+        first_name -> Nullable<Varchar>,
+        last_name -> Nullable<Varchar>,
         created_at -> Timestamptz,
     }
 }

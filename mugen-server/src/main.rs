@@ -1,10 +1,13 @@
 #[macro_use]
 extern crate log;
+#[macro_use]
+extern crate diesel;
 
 mod config;
 mod controller;
 mod services;
 mod error;
+mod models;
 
 use actix_files as fs;
 use actix_web::{dev::Service, http, web, App, HttpResponse, HttpServer, Result as WebResult};
@@ -85,7 +88,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
     let config = get_config();
 
-    let _pool = db::get_db_pool("localhost");
+    let pool = db::get_db_pool("localhost");
 
     let addr = format!("127.0.0.1:{}", config.port);
     info!("Listening on {}", addr);
@@ -96,6 +99,7 @@ async fn main() -> std::io::Result<()> {
 
         let slow = config.slow;
         App::new()
+            .data(pool.clone())
             .app_data(web::PayloadConfig::default().limit(1024 * 1024 * 500))
             .app_data(web::JsonConfig::default().limit(1024 * 1024 * 500))
             .wrap_fn(move |req, srv| {
@@ -110,6 +114,7 @@ async fn main() -> std::io::Result<()> {
             .route("/", web::get().to(index))
             .route("/app{_:/?}", web::get().to(index))
             .route("/app/{app:[a-zA-z0-9_\\-/]+}", web::get().to(app_page))
+            .configure(config::app::config_services)
     })
     .bind(&addr)?
     .run()
