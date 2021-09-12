@@ -1,4 +1,7 @@
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use yew::{Component, ComponentLink, Html, ShouldRender};
+use yew::macros::html;
+
+const TITLE: &'static str = "Login";
 
 pub struct Login {}
 
@@ -22,7 +25,7 @@ impl Component for Login {
         html! {
             <div class="uk-container uk-width-large" id="login-component">
                 <div class="uk-card-default uk-card-body uk-align-center">
-                    <h3 class="uk-card-title">{"Login"}</h3>
+                    <h3 class="uk-card-title">{TITLE}</h3>
                     <form>
                         <div class="uk-margin">
                             <div class="uk-inline uk-width-1-1">
