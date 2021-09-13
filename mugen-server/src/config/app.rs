@@ -1,11 +1,12 @@
 use crate::controller::auth_controller;
-use actix_web::web;
+use crate::db::Pool;
+use rocket::{ignite, routes, Rocket};
+use rocket_contrib::serve::StaticFiles;
 
-pub fn config_services(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::scope("/api").service(
-            web::scope("/auth")
-                .service(web::resource("/login").route(web::post().to(auth_controller::login))),
-        ),
-    );
+pub fn configure(pool: Pool) -> Rocket {
+    ignite()
+        .manage(pool)
+        .mount("/api", routes![]) //TODO: implement guard for authorization
+        .mount("/auth", routes![auth_controller::login]) //TODO: implement authentication
+        .mount("/", StaticFiles::from("static")) //TODO: get path from rocket configuration toml
 }

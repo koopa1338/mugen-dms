@@ -16,12 +16,7 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginRequestDto {
+pub struct UserLoginRequest {
     pub username: String,
     pub password: String,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginResponseDto {
-    pub username: String,
 }

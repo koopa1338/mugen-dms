@@ -1,7 +1,6 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate diesel;
+#![feature(proc_macro_hygiene, decl_macro)]
+
+#[macro_use] extern crate diesel;
 
 mod config;
 mod controller;
@@ -9,14 +8,13 @@ mod error;
 mod models;
 mod services;
 
-use actix_cors::Cors;
-use actix_files as fs;
-use actix_web::{dev::Service, http, web, App, HttpResponse, HttpServer, Result as WebResult};
-use clap::Arg;
+use config::app;
 use config::db;
-use std::path::PathBuf;
-use std::time::Duration;
+use dotenv::dotenv;
+use rocket::Rocket;
+use std::env;
 
+/*
 #[derive(Debug, Clone)]
 pub struct AppConfig {
     ui: PathBuf,
@@ -30,68 +28,35 @@ pub struct AppState {
     config: AppConfig,
 }
 
-fn get_config() -> AppConfig {
-    let app = clap::App::new("mugen-server")
-        .about("Mugen Server")
-        .version("0.1.0")
-        .arg(
-            Arg::with_name("ui")
-                .long("ui")
-                .value_name("DIR")
-                .required(true)
-                .help("Path to the directory containing UI js & wasm script files")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("static")
-                .long("static")
-                .value_name("DIR")
-                .required(true)
-                .help("Path to the directory containing HTML & static files")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("port")
-                .long("port")
-                .value_name("PORT")
-                .default_value("8080")
-                .help("Port for the HTTP server")
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("slow")
-                .long("slow")
-                .help("Slow down each request. Used for development purpose"),
-        );
-
-    let matches = app.get_matches();
-    return AppConfig {
-        ui: PathBuf::from(matches.value_of("ui").expect("Missing UI parameter")),
-        pages: PathBuf::from(matches.value_of("static").expect("Missing pages parameter")),
-        port: matches.value_of("port").unwrap_or("8080").to_string(),
-        slow: matches.is_present("slow"),
-    };
-}
-
 async fn index() -> HttpResponse {
     HttpResponse::Found()
         .header(http::header::LOCATION, "/app/main")
         .finish()
 }
 
+
 async fn app_page(state: web::Data<AppState>) -> WebResult<fs::NamedFile> {
     Ok(fs::NamedFile::open(state.config.pages.join("index.html"))?)
 }
+*/
 
-#[actix_rt::main]
-async fn main() -> std::io::Result<()> {
-    env_logger::init();
-    let config = get_config();
+fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
-    let pool = db::get_db_pool("localhost");
+    let host = env::var("DB_HOST").expect("DB_HOST must be set");
+    let port = env::var("DB_PORT").expect("DB_PORT must be set");
+    let database = env::var("DB_NAME").expect("DB_NAME must be set");
+    let user = env::var("DB_USER").expect("DB_USER must be set");
+    let password = env::var("DB_PW").expect("DB_PW must be set");
 
-    let addr = format!("127.0.0.1:{}", config.port);
-    info!("Listening on {}", addr);
+    let pool = db::get_db_pool(host, port, database, user, password);
+
+    let app: Rocket = app::configure(pool);
+
+    app.launch();
+
+    // TODO: rocket ignite with handler
+    /*
     HttpServer::new(move || {
         let app_state = AppState {
             config: config.clone(),
@@ -128,6 +93,7 @@ async fn main() -> std::io::Result<()> {
     .bind(&addr)?
     .run()
     .await?;
+    */
 
     Ok(())
 }

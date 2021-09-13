@@ -1,8 +1,8 @@
 mod composer;
 mod content;
 mod login;
-mod register;
 mod navigation;
+mod register;
 
 use yew_router::Switch;
 
@@ -21,7 +21,7 @@ pub enum AppRoute {
 }
 
 pub use composer::Composer;
-pub use login::Login;
-pub use register::Register;
-pub use navigation::MainNavigation;
 pub use content::Content;
+pub use login::Login;
+pub use navigation::MainNavigation;
+pub use register::Register;

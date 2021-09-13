@@ -1,8 +1,16 @@
-use crate::config::db::Pool;
-use crate::models::user::UserLoginRequestDto;
-use crate::services::auth_service;
-use actix_web::{web, HttpResponse, Result};
+use rocket::post;
+use rocket_contrib::json::Json;
 
+use crate::config::db::DbConn;
+use crate::models::user::UserLoginRequest;
+use crate::services::auth_service;
+
+#[post("/", format = "application/json", data = "<user>")]
+pub fn login(user: Json<UserLoginRequest>, connection: DbConn) {
+    auth_service::login(user.into_inner(), &connection);
+}
+
+/* old actix web
 pub async fn login(
     creds: web::Json<UserLoginRequestDto>,
     pool: web::Data<Pool>,
@@ -12,3 +20,4 @@ pub async fn login(
         Err(_) => Ok(HttpResponse::Unauthorized().finish()),
     }
 }
+*/
