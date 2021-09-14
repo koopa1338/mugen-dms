@@ -40,7 +40,9 @@ async fn app_page(state: web::Data<AppState>) -> WebResult<fs::NamedFile> {
 }
 */
 
-fn main() -> std::io::Result<()> {
+
+#[tokio::main]
+async fn main() -> std::io::Result<()> {
     dotenv().ok();
 
     let host = env::var("DB_HOST").expect("DB_HOST must be set");
