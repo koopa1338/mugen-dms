@@ -7,10 +7,16 @@ use crate::services::auth_service;
 
 #[post("/login", data = "<user>", format = "json")]
 pub async fn login(user: Json<UserLoginRequest>, connection: DbPool) {
-    auth_service::login(user.into_inner(), &connection);
+    match auth_service::login(user.into_inner(), &connection) {
+        Ok(_) => todo!(),
+        Err(_) => todo!(),
+    }
 }
 
 #[post("/signup", data = "<user>", format = "json")]
 pub async fn signup(user: Json<UserSignupRequest>, connection: DbPool) {
-    auth_service::signup(user.into_inner(), &connection);
+    match auth_service::signup(user.into_inner(), &connection) {
+        Ok(_) => todo!(),
+        Err(_) => todo!(),
+    }
 }
