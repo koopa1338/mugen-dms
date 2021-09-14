@@ -21,7 +21,6 @@ fn index() -> Redirect {
 
 #[get("/<_..>", rank = 2)]
 async fn app_page() -> Option<NamedFile> {
-
     // NOTE: We only need to serve the index.html as Yew has its own routing logic
     let mut path: PathBuf = Path::new("static").into(); //TODO: get relativ or absolute path from Rocket config
     if !path.is_dir() {
@@ -40,10 +39,14 @@ pub fn configure() -> Rocket<rocket::Build> {
             run_migrations,
         ))
         .mount("/api", routes![index]) //TODO: implement guard for authorization
-        .mount("/auth", routes![
-            auth_controller::login, //TODO: implement authentication
-            auth_controller::signup,
-            index])
+        .mount(
+            "/auth",
+            routes![
+                auth_controller::login, //TODO: implement authentication
+                auth_controller::signup,
+                index
+            ],
+        )
         .mount("/", FileServer::from("static"))
         .mount("/", routes![index])
         .mount("/app", routes![index, app_page])
