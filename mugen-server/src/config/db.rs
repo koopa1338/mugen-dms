@@ -1,22 +1,40 @@
-use diesel::{
-    pg::PgConnection,
-    r2d2::{self, ConnectionManager},
-};
-use rocket::http::Status;
-use rocket::request::{self, FromRequest};
-use rocket::{Outcome, Request, State};
-use std::ops::Deref;
+// use rocket::http::Status;
+// use rocket::request::{FromRequest, Outcome};
+// use rocket::{Request, State};
+// use std::ops::Deref;
+//use rocket::outcome::try_outcome;
+//
+use rocket::{Build, Rocket};
+use rocket_sync_db_pools::{database, diesel};
 
+#[database("mugendb")]
+pub struct DbPool(diesel::PgConnection);
+
+pub async fn run_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
+    // This macro from `diesel_migrations` defines an `embedded_migrations`
+    // module containing a function named `run` that runs the migrations in the
+    // specified directory, initializing the database.
+    embed_migrations!("../migrations");
+
+    let conn = DbPool::get_one(&rocket).await.expect("database connection");
+    conn.run(|c| embedded_migrations::run(c))
+        .await
+        .expect("diesel migrations");
+
+    rocket
+}
+
+/*
 pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
 
-pub struct DbConn(pub r2d2::PooledConnection<ConnectionManager<PgConnection>>);
-
-impl<'a, 'r> FromRequest<'a, 'r> for DbConn {
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for DbConn {
     type Error = ();
 
-    fn from_request(request: &'a Request<'r>) -> request::Outcome<DbConn, Self::Error> {
-        let pool = request.guard::<State<Pool>>()?;
-        match pool.get() {
+    async fn from_request(request: &'r Request<'_>) -> Outcome<DbConn, Self::Error> {
+        let pool = try_outcome!(request.guard::<>().await);
+        //let pool = request.guard::<State<Pool>>().await.unwrap();
+        match pool {
             Ok(conn) => Outcome::Success(DbConn(conn)),
             Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
         }
@@ -46,3 +64,4 @@ pub fn get_db_pool(
         .build(manager)
         .expect("Failed to create pool.")
 }
+*/

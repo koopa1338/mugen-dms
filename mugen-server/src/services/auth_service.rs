@@ -1,7 +1,7 @@
-use crate::config::db::DbConn;
-use crate::models::user::{UserLoginRequest};
+use crate::config::db::DbPool;
+use crate::models::user::UserLoginRequest;
 
-pub fn login(_creds: UserLoginRequest, _pool: &DbConn) {
+pub fn login(_creds: UserLoginRequest, _pool: &DbPool) {
     unimplemented!();
     /*
     let conn = pool.clone().get().unwrap();

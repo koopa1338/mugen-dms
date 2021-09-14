@@ -1,12 +1,12 @@
 use rocket::post;
-use rocket_contrib::json::Json;
+use rocket::serde::json::Json;
 
-use crate::config::db::DbConn;
+use crate::config::db::DbPool;
 use crate::models::user::UserLoginRequest;
 use crate::services::auth_service;
 
-#[post("/", format = "application/json", data = "<user>")]
-pub fn login(user: Json<UserLoginRequest>, connection: DbConn) {
+#[post("/", data = "<user>", format = "json")]
+pub async fn login(user: Json<UserLoginRequest>, connection: DbPool) {
     auth_service::login(user.into_inner(), &connection);
 }
 

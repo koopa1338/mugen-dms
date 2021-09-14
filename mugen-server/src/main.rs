@@ -1,6 +1,9 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
-#[macro_use] extern crate diesel;
+#[macro_use]
+extern crate diesel;
+#[macro_use]
+extern crate diesel_migrations;
 
 mod config;
 mod controller;
@@ -9,10 +12,8 @@ mod models;
 mod services;
 
 use config::app;
-use config::db;
 use dotenv::dotenv;
-use rocket::Rocket;
-use std::env;
+use rocket::{Build, Rocket};
 
 /*
 #[derive(Debug, Clone)]
@@ -40,22 +41,11 @@ async fn app_page(state: web::Data<AppState>) -> WebResult<fs::NamedFile> {
 }
 */
 
-
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> Result<(), rocket::Error> {
     dotenv().ok();
-
-    let host = env::var("DB_HOST").expect("DB_HOST must be set");
-    let port = env::var("DB_PORT").expect("DB_PORT must be set");
-    let database = env::var("DB_NAME").expect("DB_NAME must be set");
-    let user = env::var("DB_USER").expect("DB_USER must be set");
-    let password = env::var("DB_PW").expect("DB_PW must be set");
-
-    let pool = db::get_db_pool(host, port, database, user, password);
-
-    let app: Rocket = app::configure(pool);
-
-    app.launch();
+    let app: Rocket<Build> = app::configure();
+    app.launch().await
 
     // TODO: rocket ignite with handler
     /*
@@ -96,6 +86,4 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await?;
     */
-
-    Ok(())
 }

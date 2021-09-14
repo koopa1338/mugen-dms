@@ -5,19 +5,18 @@ authors = ["koopa1338 <sinner1991@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rocket = "0.4.10"
-rocket_codegen = "0.4.10"
-rocket_contrib = "0.4.10"
+rocket = { version = "0.5.0-rc.1", features = ["json"] }
 argon2 = "0.2.1"
 bcrypt = "0.10"
 chrono = { version = "0.4.19", features = ["serde"] }
-clap = "2.33.3"
 diesel = { version = "1.4.6", features = ["postgres", "extras"] }
+diesel_migrations = "1.4.0"
 dotenv = "0.15.0"
-env_logger = "0.8.3"
-lazy_static = "1.4.0"
 log = "0.4.14"
-r2d2 = "0.8.9"
-r2d2_postgres = "0.18.0"
 serde = { version = "1.0.126", features = ["derive"] }
 tokio = { version = "1.11.0", features = ["full"] }
+
+[dependencies.rocket_sync_db_pools]
+version = "0.1.0-rc.1"
+default-features = false
+features = ["diesel_postgres_pool"]
