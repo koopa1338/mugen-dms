@@ -4,6 +4,6 @@ CREATE TABLE users (
     hash TEXT NOT NULL,
     email TEXT NOT NULL,
     first_name TEXT DEFAULT NULL,
-    last_name TEXT DEFAULT NULL
-    created_at TIMESTAMPTZ,
+    last_name TEXT DEFAULT NULL,
+    created_at TIMESTAMPTZ
 );
