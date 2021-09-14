@@ -24,9 +24,10 @@ async fn app_page() -> Option<NamedFile> {
 
     // NOTE: We only need to serve the index.html as Yew has its own routing logic
     let mut path: PathBuf = Path::new("static").into(); //TODO: get relativ or absolute path from Rocket config
-    if path.is_dir() {
-        path.push("index.html");
+    if !path.is_dir() {
+        return None;
     }
+    path.push("index.html");
 
     NamedFile::open(path).await.ok()
 }
