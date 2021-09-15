@@ -1,4 +1,4 @@
-use diesel::result::Error as dieselError;
+use diesel::result::Error as DieselError;
 
 pub type ServiceResult<T> = std::result::Result<T, ServiceError>;
 
@@ -8,28 +8,28 @@ pub enum ServiceError {
     UnknownError,
 }
 
-impl From<dieselError> for ServiceError {
-    fn from(err: dieselError) -> Self {
+impl From<DieselError> for ServiceError {
+    fn from(err: DieselError) -> Self {
         match err {
-            dieselError::InvalidCString(_) => Self::UnknownError,
-            dieselError::DatabaseError(_, info) => Self::DatabaseError(info.message().to_string()),
-            dieselError::NotFound => Self::DatabaseError("Not Found Error".to_string()),
-            dieselError::QueryBuilderError(msg) => {
+            DieselError::InvalidCString(_) => Self::UnknownError,
+            DieselError::DatabaseError(_, info) => Self::DatabaseError(info.message().to_string()),
+            DieselError::NotFound => Self::DatabaseError("Not Found Error".to_string()),
+            DieselError::QueryBuilderError(msg) => {
                 Self::DatabaseError(format!("Error in Querybuilder: {}", msg))
             }
-            dieselError::DeserializationError(msg) => {
+            DieselError::DeserializationError(msg) => {
                 Self::DatabaseError(format!("Error on Deserialization: {}", msg))
             }
-            dieselError::SerializationError(msg) => {
+            DieselError::SerializationError(msg) => {
                 Self::DatabaseError(format!("Error on Serialization: {}", msg))
             }
-            dieselError::RollbackTransaction => {
+            DieselError::RollbackTransaction => {
                 Self::DatabaseError("Error while transaction rollback".to_string())
             }
-            dieselError::AlreadyInTransaction => {
+            DieselError::AlreadyInTransaction => {
                 Self::DatabaseError("Already in transaction".to_string())
             }
-            dieselError::__Nonexhaustive => Self::UnknownError,
+            DieselError::__Nonexhaustive => Self::UnknownError,
         }
     }
 }
