@@ -36,9 +36,9 @@ fn setup_logging() {
     let stdout_logging = Dispatch::new()
         .format(|out, message, record| {
             if record.target().ends_with('_') {
-                out.finish(format_args!("\t{}", message));
+                out.finish(format_args!("    {}", message));
             } else {
-                out.finish(format_args!("{}", message));
+                out.finish(format_args!("\n{}", message));
             }
         })
         .level_for("rocket", LevelFilter::Info)
