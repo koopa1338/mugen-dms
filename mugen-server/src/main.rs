@@ -35,7 +35,7 @@ fn setup_logging() {
 
     let stdout_logging = Dispatch::new()
         .format(|out, message, record| {
-            if record.target().ends_with("_") {
+            if record.target().ends_with('_') {
                 out.finish(format_args!("\t{}", message));
             } else {
                 out.finish(format_args!("{}", message));
