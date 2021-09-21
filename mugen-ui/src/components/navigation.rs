@@ -35,15 +35,6 @@ impl Component for MainNavigation {
                         </li>
                     </ul>
                 </div>
-                <div class="uk-navbar-right">
-                    <ul class="uk-navbar-nav">
-                        <li>
-                            <a title="logout" href="/app/logout">
-                                <span uk-icon="sign-out"></span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </nav>
         }
     }

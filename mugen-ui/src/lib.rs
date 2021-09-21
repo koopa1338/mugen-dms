@@ -3,6 +3,7 @@
 mod components;
 
 use wasm_bindgen::prelude::*;
+use components::composer::Composer;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
@@ -16,7 +17,7 @@ pub fn run_app() -> Result<(), JsValue> {
         .unwrap()
         .expect("Cannot find app-container element");
 
-    yew::App::<components::Composer>::new().mount(element);
+    yew::App::<Composer>::new().mount(element);
     yew::run_loop();
 
     Ok(())
