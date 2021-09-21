@@ -16,12 +16,16 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginRequestDto {
+pub struct UserLoginRequest {
     pub username: String,
     pub password: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct UserLoginResponseDto {
+pub struct UserSignupRequest {
     pub username: String,
+    pub password: String,
+    pub email: String,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
 }

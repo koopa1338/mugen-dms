@@ -1,3 +1,5 @@
 /target
-/pages/static/js/uikit*
-/pages/static/css/uikit*
+/static/js/mugen_ui*
+static/js/uikit*
+static/css/uikit*
+mugen.log

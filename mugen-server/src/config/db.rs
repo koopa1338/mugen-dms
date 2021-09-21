@@ -1,13 +1,17 @@
-use diesel::{
-    pg::PgConnection,
-    r2d2::{self, ConnectionManager},
-};
+use rocket::{Build, Rocket};
+use rocket_sync_db_pools::{database, diesel};
 
-pub type Pool = r2d2::Pool<ConnectionManager<PgConnection>>;
+#[database("mugendb")]
+pub struct DbPool(diesel::PgConnection);
 
-pub fn get_db_pool(url: &str) -> Pool {
-    let manager = ConnectionManager::<PgConnection>::new(url);
-    r2d2::Pool::builder()
-        .build(manager)
-        .expect("Failed to create pool.")
+pub async fn run_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
+    // Get migrations
+    embed_migrations!("../migrations");
+
+    let conn = DbPool::get_one(&rocket).await.expect("database connection");
+    conn.run(|c| embedded_migrations::run(c))
+        .await
+        .expect("diesel migrations");
+
+    rocket
 }

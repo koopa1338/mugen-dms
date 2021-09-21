@@ -1,7 +1,7 @@
-use yew::{Component, ComponentLink, Html, ShouldRender};
 use yew::macros::html;
+use yew::{Component, ComponentLink, Html, ShouldRender};
 
-const TITLE: &'static str = "Login";
+const TITLE: &str = "Login";
 
 pub struct Login {}
 

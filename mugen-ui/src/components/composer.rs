@@ -1,6 +1,6 @@
+use super::content::Content;
 use super::login::Login;
 use super::register::Register;
-use super::content::Content;
 use super::AppRoute;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
