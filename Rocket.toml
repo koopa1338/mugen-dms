@@ -1,0 +1,31 @@
+[default]
+address = "127.0.0.1"
+limits = { forms = 32768 }
+ident = "Mugen DMS"
+
+[default.databases.mugendb]
+url = "postgres://mugen:mugen@localhost:5432/mugendb"
+
+[debug]
+port = 8000
+workers = 4
+keep_alive = 5
+read_timeout = 5
+write_timeout = 5
+log_level = "debug"
+
+[staging]
+port = 1337
+workers = 4
+keep_alive = 5
+read_timeout = 5
+write_timeout = 5
+log_level = "debug"
+
+[release]
+port = 8000
+workers = 4
+keep_alive = 5
+read_timeout = 5
+write_timeout = 5
+log_level = "normal"

@@ -1,4 +1,5 @@
-use super::AppRoute;
+use super::content::Content;
+use super::router::AppRoute;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
 use yew_router::{service::RouteService, Switch};
@@ -27,7 +28,9 @@ impl Component for Composer {
 
     fn view(&self) -> Html {
         html! {
-            <div>{"Mugen DMS"}</div>
+            <>
+                { self.view_main_pane() }
+            </>
         }
     }
 }
@@ -36,13 +39,10 @@ impl Composer {
     fn view_main_pane(&self) -> Html {
         let route = self.route_service.get_route();
         match AppRoute::switch(route) {
-            Some(AppRoute::Main) => html! {
-                <div>{"MAIN"}</div>
-            },
+            // NOTE: adding other routes here to return correct components
             _ => html! {
-                <div>{ "Route not found" }</div>
+                <Content/>
             },
         }
     }
 }
-
