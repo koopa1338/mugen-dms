@@ -2,8 +2,8 @@
 
 mod components;
 
-use wasm_bindgen::prelude::*;
 use components::composer::Composer;
+use wasm_bindgen::prelude::*;
 
 #[cfg(feature = "wee_alloc")]
 #[global_allocator]
