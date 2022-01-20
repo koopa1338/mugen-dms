@@ -36,17 +36,9 @@ pub async fn static_routes() {
             "/assets",
             get_service(ServeDir::new("assets")).handle_error(handle_io_error),
         )
-        .nest(
-            "/app",
-            Router::new()
-                .route(
-                    "/",
-                    get(|| async { Redirect::permanent("/app/main".parse().unwrap()) }),
-                )
-                .route(
-                    "/main",
-                    get_service(ServeFile::new("assets/index.html")).handle_error(handle_io_error),
-                ),
+        .route(
+            "/app/*path",
+            get_service(ServeFile::new("assets/index.html")).handle_error(handle_io_error),
         )
         .layer(
             ServiceBuilder::new()
