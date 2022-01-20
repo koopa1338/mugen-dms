@@ -1,21 +1,15 @@
 use super::content::Content;
-use super::router::AppRoute;
 
 use yew::{html, Component, ComponentLink, Html, ShouldRender};
-use yew_router::{service::RouteService, Switch};
 
-pub struct Composer {
-    route_service: RouteService<()>,
-}
+pub struct Composer {}
 
 impl Component for Composer {
     type Message = ();
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self {
-            route_service: RouteService::new(),
-        }
+        Self {}
     }
 
     fn update(&mut self, _: Self::Message) -> ShouldRender {
@@ -37,12 +31,8 @@ impl Component for Composer {
 
 impl Composer {
     fn view_main_pane(&self) -> Html {
-        let route = self.route_service.get_route();
-        match AppRoute::switch(route) {
-            // NOTE: adding other routes here to return correct components
-            _ => html! {
-                <Content/>
-            },
+        html! {
+            <Content/>
         }
     }
 }
