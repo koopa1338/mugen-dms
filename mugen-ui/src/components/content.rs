@@ -1,11 +1,11 @@
 use super::navigation::MainNavigation;
 use super::router::AppRoute;
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
 
-use yew_router::{service::RouteService, Switch};
+use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use yew_router::{prelude::Route, router::Redirect, service::RouteService, Switch};
 
 pub struct Content {
-    route_service: RouteService<()>,
+    route_service: RouteService,
 }
 
 impl Component for Content {
@@ -40,7 +40,7 @@ impl Component for Content {
 
 impl Content {
     fn view_content(&self) -> Html {
-        let route = self.route_service.get_route();
+        let route: Route = self.route_service.get_route();
         match AppRoute::switch(route) {
             Some(AppRoute::Main) => html! {
                 <div class="uk-card-default uk-card-body">
@@ -53,6 +53,9 @@ impl Content {
                     <h3 class="uk-card-title">{"Docs"}</h3>
                     <p>{"This is the docs route"}</p>
                 </div>
+            },
+            Some(AppRoute::Root) => html! {
+                <Redirect<Route> to={AppRoute::Main}/>
             },
             _ => html! {
                 {"Route not found!"}
