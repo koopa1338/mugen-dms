@@ -32,7 +32,7 @@ pub async fn static_routes() {
             "/",
             get(|| async move { Redirect::to("/app/main".parse().unwrap()) }),
         )
-        .route(
+        .nest(
             "/assets",
             get_service(ServeDir::new("assets")).handle_error(handle_io_error),
         )
