@@ -1,4 +1,4 @@
-use yew::{html, Component, ComponentLink, Html, ShouldRender};
+use yew::{html, Component, Context, Html};
 
 pub struct MainNavigation {}
 
@@ -6,25 +6,25 @@ impl Component for MainNavigation {
     type Message = ();
     type Properties = ();
 
-    fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(_ctx: &Context<Self>) -> Self {
         Self {}
     }
 
-    fn update(&mut self, _: Self::Message) -> ShouldRender {
+    fn update(&mut self, _ctx: &Context<Self>, _msg: Self::Message) -> bool {
         false
     }
 
-    fn change(&mut self, _: Self::Message) -> ShouldRender {
+    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
         true
     }
 
-    fn view(&self) -> Html {
+    fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <nav class="uk-navbar-container" uk-navbar="">
                 <div class="uk-navbar-left">
                     <ul class="uk-navbar-nav">
                         <li class="uk-active">
-                            <a title="home" href="/app/main">
+                            <a title="home" href="/app">
                                 <span uk-icon="home"></span>
                             </a>
                         </li>

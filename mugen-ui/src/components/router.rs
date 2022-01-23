@@ -1,11 +1,12 @@
-use yew_router::Switch;
+use yew_router::Routable;
 
-#[derive(Debug, Switch, Clone)]
+#[derive(Clone, Routable, PartialEq)]
 pub enum AppRoute {
-    #[to = "/app"]
-    Root,
-    #[to = "/app/main"]
+    #[at("/app")]
     Main,
-    #[to = "/app/docs"]
+    #[at("/app/docs")]
     Docs,
+    #[not_found]
+    #[at("/404")]
+    NotFound,
 }

@@ -30,7 +30,7 @@ pub async fn static_routes() {
     let frontend = Router::new()
         .route(
             "/",
-            get(|| async move { Redirect::to("/app/main".parse().unwrap()) }),
+            get(|| async move { Redirect::to("/app".parse().unwrap()) }),
         )
         .nest(
             "/assets",
