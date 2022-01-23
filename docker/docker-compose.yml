@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mugendb:
-    image: postgres:13
+    image: postgres:14-alpine
     ports:
       - "5432:5432"
     environment:

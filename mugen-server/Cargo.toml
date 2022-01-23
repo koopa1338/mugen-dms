@@ -2,22 +2,16 @@
 name = "mugen-server"
 version = "0.1.0"
 authors = ["koopa1338 <sinner1991@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-rocket = { version = "0.5.0-rc.1", features = ["json"] }
-argon2 = "0.2.1"
-bcrypt = "0.10"
-chrono = { version = "0.4.19", features = ["serde"] }
-diesel = { version = "1.4.6", features = ["postgres", "extras"] }
-diesel_migrations = "1.4.0"
+axum = "0.4.4"
 dotenv = "0.15.0"
-log = "0.4.14"
-fern = "0.6.0"
-serde = { version = "1.0.126", features = ["derive"] }
-tokio = { version = "1.11.0", features = ["full"] }
+tokio = { version = "1.15.0", features = ["full"] }
+tokio-util = "0.6.9"
+tracing = "0.1"
+tracing-subscriber = { version="0.3", features = ["env-filter"] }
+tower = { version = "0.4.11", features = ["full"] }
+tower-http = { version = "0.2.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
 
-[dependencies.rocket_sync_db_pools]
-version = "0.1.0-rc.1"
-default-features = false
-features = ["diesel_postgres_pool"]

@@ -1,53 +1,101 @@
-use std::path::{Path, PathBuf};
+use std::convert::Infallible;
+use std::net::SocketAddr;
+use std::time::Duration;
 
-use crate::{
-    config::db::{run_migrations, DbPool},
-    controller::auth_controller,
-};
-use rocket::{
-    build,
-    fairing::AdHoc,
-    fs::{FileServer, NamedFile},
-    get,
-    response::Redirect,
-    routes, Rocket,
+use axum::response::Redirect;
+use axum::{
+    error_handling::HandleErrorLayer,
+    http::StatusCode,
+    response::IntoResponse,
+    routing::{get, get_service},
+    Router,
 };
 
-#[get("/", rank = 1)]
-fn index() -> Redirect {
-    // NOTE: Redirect everything that does not match a route to the entrypoint of the application
-    Redirect::to("/app/main")
+use tower::{BoxError, ServiceBuilder};
+use tower_http::{
+    services::{ServeDir, ServeFile},
+    trace::TraceLayer,
+};
+
+use crate::handler::docs;
+
+async fn handle_io_error(error: std::io::Error) -> Result<impl IntoResponse, Infallible> {
+    Ok((
+        StatusCode::INTERNAL_SERVER_ERROR,
+        format!("Unhandled error: {}", error),
+    ))
 }
 
-#[get("/<_..>", rank = 2)]
-async fn app_page() -> Option<NamedFile> {
-    // NOTE: We only need to serve the index.html as Yew has its own routing logic
-    let mut path: PathBuf = Path::new("static").into(); //TODO: get relativ or absolute path from Rocket config
-    if !path.is_dir() {
-        return None;
-    }
-    path.push("index.html");
-
-    NamedFile::open(path).await.ok()
-}
-
-pub fn configure() -> Rocket<rocket::Build> {
-    build()
-        .attach(DbPool::fairing())
-        .attach(AdHoc::on_ignite(
-            "Running Diesel Migrations",
-            run_migrations,
-        ))
-        .mount("/api", routes![index]) //TODO: implement guard for authorization
-        .mount(
-            "/auth",
-            routes![
-                auth_controller::login, //TODO: implement authentication
-                auth_controller::signup,
-                index
-            ],
+pub async fn static_routes() {
+    let frontend = Router::new()
+        .route(
+            "/",
+            get(|| async move { Redirect::to("/app".parse().unwrap()) }),
         )
-        .mount("/", FileServer::from("static"))
-        .mount("/", routes![index])
-        .mount("/app", routes![index, app_page])
+        .nest(
+            "/assets",
+            get_service(ServeDir::new("assets")).handle_error(handle_io_error),
+        )
+        .route(
+            "/app/*path",
+            get_service(ServeFile::new("assets/index.html")).handle_error(handle_io_error),
+        )
+        .layer(
+            ServiceBuilder::new()
+                .layer(HandleErrorLayer::new(|error: BoxError| async move {
+                    if error.is::<tower::timeout::error::Elapsed>() {
+                        Ok(StatusCode::REQUEST_TIMEOUT)
+                    } else {
+                        Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            format!("Unhandled internal error: {}", error),
+                        ))
+                    }
+                }))
+                .timeout(Duration::from_secs(10))
+                .layer(TraceLayer::new_for_http())
+                .into_inner(),
+        );
+    serve(frontend, 3000).await
+}
+
+pub async fn api_routes() {
+    let backend = Router::new()
+        .nest(
+            "/api",
+            Router::new()
+                .route("/docs", get(docs::docs_index).post(docs::docs_create))
+                .route(
+                    "/docs/:id",
+                    get(docs::docs_by_id)
+                        .patch(docs::docs_update)
+                        .delete(docs::docs_delete),
+                ), // .layer(AddExtensionLayer::new(db));
+        )
+        .layer(
+            ServiceBuilder::new()
+                .layer(HandleErrorLayer::new(|error: BoxError| async move {
+                    if error.is::<tower::timeout::error::Elapsed>() {
+                        Ok(StatusCode::REQUEST_TIMEOUT)
+                    } else {
+                        Err((
+                            StatusCode::INTERNAL_SERVER_ERROR,
+                            format!("Unhandled internal error: {}", error),
+                        ))
+                    }
+                }))
+                .timeout(Duration::from_secs(10))
+                .layer(TraceLayer::new_for_http())
+                .into_inner(),
+        );
+    serve(backend, 4000).await
+}
+
+async fn serve(app: Router, port: u16) {
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    tracing::debug!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
