@@ -1,6 +1,6 @@
 mod config;
-mod handler;
 mod error;
+mod handler;
 mod models;
 mod services;
 

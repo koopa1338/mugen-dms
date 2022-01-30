@@ -19,4 +19,3 @@ pub async fn docs_delete() -> impl IntoResponse {
 pub async fn docs_create() -> impl IntoResponse {
     unimplemented!();
 }
-
