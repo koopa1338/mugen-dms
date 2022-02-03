@@ -1,4 +1,13 @@
-use axum::response::IntoResponse;
+use axum::{response::IntoResponse, routing::get, Router};
+
+pub fn router() -> Router {
+    Router::new()
+        .route("/docs", get(docs_index).post(docs_create))
+        .route(
+            "/docs/:id",
+            get(docs_by_id).patch(docs_update).delete(docs_delete),
+        )
+}
 
 pub async fn docs_index() -> impl IntoResponse {
     unimplemented!();

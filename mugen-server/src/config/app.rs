@@ -61,17 +61,8 @@ pub async fn static_routes() {
 
 pub async fn api_routes() {
     let backend = Router::new()
-        .nest(
-            "/api",
-            Router::new()
-                .route("/docs", get(docs::docs_index).post(docs::docs_create))
-                .route(
-                    "/docs/:id",
-                    get(docs::docs_by_id)
-                        .patch(docs::docs_update)
-                        .delete(docs::docs_delete),
-                ), // .layer(AddExtensionLayer::new(db));
-        )
+        .nest("/api", docs::router())
+        // .layer(AddExtensionLayer::new(db));
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
