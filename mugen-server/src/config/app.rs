@@ -2,22 +2,30 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-use axum::response::Redirect;
-use axum::{
-    error_handling::HandleErrorLayer,
-    http::StatusCode,
-    response::IntoResponse,
-    routing::{get, get_service},
-    Router,
-};
-
 use tower::{BoxError, ServiceBuilder};
 use tower_http::{
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
 };
 
+use axum::{
+    error_handling::HandleErrorLayer,
+    http::StatusCode,
+    response::{IntoResponse, Redirect},
+    routing::{get, get_service},
+    AddExtensionLayer, Router,
+};
+
+use clap::Parser;
+use sea_orm::DatabaseConnection;
+
 use crate::handler::docs;
+
+#[derive(Parser)]
+pub struct Config {
+    #[clap(long, env)]
+    pub database_url: String,
+}
 
 async fn handle_io_error(error: std::io::Error) -> Result<impl IntoResponse, Infallible> {
     Ok((
@@ -59,10 +67,10 @@ pub async fn static_routes() {
     serve(frontend, 3000).await
 }
 
-pub async fn api_routes() {
+pub async fn api_routes(conn: DatabaseConnection) {
     let backend = Router::new()
         .nest("/api", docs::router())
-        // .layer(AddExtensionLayer::new(db));
+        .layer(AddExtensionLayer::new(conn))
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
