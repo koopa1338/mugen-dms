@@ -1,6 +1,6 @@
-use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Duration;
+use std::{convert::Infallible, net::Ipv4Addr};
 
 use tower::{BoxError, ServiceBuilder};
 use tower_http::{
@@ -20,6 +20,8 @@ use clap::Parser;
 use sea_orm::DatabaseConnection;
 
 use crate::handler::docs;
+
+static LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 
 #[derive(Parser)]
 pub struct Config {
@@ -91,7 +93,7 @@ pub async fn api_routes(conn: DatabaseConnection) {
 }
 
 async fn serve(app: Router, port: u16) {
-    let addr = SocketAddr::from(([127, 0, 0, 1], port));
+    let addr = SocketAddr::from((LOCALHOST, port));
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
