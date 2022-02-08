@@ -1,20 +1,27 @@
+use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DocumentQuery {
+#[derive(Clone, Debug, PartialEq, DeriveEntityModel, Serialize, Deserialize)]
+#[sea_orm(table_name = "documents")]
+pub struct Model {
+    #[sea_orm(primary_key)]
+    #[serde(skip_deserializing)]
     pub id: i64,
-    pub created: String,
-    pub last_updated: Option<String>,
-    pub filetype: String, // crate for filetype?
-    pub version: i32,
-    pub size: i64,
+    // pub created: DateTime,
+    // pub last_updated: DateTime,
+    // pub filetype: String,
+    pub version: u32,
+    // pub size: u64,
+    // pub data: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct Document {
-    pub created: String,
-    pub last_updated: Option<String>,
-    pub filetype: String, // crate for filetype?
-    pub version: i32,
-    pub size: i64,
+#[derive(Copy, Clone, Debug, EnumIter)]
+pub enum Relation {}
+
+impl RelationTrait for Relation {
+    fn def(&self) -> RelationDef {
+        panic!("No RelationDef")
+    }
 }
+
+impl ActiveModelBehavior for ActiveModel {}
