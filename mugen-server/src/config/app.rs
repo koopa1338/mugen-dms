@@ -3,33 +3,41 @@ use std::net::SocketAddr;
 use std::time::Duration;
 
 use tower::{BoxError, ServiceBuilder};
-use tower_http::{
-    services::{ServeDir, ServeFile},
-    trace::TraceLayer,
-};
 
 use axum::{
     error_handling::HandleErrorLayer,
     http::StatusCode,
-    response::Redirect,
-    routing::{get, get_service},
     AddExtensionLayer, Router,
 };
 
 use clap::Parser;
 use sea_orm::DatabaseConnection;
+use tower_http::trace::TraceLayer;
 
-use crate::handler::{docs, error};
+use crate::handler::docs;
 
 static LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 
-#[derive(Parser)]
+#[derive(Clone, Parser)]
 pub struct Config {
     #[clap(long, env)]
     pub database_url: String,
+
+    #[cfg(feature = "yew-frontend")]
+    #[clap(long, env)]
+    pub asset_path: String,
 }
 
-pub async fn static_routes() {
+
+#[cfg(feature = "yew-frontend")]
+pub async fn static_routes(asset_path: String) {
+    use crate::handler::error;
+    use axum::{
+        response::Redirect,
+        routing::{get, get_service},
+    };
+    use tower_http::services::{ServeDir, ServeFile};
+
     let frontend = Router::new()
         .route(
             "/",

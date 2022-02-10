@@ -21,7 +21,15 @@ async fn main() -> Result<()> {
     let frontend = app::static_routes();
     let backend = app::api_routes(conn.await?);
 
+    #[cfg(feature = "yew-frontend")]
+    let frontend = app::static_routes(config.asset_path);
+
+
+    #[cfg(feature = "yew-frontend")]
     tokio::join!(frontend, backend);
+
+    #[cfg(not(feature = "yew-frontend"))]
+    backend.await;
 
     Ok(())
 }
