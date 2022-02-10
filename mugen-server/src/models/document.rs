@@ -7,6 +7,7 @@ pub struct Model {
     #[sea_orm(primary_key)]
     #[serde(skip_deserializing)]
     pub id: i64,
+    //TODO: define expected format and implement deserializer
     pub created: DateTime,
     pub last_updated: DateTime,
     pub filetype: String,
