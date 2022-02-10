@@ -22,11 +22,13 @@ pub async fn doc_list() -> impl IntoResponse {
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> impl IntoResponse {
-    // TODO: create some sort of response type to return a StatusCode with json
-    // the json should be a document or an error type with kind and message
-    let result = services::docs::get_doc_by_id(id, conn).await.unwrap();
-    Json(result)
+) -> Result<Json<DocumentModel>, (StatusCode, String)> {
+    //TODO: make this a function that takes the service call as a Fn
+    let result = services::docs::get_doc_by_id(id, conn).await;
+    match result {
+        Ok(document) => Ok(Json(document)),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, dberror.to_string())),
+    }
 }
 
 pub async fn doc_update(
@@ -46,10 +48,10 @@ pub async fn doc_delete(
 pub async fn doc_create(
     Json(input): Json<DocumentModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> impl IntoResponse {
-    // TODO: see doc_by_id
-    return match services::docs::create_doc(input, conn).await {
-        Ok(_) => StatusCode::CREATED,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
-    };
+) -> Result<Json<DocumentModel>, (StatusCode, String)> {
+    let result = services::docs::create_doc(input, conn).await;
+    match result {
+        Ok(document) => Ok(Json(document)),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, dberror.to_string())),
+    }
 }
