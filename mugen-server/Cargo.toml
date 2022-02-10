@@ -14,4 +14,6 @@ tracing-subscriber = { version = "0.3.8", features = ["env-filter"] }
 tower = { version = "0.4.11", features = ["timeout"] }
 tower-http = { version = "0.2.1", features = ["fs", "trace"] }
 serde = { version = "1.0.136", features = ["derive"] }
-
+sea-orm = { version = "0.6.0", features = ["sqlx-postgres", "runtime-tokio-native-tls", "macros"], default-features = false }
+anyhow = "1.0.53"
+clap = { version = "3.0.14", features = ["derive", "env"] }
