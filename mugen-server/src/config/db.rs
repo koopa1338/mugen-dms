@@ -31,6 +31,5 @@ impl From<DbErr> for DbErrJsonValue {
             kind: kind.to_string(),
             message: message.to_string(),
         }
-
     }
 }

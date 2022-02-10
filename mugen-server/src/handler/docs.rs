@@ -1,6 +1,6 @@
 use axum::extract::Path;
 use axum::Json;
-use axum::{extract::Extension, http::StatusCode, response::IntoResponse, routing::get, Router};
+use axum::{extract::Extension, http::StatusCode, routing::get, Router};
 use sea_orm::DatabaseConnection;
 
 use crate::config::db::DbErrJsonValue;
@@ -16,8 +16,14 @@ pub fn router() -> Router {
         )
 }
 
-pub async fn doc_list() -> impl IntoResponse {
-    StatusCode::NOT_IMPLEMENTED
+pub async fn doc_list(
+    Extension(ref conn): Extension<DatabaseConnection>,
+) -> Result<Json<Vec<DocumentModel>>, (StatusCode, Json<DbErrJsonValue>)> {
+    let result = services::docs::get_docs(conn).await;
+    match result {
+        Ok(documents) => Ok(Json(documents)),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
+    }
 }
 
 pub async fn doc_by_id(
@@ -32,20 +38,6 @@ pub async fn doc_by_id(
     }
 }
 
-pub async fn doc_update(
-    Path(_id): Path<i64>,
-    Extension(ref _conn): Extension<DatabaseConnection>,
-) -> impl IntoResponse {
-    StatusCode::NOT_IMPLEMENTED
-}
-
-pub async fn doc_delete(
-    Path(_id): Path<i64>,
-    Extension(ref _conn): Extension<DatabaseConnection>,
-) -> impl IntoResponse {
-    StatusCode::NOT_IMPLEMENTED
-}
-
 pub async fn doc_create(
     Json(input): Json<DocumentModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
@@ -53,6 +45,30 @@ pub async fn doc_create(
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => Ok(Json(document)),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
+    }
+}
+
+pub async fn doc_update(
+    Path(id): Path<i64>,
+    Json(input): Json<DocumentModel>,
+    Extension(ref conn): Extension<DatabaseConnection>,
+) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
+    let result = services::docs::update_doc(input, id, conn).await;
+    match result {
+        Ok(document) => Ok(Json(document)),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
+    }
+}
+
+pub async fn doc_delete(
+    Path(id): Path<i64>,
+    Extension(ref conn): Extension<DatabaseConnection>,
+) -> Result<Json<u64>, (StatusCode, Json<DbErrJsonValue>)> {
+    let result = services::docs::delete_doc(id, conn).await;
+    match result {
+        //TODO: we might want to respond with useful json
+        Ok(document) => Ok(Json(document.rows_affected)),
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
