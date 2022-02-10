@@ -1,6 +1,6 @@
+use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::time::Duration;
-use std::{convert::Infallible, net::Ipv4Addr};
 
 use tower::{BoxError, ServiceBuilder};
 use tower_http::{
@@ -11,7 +11,7 @@ use tower_http::{
 use axum::{
     error_handling::HandleErrorLayer,
     http::StatusCode,
-    response::{IntoResponse, Redirect},
+    response::Redirect,
     routing::{get, get_service},
     AddExtensionLayer, Router,
 };
@@ -19,7 +19,7 @@ use axum::{
 use clap::Parser;
 use sea_orm::DatabaseConnection;
 
-use crate::handler::docs;
+use crate::handler::{docs, error};
 
 static LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 
@@ -27,13 +27,6 @@ static LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 pub struct Config {
     #[clap(long, env)]
     pub database_url: String,
-}
-
-async fn handle_io_error(error: std::io::Error) -> Result<impl IntoResponse, Infallible> {
-    Ok((
-        StatusCode::INTERNAL_SERVER_ERROR,
-        format!("Unhandled error: {}", error),
-    ))
 }
 
 pub async fn static_routes() {
@@ -44,24 +37,15 @@ pub async fn static_routes() {
         )
         .nest(
             "/assets",
-            get_service(ServeDir::new("assets")).handle_error(handle_io_error),
+            get_service(ServeDir::new("assets")).handle_error(error::handle_io_error),
         )
         .route(
             "/app/*path",
-            get_service(ServeFile::new("assets/index.html")).handle_error(handle_io_error),
+            get_service(ServeFile::new("assets/index.html")).handle_error(error::handle_io_error),
         )
         .layer(
             ServiceBuilder::new()
-                .layer(HandleErrorLayer::new(|error: BoxError| async move {
-                    if error.is::<tower::timeout::error::Elapsed>() {
-                        Ok(StatusCode::REQUEST_TIMEOUT)
-                    } else {
-                        Err((
-                            StatusCode::INTERNAL_SERVER_ERROR,
-                            format!("Unhandled internal error: {}", error),
-                        ))
-                    }
-                }))
+                .layer(HandleErrorLayer::new(error::handle_timeout_error))
                 .timeout(Duration::from_secs(10))
                 .layer(TraceLayer::new_for_http())
                 .into_inner(),
