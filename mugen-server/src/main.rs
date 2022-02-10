@@ -16,14 +16,11 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     let config = app::Config::parse();
-    let conn = db::get_database_connection_pool(config);
-
-    let frontend = app::static_routes();
+    let conn = db::get_database_connection_pool(config.clone());
     let backend = app::api_routes(conn.await?);
 
     #[cfg(feature = "yew-frontend")]
     let frontend = app::static_routes(config.asset_path);
-
 
     #[cfg(feature = "yew-frontend")]
     tokio::join!(frontend, backend);

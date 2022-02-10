@@ -4,11 +4,7 @@ use std::time::Duration;
 
 use tower::{BoxError, ServiceBuilder};
 
-use axum::{
-    error_handling::HandleErrorLayer,
-    http::StatusCode,
-    AddExtensionLayer, Router,
-};
+use axum::{error_handling::HandleErrorLayer, http::StatusCode, AddExtensionLayer, Router};
 
 use clap::Parser;
 use sea_orm::DatabaseConnection;
@@ -28,7 +24,6 @@ pub struct Config {
     pub asset_path: String,
 }
 
-
 #[cfg(feature = "yew-frontend")]
 pub async fn static_routes(asset_path: String) {
     use crate::handler::error;
@@ -45,11 +40,12 @@ pub async fn static_routes(asset_path: String) {
         )
         .nest(
             "/assets",
-            get_service(ServeDir::new("assets")).handle_error(error::handle_io_error),
+            get_service(ServeDir::new(&asset_path)).handle_error(error::handle_io_error),
         )
         .route(
             "/app/*path",
-            get_service(ServeFile::new("assets/index.html")).handle_error(error::handle_io_error),
+            get_service(ServeFile::new(format!("{}/index.html", asset_path)))
+                .handle_error(error::handle_io_error),
         )
         .layer(
             ServiceBuilder::new()
