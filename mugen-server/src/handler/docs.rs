@@ -3,6 +3,7 @@ use axum::Json;
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, routing::get, Router};
 use sea_orm::DatabaseConnection;
 
+use crate::config::db::DbErrJsonValue;
 use crate::models::document::Model as DocumentModel;
 use crate::services;
 
@@ -22,12 +23,12 @@ pub async fn doc_list() -> impl IntoResponse {
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<DocumentModel>, (StatusCode, String)> {
+) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
     //TODO: make this a function that takes the service call as a Fn
     let result = services::docs::get_doc_by_id(id, conn).await;
     match result {
         Ok(document) => Ok(Json(document)),
-        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, dberror.to_string())),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
 
@@ -48,10 +49,10 @@ pub async fn doc_delete(
 pub async fn doc_create(
     Json(input): Json<DocumentModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<DocumentModel>, (StatusCode, String)> {
+) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => Ok(Json(document)),
-        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, dberror.to_string())),
+        Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
