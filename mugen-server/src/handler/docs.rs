@@ -3,9 +3,9 @@ use axum::Json;
 use axum::{extract::Extension, http::StatusCode, routing::get, Router};
 use sea_orm::DatabaseConnection;
 
-use entity::document::Model as DocumentModel;
 use crate::config::db::DbErrJsonValue;
 use crate::services;
+use entity::document::Model as DocumentModel;
 
 pub fn router() -> Router {
     Router::new()
