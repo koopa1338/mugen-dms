@@ -1,6 +1,5 @@
 mod config;
 mod handler;
-mod models;
 mod services;
 
 use config::app;

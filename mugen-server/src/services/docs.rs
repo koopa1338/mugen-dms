@@ -1,4 +1,4 @@
-use crate::models::document::{Entity as Document, Model as DocumentModel};
+use entity::document::{Entity as Document, Model as DocumentModel};
 use sea_orm::{prelude::*, DatabaseConnection, DeleteResult, IntoActiveModel, Set};
 
 pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentModel>, DbErr> {
