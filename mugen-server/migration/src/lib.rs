@@ -1,12 +1,12 @@
 pub use sea_schema::migration::*;
 
-mod m20220101_000001_documents;
+mod m20220214_000001_documents;
 
 pub struct Migrator;
 
 #[async_trait::async_trait]
 impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
-        vec![Box::new(m20220101_000001_documents::Migration)]
+        vec![Box::new(m20220214_000001_documents::Migration)]
     }
 }
