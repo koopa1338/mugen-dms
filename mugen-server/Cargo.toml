@@ -23,6 +23,8 @@ sea-orm = { version = "0.6.0", features = [
 ], default-features = false }
 anyhow = "1.0.53"
 clap = { version = "3.0.14", features = ["derive", "env"] }
+entity = { path = "entity" }
+migration = { path = "migration" }
 
 [features]
 yew-frontend = []
