@@ -13,6 +13,7 @@ use tower_http::trace::TraceLayer;
 
 use crate::handler::docs;
 
+
 const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 const BACKEND_PORT: u16 = 4000;
 #[cfg(feature = "yew-frontend")]
