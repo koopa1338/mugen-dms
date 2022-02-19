@@ -6,14 +6,12 @@ pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentModel>, D
 }
 
 pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<DocumentModel, DbErr> {
-    if let Some(found) = Document::find_by_id(id).one(conn).await? {
-        Ok(found)
-    } else {
-        Err(DbErr::RecordNotFound(format!(
-            "No Document with id {} found",
-            id
+    Document::find_by_id(id)
+        .one(conn)
+        .await?
+        .ok_or(DbErr::RecordNotFound(format!(
+            "No Document with id {id} found"
         )))
-    }
 }
 
 pub async fn create_doc(
