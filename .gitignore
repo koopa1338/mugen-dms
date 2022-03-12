@@ -1,5 +1,6 @@
 /target
-/static/js/mugen_ui*
-static/js/uikit*
-static/css/uikit*
+assets/js/mugen_ui*
+assets/js/uikit*
+assets/css/uikit*
 mugen.log
+/log
