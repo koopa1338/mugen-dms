@@ -9,9 +9,7 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Documen
     Document::find_by_id(id)
         .one(conn)
         .await?
-        .ok_or(DbErr::RecordNotFound(format!(
-            "No Document with id {id} found"
-        )))
+        .ok_or_else(|| DbErr::RecordNotFound(format!("No Document with id {id} found")))
 }
 
 pub async fn create_doc(
