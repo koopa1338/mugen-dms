@@ -2,9 +2,10 @@ use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::time::Duration;
 
+use axum::Extension;
 use tower::{BoxError, ServiceBuilder};
 
-use axum::{error_handling::HandleErrorLayer, http::StatusCode, AddExtensionLayer, Router};
+use axum::{error_handling::HandleErrorLayer, http::StatusCode, Router};
 
 use clap::Parser;
 use sea_orm::DatabaseConnection;
@@ -64,7 +65,7 @@ pub async fn static_routes(asset_path: String) {
 pub async fn api_routes(conn: DatabaseConnection) {
     let backend = Router::new()
         .nest("/api", docs::router())
-        .layer(AddExtensionLayer::new(conn))
+        .layer(Extension(conn))
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
