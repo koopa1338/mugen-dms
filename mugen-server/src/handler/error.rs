@@ -14,7 +14,7 @@ pub async fn handle_timeout_error(err: BoxError) -> (StatusCode, String) {
     } else {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Unhandled internal error: {}", err),
+            format!("Unhandled internal error: {err}"),
         )
     }
 }
@@ -23,6 +23,6 @@ pub async fn handle_timeout_error(err: BoxError) -> (StatusCode, String) {
 pub async fn handle_io_error(error: std::io::Error) -> Result<impl IntoResponse, Infallible> {
     Ok((
         StatusCode::INTERNAL_SERVER_ERROR,
-        format!("Unhandled error: {}", error),
+        format!("Unhandled error: {error}"),
     ))
 }

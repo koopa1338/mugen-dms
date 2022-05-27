@@ -48,7 +48,7 @@ pub async fn static_routes(asset_path: String) {
         )
         .route(
             "/app/*path",
-            get_service(ServeFile::new(format!("{}/index.html", asset_path)))
+            get_service(ServeFile::new(format!("{asset_path}/index.html")))
                 .handle_error(error::handle_io_error),
         )
         .layer(
