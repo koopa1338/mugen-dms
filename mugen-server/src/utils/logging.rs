@@ -82,7 +82,7 @@ pub fn init_logging() -> Result<Vec<WorkerGuard>> {
                 guards.push(guard);
 
                 let file_targets = Targets::from_str(&entry.modules.join(","))
-                    .expect(format!("error parsing for {:?}", entry).as_str());
+                    .unwrap_or_else(|_| panic!("error parsing for {entry:?}"));
                 let file_layer = fmt::Layer::new().with_writer(file_writer).with_ansi(false);
                 let layer = match entry.format {
                     LogFormat::Full => file_layer.with_filter(file_targets).boxed(),
