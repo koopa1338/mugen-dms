@@ -1,18 +1,23 @@
+#![allow(unused_imports, dead_code, unused_variables)]
+
 mod config;
 mod handler;
 mod services;
+mod utils;
 
 use config::app;
 use config::db;
-use dotenv::dotenv;
 
 use anyhow::Result;
 use clap::Parser;
+use dotenv::dotenv;
+
+use crate::utils::logging::init_logging;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    tracing_subscriber::fmt::init();
+    let log_guard = init_logging()?;
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());
