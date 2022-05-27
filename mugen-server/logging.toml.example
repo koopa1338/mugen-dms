@@ -1,7 +1,7 @@
  # general logging (std out)
 [stream_logger]
 enabled = true
-# format = "pretty" # Options: `full`, `compact`, `pretty` and `json`
+format = "pretty" # Options: `full`, `compact`, `pretty` and `json`
 modules = [
     "tower_http=debug",
     "mugen_server::handler=trace",
@@ -12,7 +12,7 @@ modules = [
 enabled = true
 filename = "db.log"
 path = "./logs"
-# format = "json" # Options: `full`, `compact`, `pretty` and `json`
+format = "json" # Options: `full`, `compact`, `pretty` and `json`
 modules = [
     "mugen_server::config::db=trace",
 ]
@@ -21,8 +21,9 @@ modules = [
 enabled = true
 filename = "request.log"
 path = "./logs"
-# format = "compact" # Options: `full`, `compact`, `pretty` and `json`
+format = "compact" # Options: `full`, `compact`, `pretty` and `json`
 modules = [
     "mugen_server::handler=trace",
     "mugen_server::utils=trace",
+    "mugen_server=trace",
 ]
