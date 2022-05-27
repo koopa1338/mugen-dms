@@ -1,5 +1,3 @@
-#![allow(unused_macros)]
-
 use std::fmt::Debug;
 use std::fs::{create_dir_all, read_to_string};
 use std::ops::Deref;
@@ -10,7 +8,6 @@ use serde::Deserialize;
 
 use anyhow::Result;
 use dotenv::dotenv;
-use tracing::metadata::LevelFilter;
 use tracing::span::{Attributes, Record};
 use tracing::subscriber::Interest;
 use tracing::{Event, Id, Metadata, Subscriber};
