@@ -40,8 +40,8 @@ pub struct FileLogger {
 #[derive(Debug, Deserialize)]
 pub struct StreamLogger {
     pub enabled: bool,
+    pub color: bool,
     pub modules: Vec<String>,
-    pub format: LogFormat,
 }
 
 #[derive(Debug, Deserialize)]
@@ -59,7 +59,7 @@ pub fn init_logging() -> Result<Vec<WorkerGuard>> {
     let targets = Targets::from_str(&conf.stream_logger.modules.join(","))?;
     let stream_layer = fmt::Layer::new()
         .with_writer(std::io::stdout)
-        .with_ansi(true)
+        .with_ansi(conf.stream_logger.color)
         .with_filter(targets)
         .boxed();
 
