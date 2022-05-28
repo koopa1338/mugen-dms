@@ -1,7 +1,7 @@
  # general logging (std out)
 [stream_logger]
 enabled = true
-format = "pretty" # Options: `full`, `compact`, `pretty` and `json`
+color = true
 modules = [
     "tower_http=debug",
     "mugen_server::handler=trace",
