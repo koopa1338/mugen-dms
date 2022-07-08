@@ -43,9 +43,5 @@ pub async fn update_doc(
 #[instrument]
 pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResult, DbErr> {
     tracing::debug!("Delete document with id {id}.");
-    let document = get_doc_by_id(id, conn).await?;
-
-    Document::delete(document.into_active_model())
-        .exec(conn)
-        .await
+    Document::delete_by_id(id).exec(conn).await
 }
