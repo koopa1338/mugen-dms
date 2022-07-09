@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 
 use crate::config::db::DbErrJsonValue;
 use crate::services;
-use entity::document::Model as DocumentModel;
+use entity::document::{ActiveModel, Model as DocumentModel};
 use tracing_attributes::instrument;
 
 pub fn router() -> Router {
