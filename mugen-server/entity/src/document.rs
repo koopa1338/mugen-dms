@@ -24,12 +24,12 @@ where
     Ok(Some(raw.into_bytes()))
 }
 
-fn serialize_b64<'a, S>(bytes: &'a Option<Vec<u8>>, s: S) -> Result<S::Ok, S::Error>
+fn serialize_b64<S>(bytes: &Option<Vec<u8>>, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
     if let Some(bytes) = bytes {
-        let base64 = std::str::from_utf8(&bytes).unwrap();
+        let base64 = std::str::from_utf8(bytes).unwrap();
         return s.serialize_some(&base64);
     }
     s.serialize_none()
