@@ -1,4 +1,4 @@
-use entity::document::{Entity as Document, Model as DocumentModel};
+use entity::document::{ActiveModel, Entity as Document, Model as DocumentModel};
 use sea_orm::{prelude::*, DatabaseConnection, DeleteResult, IntoActiveModel, Set};
 use tracing_attributes::instrument;
 
@@ -23,9 +23,18 @@ pub async fn create_doc(
     conn: &DatabaseConnection,
 ) -> Result<DocumentModel, DbErr> {
     tracing::debug!("Create document.");
-    Document::insert(data.into_active_model())
-        .exec_with_returning(conn)
-        .await
+
+    Document::insert(ActiveModel {
+        created: Set(data.created),
+        last_updated: Set(data.last_updated),
+        filetype: Set(data.filetype),
+        version: Set(data.version),
+        size: Set(data.size),
+        data: Set(data.data),
+        ..Default::default()
+    })
+    .exec_with_returning(conn)
+    .await
 }
 
 #[instrument]
