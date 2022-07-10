@@ -1,4 +1,5 @@
-pub use sea_schema::migration::*;
+use sea_orm::DatabaseConnection;
+pub use sea_orm_migration::prelude::*;
 
 mod m20220214_000001_documents;
 
@@ -9,4 +10,7 @@ impl MigratorTrait for Migrator {
     fn migrations() -> Vec<Box<dyn MigrationTrait>> {
         vec![Box::new(m20220214_000001_documents::Migration)]
     }
+}
+pub async fn migrate_database(connection: &DatabaseConnection) -> Result<(), DbErr> {
+    Migrator::up(connection, None).await
 }

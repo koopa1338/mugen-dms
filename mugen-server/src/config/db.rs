@@ -1,5 +1,6 @@
 use anyhow::Result;
 
+use migration::migrate_database;
 use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
@@ -15,7 +16,9 @@ pub async fn get_database_connection_pool(config: app::Config) -> Result<Databas
         .idle_timeout(Duration::from_secs(8))
         .sqlx_logging(true);
 
-    Ok(Database::connect(db).await?)
+    let connection = Database::connect(db).await?;
+    migrate_database(&connection).await?;
+    Ok(connection)
 }
 
 #[derive(Debug, Deserialize, Serialize)]
