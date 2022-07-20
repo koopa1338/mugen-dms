@@ -1,5 +1,7 @@
 use entity::document::{ActiveModel, Entity as Document, Model as DocumentModel};
-use sea_orm::{prelude::*, DatabaseConnection, DeleteResult, IntoActiveModel, Set, ActiveValue::NotSet};
+use sea_orm::{
+    prelude::*, ActiveValue::NotSet, DatabaseConnection, DeleteResult, IntoActiveModel, Set,
+};
 use tracing_attributes::instrument;
 
 #[instrument]
@@ -27,7 +29,6 @@ pub async fn create_doc(
     entity.id = NotSet;
 
     entity.insert(conn).await
-
 }
 
 #[instrument]
