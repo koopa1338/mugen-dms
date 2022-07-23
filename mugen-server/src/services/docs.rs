@@ -4,13 +4,13 @@ use sea_orm::{
 };
 use tracing_attributes::instrument;
 
-#[instrument]
+#[instrument(level = "debug", skip(conn))]
 pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentModel>, DbErr> {
     tracing::debug!("Requested all documents.");
     Document::find().all(conn).await
 }
 
-#[instrument]
+#[instrument(level = "debug", skip(conn))]
 pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<DocumentModel, DbErr> {
     tracing::debug!("Requested document with id {id}.");
     Document::find_by_id(id)
@@ -19,7 +19,7 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Documen
         .ok_or_else(|| DbErr::RecordNotFound(format!("No Document with id {id} found")))
 }
 
-#[instrument]
+#[instrument(level = "debug", skip(conn, data))]
 pub async fn create_doc(
     data: DocumentModel,
     conn: &DatabaseConnection,
@@ -31,7 +31,7 @@ pub async fn create_doc(
     entity.insert(conn).await
 }
 
-#[instrument]
+#[instrument(level = "debug", skip(conn, data))]
 pub async fn update_doc(
     data: DocumentModel,
     id: i64,
@@ -43,7 +43,7 @@ pub async fn update_doc(
     Document::update(active_model).exec(conn).await
 }
 
-#[instrument]
+#[instrument(level = "debug", skip(conn))]
 pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResult, DbErr> {
     tracing::debug!("Delete document with id {id}.");
     Document::delete_by_id(id).exec(conn).await

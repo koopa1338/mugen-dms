@@ -39,3 +39,21 @@ where
 pub enum Relation {}
 
 impl ActiveModelBehavior for ActiveModel {}
+
+impl std::fmt::Display for Model {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f)?;
+        writeln!(f, "Document (")?;
+        writeln!(f, "\tid: {}", self.id)?;
+        if let Some(created) = self.created {
+            writeln!(f, "\tcreated: {}", created)?;
+        }
+        if let Some(last_updated) = self.last_updated {
+            writeln!(f, "\tlast_updated: {}", last_updated)?;
+        }
+        writeln!(f, "\tfiletype: {}", self.filetype)?;
+        writeln!(f, "\tversion: {}", self.version)?;
+        writeln!(f, "\tsize: {}", self.size)?;
+        write!(f, ")")
+    }
+}
