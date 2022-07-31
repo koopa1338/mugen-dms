@@ -6,8 +6,8 @@ use sea_orm::DatabaseConnection;
 use crate::config::db::DbErrJsonValue;
 use crate::services;
 use entity::document::{ActiveModel, Model as DocumentModel};
-use tracing_attributes::instrument;
 use tracing::{debug, trace};
+use tracing_attributes::instrument;
 
 pub fn router() -> Router {
     Router::new()
@@ -27,7 +27,7 @@ pub async fn doc_list(
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
             Ok(Json(documents))
-        },
+        }
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
@@ -44,7 +44,7 @@ pub async fn doc_by_id(
             debug!("Retrieved document with id {}", document.id);
             trace!("{document}");
             Ok(Json(document))
-        },
+        }
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
@@ -60,7 +60,7 @@ pub async fn doc_create(
             debug!("Created document with id {}", document.id);
             trace!("{document}");
             Ok(Json(document))
-        },
+        }
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
@@ -77,7 +77,7 @@ pub async fn doc_update(
             debug!("Document with id {} was updated", document.id);
             trace!("New data {document}");
             Ok(Json(document))
-        },
+        }
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
@@ -93,7 +93,7 @@ pub async fn doc_delete(
             debug!("deleted document with id {id}");
             //TODO: we might want to respond with useful json
             Ok(Json(document.rows_affected))
-        },
+        }
         Err(dberror) => Err((StatusCode::INTERNAL_SERVER_ERROR, Json(dberror.into()))),
     }
 }
