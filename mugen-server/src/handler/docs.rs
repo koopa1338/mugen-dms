@@ -18,7 +18,7 @@ pub fn router() -> Router {
         )
 }
 
-#[instrument(level = "debug", skip(conn))]
+#[instrument(skip(conn))]
 pub async fn doc_list(
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<Json<Vec<DocumentModel>>, (StatusCode, Json<DbErrJsonValue>)> {
@@ -32,7 +32,7 @@ pub async fn doc_list(
     }
 }
 
-#[instrument(level = "debug", skip(conn))]
+#[instrument(skip(conn))]
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
@@ -49,7 +49,7 @@ pub async fn doc_by_id(
     }
 }
 
-#[instrument(level = "debug", skip(conn, input))]
+#[instrument(skip(conn, input))]
 pub async fn doc_create(
     Json(input): Json<DocumentModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
@@ -65,7 +65,7 @@ pub async fn doc_create(
     }
 }
 
-#[instrument(level = "debug", skip(conn, input))]
+#[instrument(skip(conn, input))]
 pub async fn doc_update(
     Path(id): Path<i64>,
     Json(input): Json<DocumentModel>,
@@ -82,7 +82,7 @@ pub async fn doc_update(
     }
 }
 
-#[instrument(level = "debug", skip(conn))]
+#[instrument(skip(conn))]
 pub async fn doc_delete(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
