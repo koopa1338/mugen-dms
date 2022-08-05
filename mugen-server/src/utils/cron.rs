@@ -12,6 +12,6 @@ pub fn scanner_cron() -> JoinHandle<()> {
             .map_or_else(|error| 30, |value| value.parse::<u32>().expect("no valid number")),
     )
     .seconds()
-    .perform(|| async { tracing::debug!("look at me go brrrrr!") });
+    .perform(|| async { tracing::debug!("checking scanned folder (unimplemented)") });
     tokio::spawn(scanner)
 }
