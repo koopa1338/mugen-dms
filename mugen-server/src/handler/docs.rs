@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 
 use crate::config::db::DbErrJsonValue;
 use crate::services;
-use entity::document::{ActiveModel, Model as DocumentModel};
+use entity::documents::{ActiveModel, Model as DocumentModel};
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
 

@@ -1,4 +1,2 @@
-pub mod document;
-
-pub use sea_orm;
-
+pub mod documents;
+pub mod prelude;

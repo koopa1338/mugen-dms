@@ -7,9 +7,9 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = true)]
     #[serde(skip_deserializing)]
     pub id: i64,
-    pub created: Option<DateTimeWithTimeZone>,
+    pub created: DateTimeWithTimeZone,
     pub last_updated: Option<DateTimeWithTimeZone>,
-    pub filetype: String,
+    pub filetype: Option<String>,
     pub version: i32,
     pub size: i64,
     #[serde(deserialize_with = "deserialize_b64", serialize_with = "serialize_b64")]
@@ -45,13 +45,13 @@ impl std::fmt::Display for Model {
         writeln!(f)?;
         writeln!(f, "Document (")?;
         writeln!(f, "\tid: {}", self.id)?;
-        if let Some(created) = self.created {
-            writeln!(f, "\tcreated: {}", created)?;
-        }
+        writeln!(f, "\tcreated: {}", self.created)?;
         if let Some(last_updated) = self.last_updated {
             writeln!(f, "\tlast_updated: {}", last_updated)?;
         }
-        writeln!(f, "\tfiletype: {}", self.filetype)?;
+        if let Some(ft) = &self.filetype {
+            writeln!(f, "\tfiletype: {}", ft)?;
+        }
         writeln!(f, "\tversion: {}", self.version)?;
         writeln!(f, "\tsize: {}", self.size)?;
         write!(f, ")")

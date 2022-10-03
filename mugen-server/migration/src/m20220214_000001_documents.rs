@@ -1,4 +1,4 @@
-use entity::document::Entity as Document;
+use entity::prelude::Documents;
 pub use sea_orm_migration::prelude::*;
 
 #[derive(DeriveMigrationName)]
@@ -21,7 +21,7 @@ impl MigrationTrait for Migration {
         manager
             .create_table(
                 sea_query::Table::create()
-                    .table(Document)
+                    .table(Documents)
                     .if_not_exists()
                     .col(
                         ColumnDef::new(Docs::Id)
@@ -61,7 +61,7 @@ impl MigrationTrait for Migration {
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Document).to_owned())
+            .drop_table(Table::drop().table(Documents).to_owned())
             .await
     }
 }
