@@ -5,29 +5,29 @@ authors = ["koopa1338 <sinner1991@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-axum = "0.5.13"
-dotenv = "0.15.0"
-tokio = { version = "1.20.0", features = ["full"] }
-tracing = "0.1.35"
-tracing-subscriber = { version = "0.3.14", features = ["env-filter", "json", "fmt", "registry"] }
-tracing-attributes = "0.1.22"
-tracing-appender = "0.2.2"
-tower = { version = "0.4.13", features = ["timeout"] }
-tower-http = { version = "0.3.4", features = ["fs", "trace"] }
-serde = { version = "1.0.140", features = ["derive"] }
-sea-orm = { version = "0.9.0", features = [
+axum = "0.5"
+dotenv = "0.15"
+tokio = { version = "1.20", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt", "registry"] }
+tracing-attributes = "0.1"
+tracing-appender = "0.2"
+tower = { version = "0.4", features = ["timeout"] }
+tower-http = { version = "0.3", features = ["fs", "trace"] }
+serde = { version = "1.0", features = ["derive"] }
+sea-orm = { version = "0.9", features = [
     "sqlx-postgres",
     "runtime-tokio-native-tls",
     "macros",
     "with-json",
     "with-chrono",
 ], default-features = false }
-anyhow = "1.0.58"
-clap = { version = "3.2.13", features = ["derive", "env"] }
+anyhow = "1.0"
+clap = { version = "3.2", features = ["derive", "env"] }
 entity = { path = "entity" }
 migration = { path = "migration" }
-toml = "0.5.9"
-tokio_schedule = "0.3.0"
+toml = "0.5"
+tokio_schedule = "0.3"
 
 [features]
 yew-frontend = []
