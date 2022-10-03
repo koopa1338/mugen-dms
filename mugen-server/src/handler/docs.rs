@@ -5,7 +5,7 @@ use sea_orm::DatabaseConnection;
 
 use crate::config::db::DbErrJsonValue;
 use crate::services;
-use entity::documents::{ActiveModel, Model as DocumentModel};
+use entity::prelude::*;
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
 
@@ -21,7 +21,7 @@ pub fn router() -> Router {
 #[instrument(skip(conn))]
 pub async fn doc_list(
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<Vec<DocumentModel>>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<Vec<DocumentsModel>>, (StatusCode, Json<DbErrJsonValue>)> {
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
@@ -35,7 +35,7 @@ pub async fn doc_list(
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<DocumentsModel>, (StatusCode, Json<DbErrJsonValue>)> {
     match services::docs::get_doc_by_id(id, conn).await {
         Ok(document) => {
             debug!("Retrieved document with id {}", document.id);
@@ -48,9 +48,9 @@ pub async fn doc_by_id(
 
 #[instrument(skip(conn, input))]
 pub async fn doc_create(
-    Json(input): Json<DocumentModel>,
+    Json(input): Json<DocumentsModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<DocumentsModel>, (StatusCode, Json<DbErrJsonValue>)> {
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => {
@@ -65,9 +65,9 @@ pub async fn doc_create(
 #[instrument(skip(conn, input))]
 pub async fn doc_update(
     Path(id): Path<i64>,
-    Json(input): Json<DocumentModel>,
+    Json(input): Json<DocumentsModel>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<DocumentModel>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<DocumentsModel>, (StatusCode, Json<DbErrJsonValue>)> {
     match services::docs::update_doc(input, id, conn).await {
         Ok(document) => {
             debug!("Document with id {} was updated", document.id);

@@ -1,18 +1,17 @@
-use entity::documents::{ActiveModel, Model as DocumentModel};
-use entity::prelude::Documents;
+use entity::prelude::*;
 use sea_orm::{
     prelude::*, ActiveValue::NotSet, DatabaseConnection, DeleteResult, IntoActiveModel, Set,
 };
 use tracing_attributes::instrument;
 
 #[instrument(skip(conn))]
-pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentModel>, DbErr> {
+pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentsModel>, DbErr> {
     tracing::debug!("Requested all documents.");
     Documents::find().all(conn).await
 }
 
 #[instrument(skip(conn))]
-pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<DocumentModel, DbErr> {
+pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<DocumentsModel, DbErr> {
     tracing::debug!("Requested document with id {id}.");
     Documents::find_by_id(id)
         .one(conn)
@@ -22,9 +21,9 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Documen
 
 #[instrument(skip(conn, data))]
 pub async fn create_doc(
-    data: DocumentModel,
+    data: DocumentsModel,
     conn: &DatabaseConnection,
-) -> Result<DocumentModel, DbErr> {
+) -> Result<DocumentsModel, DbErr> {
     tracing::debug!("Create document.");
     let mut entity = data.into_active_model();
     entity.id = NotSet;
@@ -34,10 +33,10 @@ pub async fn create_doc(
 
 #[instrument(skip(conn, data))]
 pub async fn update_doc(
-    data: DocumentModel,
+    data: DocumentsModel,
     id: i64,
     conn: &DatabaseConnection,
-) -> Result<DocumentModel, DbErr> {
+) -> Result<DocumentsModel, DbErr> {
     tracing::debug!("Updating document with id {id}.");
     let mut active_model = data.into_active_model();
     active_model.id = Set(id);
