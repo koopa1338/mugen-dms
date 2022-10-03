@@ -9,7 +9,12 @@ axum = "0.5"
 dotenv = "0.15"
 tokio = { version = "1.20", features = ["full"] }
 tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json", "fmt", "registry"] }
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "json",
+    "fmt",
+    "registry",
+] }
 tracing-attributes = "0.1"
 tracing-appender = "0.2"
 tower = { version = "0.4", features = ["timeout"] }
@@ -28,6 +33,7 @@ entity = { path = "entity" }
 migration = { path = "migration" }
 toml = "0.5"
 tokio_schedule = "0.3"
+common = { path = "../common" }
 
 [features]
 yew-frontend = []
