@@ -1,3 +1,3 @@
-pub mod documents;
+pub mod docs;
 
 pub mod prelude;
