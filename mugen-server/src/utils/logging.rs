@@ -48,7 +48,7 @@ pub struct LogConfig {
     pub file_logger: Option<Vec<FileLogger>>,
 }
 
-pub fn init_logging() -> Result<Vec<WorkerGuard>> {
+pub fn init() -> Result<Vec<WorkerGuard>> {
     let conf: LogConfig = toml::from_str(&read_to_string(dotenv::var("LOGGING")?)?)?;
 
     let mut layers = Vec::new();

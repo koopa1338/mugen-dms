@@ -83,7 +83,7 @@ pub async fn api_routes(conn: DatabaseConnection) {
                 .into_inner(),
         );
     tracing::debug!("Serving backend on {LOCALHOST}:{BACKEND_PORT}");
-    serve(backend, BACKEND_PORT).await
+    serve(backend, BACKEND_PORT).await;
 }
 
 async fn serve(app: Router, port: u16) {

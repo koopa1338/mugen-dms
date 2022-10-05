@@ -1,6 +1,6 @@
 use yew_router::Routable;
 
-#[derive(Clone, Routable, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Routable)]
 pub enum AppRoute {
     #[at("/app")]
     Main,

@@ -11,6 +11,10 @@ impl MigratorTrait for Migrator {
         vec![Box::new(m20220214_000001_documents::Migration)]
     }
 }
+
+/// # Errors
+///
+/// Will return `DbErr` on unsuccessful database operations.
 pub async fn migrate_database(connection: &DatabaseConnection) -> Result<(), DbErr> {
     Migrator::up(connection, None).await
 }

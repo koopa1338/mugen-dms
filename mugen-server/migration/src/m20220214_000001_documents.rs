@@ -54,14 +54,14 @@ impl MigrationTrait for Migration {
                             .default(0i64),
                     )
                     .col(ColumnDef::new(Docs::Data).binary())
-                    .to_owned(),
+                    .clone(),
             )
             .await
     }
 
     async fn down(&self, manager: &SchemaManager) -> Result<(), DbErr> {
         manager
-            .drop_table(Table::drop().table(Documents).to_owned())
+            .drop_table(Table::drop().table(Documents).clone())
             .await
     }
 }

@@ -13,12 +13,12 @@ use clap::Parser;
 use dotenv::dotenv;
 
 use crate::utils::cron::scanner_cron;
-use crate::utils::logging::init_logging;
+use crate::utils::logging::init;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let log_guard = init_logging()?;
+    let log_guard = init()?;
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());

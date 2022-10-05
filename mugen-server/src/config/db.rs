@@ -22,12 +22,12 @@ pub async fn get_database_connection_pool(config: app::Config) -> Result<Databas
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct DbErrJsonValue {
+pub struct ErrJsonValue {
     kind: String,
     message: String,
 }
 
-impl From<DbErr> for DbErrJsonValue {
+impl From<DbErr> for ErrJsonValue {
     fn from(err: DbErr) -> Self {
         let error_string = err.to_string();
         let (kind, message) = error_string.split_once(": ").unwrap();

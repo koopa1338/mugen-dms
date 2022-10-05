@@ -1,4 +1,4 @@
-use super::navigation::MainNavigation;
+use super::navigation::Menu;
 use super::router::AppRoute;
 
 use yew::{html, Component, Context, Html};
@@ -25,12 +25,11 @@ impl Component for App {
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
             <div>
-                <MainNavigation/>
+                <Menu/>
                 <div class="uk-container uk-margin uk-align-center">
                     <BrowserRouter>
                         <Switch<AppRoute> render={Switch::render(switch)} />
                     </BrowserRouter>
-
                 </div>
             </div>
         }

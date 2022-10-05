@@ -1,8 +1,8 @@
 use yew::{html, Component, Context, Html};
 
-pub struct MainNavigation {}
+pub struct Menu {}
 
-impl Component for MainNavigation {
+impl Component for Menu {
     type Message = ();
     type Properties = ();
 

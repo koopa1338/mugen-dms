@@ -20,7 +20,7 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Docs, D
         .one(conn)
         .await?
         .ok_or_else(|| DbErr::RecordNotFound(format!("No Document with id {id} found")))
-        .map(|model| model.into())
+        .map(Into::into)
 }
 
 #[instrument(skip(conn, data))]
@@ -28,7 +28,7 @@ pub async fn create_doc(data: Docs, conn: &DatabaseConnection) -> Result<Docs, D
     tracing::debug!("Create document.");
     let active_model: DocumentsActiveModel = data.into();
 
-    active_model.insert(conn).await.map(|model| model.into())
+    active_model.insert(conn).await.map(Into::into)
 }
 
 #[instrument(skip(conn, data))]
@@ -40,7 +40,7 @@ pub async fn update_doc(
     tracing::debug!("Updating document with id {id}.");
     let mut active_model: DocumentsActiveModel = data.into();
     active_model.id = Set(id);
-    Documents::update(active_model).exec(conn).await.map(|model| model.into())
+    Documents::update(active_model).exec(conn).await.map(Into::into)
 }
 
 #[instrument(skip(conn))]

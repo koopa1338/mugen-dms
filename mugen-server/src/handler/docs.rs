@@ -4,7 +4,7 @@ use axum::{extract::Extension, http::StatusCode, routing::get, Router};
 use common::models::documents::Docs;
 use sea_orm::DatabaseConnection;
 
-use crate::config::db::DbErrJsonValue;
+use crate::config::db::ErrJsonValue;
 use crate::services;
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
@@ -21,7 +21,7 @@ pub fn router() -> Router {
 #[instrument(skip(conn))]
 pub async fn doc_list(
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<Vec<Docs>>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<Vec<Docs>>, (StatusCode, Json<ErrJsonValue>)> {
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
@@ -35,7 +35,7 @@ pub async fn doc_list(
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<Docs>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<Docs>, (StatusCode, Json<ErrJsonValue>)> {
     match services::docs::get_doc_by_id(id, conn).await {
         Ok(document) => {
             debug!("Retrieved document with id {:?}", document.id);
@@ -50,7 +50,7 @@ pub async fn doc_by_id(
 pub async fn doc_create(
     Json(input): Json<Docs>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<Docs>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<Docs>, (StatusCode, Json<ErrJsonValue>)> {
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => {
@@ -67,7 +67,7 @@ pub async fn doc_update(
     Path(id): Path<i64>,
     Json(input): Json<Docs>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<Docs>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<Docs>, (StatusCode, Json<ErrJsonValue>)> {
     match services::docs::update_doc(input, id, conn).await {
         Ok(document) => {
             debug!("Document with id {:?} was updated", document.id);
@@ -82,7 +82,7 @@ pub async fn doc_update(
 pub async fn doc_delete(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<Json<u64>, (StatusCode, Json<DbErrJsonValue>)> {
+) -> Result<Json<u64>, (StatusCode, Json<ErrJsonValue>)> {
     match services::docs::delete_doc(id, conn).await {
         Ok(document) => {
             debug!("deleted document with id {id}");
