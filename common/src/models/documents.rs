@@ -1,11 +1,13 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use ts_rs::TS;
 
 use crate::DateTimeWithTimeZone;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
+#[ts(export)]
 pub struct Docs {
     #[serde(skip_deserializing)]
-    pub id: i64,
+    pub id: Option<i64>,
     pub created: DateTimeWithTimeZone,
     pub last_updated: Option<DateTimeWithTimeZone>,
     pub filetype: Option<String>,
@@ -34,3 +36,22 @@ where
     s.serialize_none()
 }
 
+impl std::fmt::Display for Docs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f)?;
+        writeln!(f, "Document (")?;
+        if let Some(id) = self.id {
+            writeln!(f, "\tid: {}", id)?;
+        }
+        writeln!(f, "\tcreated: {}", self.created)?;
+        if let Some(last_updated) = self.last_updated {
+            writeln!(f, "\tlast_updated: {}", last_updated)?;
+        }
+        if let Some(ft) = &self.filetype {
+            writeln!(f, "\tfiletype: {}", ft)?;
+        }
+        writeln!(f, "\tversion: {}", self.version)?;
+        writeln!(f, "\tsize: {}", self.size)?;
+        write!(f, ")")
+    }
+}

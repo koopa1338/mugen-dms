@@ -38,7 +38,7 @@ pub async fn doc_by_id(
 ) -> Result<Json<Docs>, (StatusCode, Json<DbErrJsonValue>)> {
     match services::docs::get_doc_by_id(id, conn).await {
         Ok(document) => {
-            debug!("Retrieved document with id {}", document.id);
+            debug!("Retrieved document with id {:?}", document.id);
             trace!("{document}");
             Ok(Json(document))
         }
@@ -54,7 +54,7 @@ pub async fn doc_create(
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => {
-            debug!("Created document with id {}", document.id);
+            debug!("Created document with id {:?}", document.id);
             trace!("{document}");
             Ok(Json(document))
         }
@@ -70,7 +70,7 @@ pub async fn doc_update(
 ) -> Result<Json<Docs>, (StatusCode, Json<DbErrJsonValue>)> {
     match services::docs::update_doc(input, id, conn).await {
         Ok(document) => {
-            debug!("Document with id {} was updated", document.id);
+            debug!("Document with id {:?} was updated", document.id);
             trace!("New data {document}");
             Ok(Json(document))
         }

@@ -1,3 +1,4 @@
+use common::models::documents::Docs;
 use entity::prelude::*;
 use sea_orm::{
     prelude::*, ActiveValue::NotSet, DatabaseConnection, DeleteResult, IntoActiveModel, Set,
@@ -5,42 +6,41 @@ use sea_orm::{
 use tracing_attributes::instrument;
 
 #[instrument(skip(conn))]
-pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<DocumentsModel>, DbErr> {
+pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<Docs>, DbErr> {
     tracing::debug!("Requested all documents.");
-    Documents::find().all(conn).await
+    let documents = Documents::find().all(conn).await?;
+
+    Ok(Vec::<Docs>::from_iter(documents))
 }
 
 #[instrument(skip(conn))]
-pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<DocumentsModel, DbErr> {
+pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Docs, DbErr> {
     tracing::debug!("Requested document with id {id}.");
     Documents::find_by_id(id)
         .one(conn)
         .await?
         .ok_or_else(|| DbErr::RecordNotFound(format!("No Document with id {id} found")))
+        .map(|model| model.into())
 }
 
 #[instrument(skip(conn, data))]
-pub async fn create_doc(
-    data: DocumentsModel,
-    conn: &DatabaseConnection,
-) -> Result<DocumentsModel, DbErr> {
+pub async fn create_doc(data: Docs, conn: &DatabaseConnection) -> Result<Docs, DbErr> {
     tracing::debug!("Create document.");
-    let mut entity = data.into_active_model();
-    entity.id = NotSet;
+    let active_model: DocumentsActiveModel = data.into();
 
-    entity.insert(conn).await
+    active_model.insert(conn).await.map(|model| model.into())
 }
 
 #[instrument(skip(conn, data))]
 pub async fn update_doc(
-    data: DocumentsModel,
+    data: Docs,
     id: i64,
     conn: &DatabaseConnection,
-) -> Result<DocumentsModel, DbErr> {
+) -> Result<Docs, DbErr> {
     tracing::debug!("Updating document with id {id}.");
-    let mut active_model = data.into_active_model();
+    let mut active_model: DocumentsActiveModel = data.into();
     active_model.id = Set(id);
-    Documents::update(active_model).exec(conn).await
+    Documents::update(active_model).exec(conn).await.map(|model| model.into())
 }
 
 #[instrument(skip(conn))]
