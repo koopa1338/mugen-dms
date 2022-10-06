@@ -49,6 +49,7 @@ impl From<Docs> for ActiveModel {
         }
     }
 }
+
 impl FromIterator<Model> for Vec<Docs> {
     fn from_iter<T: IntoIterator<Item = Model>>(iter: T) -> Self {
         iter.into_iter()

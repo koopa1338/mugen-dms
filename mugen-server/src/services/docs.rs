@@ -32,15 +32,14 @@ pub async fn create_doc(data: Docs, conn: &DatabaseConnection) -> Result<Docs, D
 }
 
 #[instrument(skip(conn, data))]
-pub async fn update_doc(
-    data: Docs,
-    id: i64,
-    conn: &DatabaseConnection,
-) -> Result<Docs, DbErr> {
+pub async fn update_doc(data: Docs, id: i64, conn: &DatabaseConnection) -> Result<Docs, DbErr> {
     tracing::debug!("Updating document with id {id}.");
     let mut active_model: DocumentsActiveModel = data.into();
     active_model.id = Set(id);
-    Documents::update(active_model).exec(conn).await.map(Into::into)
+    Documents::update(active_model)
+        .exec(conn)
+        .await
+        .map(Into::into)
 }
 
 #[instrument(skip(conn))]
