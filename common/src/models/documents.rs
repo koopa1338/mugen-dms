@@ -29,8 +29,9 @@ fn serialize_b64<S>(bytes: &Option<Vec<u8>>, s: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
+    use serde::ser::Error;
     if let Some(bytes) = bytes {
-        let base64 = std::str::from_utf8(bytes).unwrap();
+        let base64 = std::str::from_utf8(bytes).map_err(Error::custom)?;
         return s.serialize_some(&base64);
     }
     s.serialize_none()

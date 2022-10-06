@@ -29,11 +29,17 @@ pub struct ErrJsonValue {
 
 impl From<DbErr> for ErrJsonValue {
     fn from(err: DbErr) -> Self {
-        let error_string = err.to_string();
-        let (kind, message) = error_string.split_once(": ").unwrap();
+        let error: String = err.to_string();
+        if let Some((kind, message)) = error.split_once(": ") {
+            return Self {
+                kind: kind.into(),
+                message: message.into(),
+            };
+        }
+
         Self {
-            kind: kind.to_string(),
-            message: message.to_string(),
+            kind: String::from("Unknown"),
+            message: error,
         }
     }
 }

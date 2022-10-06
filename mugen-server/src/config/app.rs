@@ -38,10 +38,7 @@ pub async fn static_routes(asset_path: String) {
     use tower_http::services::{ServeDir, ServeFile};
 
     let frontend = Router::new()
-        .route(
-            "/",
-            get(|| async move { Redirect::to("/app".parse().unwrap()) }),
-        )
+        .route("/", get(|| async move { Redirect::to("/app".parse()?) }))
         .nest(
             "/assets",
             get_service(ServeDir::new(&asset_path)).handle_error(error::handle_io_error),
@@ -91,5 +88,5 @@ async fn serve(app: Router, port: u16) {
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
-        .unwrap();
+        .expect("Error serving app service");
 }

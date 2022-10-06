@@ -1,7 +1,7 @@
 pub mod documents;
 
 use common::models::documents::Docs;
-use documents::{Model, ActiveModel};
+use documents::{ActiveModel, Model};
 use sea_orm::{ActiveValue::NotSet, Set};
 
 impl std::fmt::Display for Model {
@@ -52,9 +52,6 @@ impl From<Docs> for ActiveModel {
 
 impl FromIterator<Model> for Vec<Docs> {
     fn from_iter<T: IntoIterator<Item = Model>>(iter: T) -> Self {
-        iter.into_iter()
-            .map(Into::<Docs>::into)
-            .collect()
+        iter.into_iter().map(Into::<Docs>::into).collect()
     }
 }
-
