@@ -5,6 +5,7 @@ use axum::{
 };
 use migration::DbErr;
 use std::{error::Error, fmt::Display};
+use tracing::error;
 
 #[derive(Debug)]
 pub enum ApiError {
@@ -40,8 +41,14 @@ impl From<DbErr> for ApiError {
             | DbErr::Custom(msg)
             | DbErr::Type(msg)
             | DbErr::Json(msg)
-            | DbErr::Migration(msg) => Self::Internal(msg),
-            DbErr::RecordNotFound(msg) => Self::NotFound(msg),
+            | DbErr::Migration(msg) => {
+                error!(msg);
+                Self::Internal(msg)
+            }
+            DbErr::RecordNotFound(msg) => {
+                error!(msg);
+                Self::NotFound(msg)
+            }
         }
     }
 }
