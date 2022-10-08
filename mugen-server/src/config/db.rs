@@ -20,26 +20,3 @@ pub async fn get_database_connection_pool(config: app::Config) -> Result<Databas
     migrate_database(&connection).await?;
     Ok(connection)
 }
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct ErrJsonValue {
-    kind: String,
-    message: String,
-}
-
-impl From<DbErr> for ErrJsonValue {
-    fn from(err: DbErr) -> Self {
-        let error: String = err.to_string();
-        if let Some((kind, message)) = error.split_once(": ") {
-            return Self {
-                kind: kind.into(),
-                message: message.into(),
-            };
-        }
-
-        Self {
-            kind: String::from("Unknown"),
-            message: error,
-        }
-    }
-}

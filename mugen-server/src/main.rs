@@ -1,6 +1,7 @@
 #![allow(unused_imports, dead_code, unused_variables)]
 
 mod config;
+mod error;
 mod handler;
 mod services;
 mod utils;
