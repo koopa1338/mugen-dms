@@ -4,13 +4,16 @@ use axum::{
     Json,
 };
 use migration::DbErr;
+use sea_orm::JsonValue;
+use serde_json::json;
 use std::{error::Error, fmt::Display};
 use tracing::error;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum ApiError {
     NotFound(String),
     Internal(String),
+    Timeout(String),
 }
 
 impl ApiError {
@@ -18,22 +21,30 @@ impl ApiError {
         match self {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
             Self::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Timeout(_) => StatusCode::REQUEST_TIMEOUT,
         }
     }
 
     fn error_message(&self) -> String {
+        // TODO: custom error messages for each case
         match self {
-            ApiError::NotFound(msg) | ApiError::Internal(msg) => msg.clone(),
+            Self::NotFound(msg) | Self::Internal(msg) | Self::Timeout(msg) => msg.clone(),
         }
     }
 
-    fn response(&self) -> (StatusCode, String) {
-        (self.status_code(), self.error_message())
+    fn response(&self) -> (StatusCode, Json<JsonValue>) {
+        (
+            self.status_code(),
+            Json(json!({
+                "error": self.error_message()
+            })),
+        )
     }
 }
 
 impl From<DbErr> for ApiError {
     fn from(err: DbErr) -> Self {
+        // TODO: custom error messages for each case
         match err {
             DbErr::Conn(msg)
             | DbErr::Exec(msg)

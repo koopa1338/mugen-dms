@@ -1,4 +1,5 @@
 use axum::extract::Path;
+use axum::response::IntoResponse;
 use axum::Json;
 use axum::{extract::Extension, http::StatusCode, routing::get, Router};
 use common::models::documents::Docs;
@@ -9,7 +10,6 @@ use tracing::{debug, trace};
 use tracing_attributes::instrument;
 
 use super::ApiError;
-use super::ApiResult;
 
 pub fn router() -> Router {
     Router::new()
@@ -21,7 +21,9 @@ pub fn router() -> Router {
 }
 
 #[instrument(skip(conn))]
-pub async fn doc_list(Extension(ref conn): Extension<DatabaseConnection>) -> ApiResult<Vec<Docs>> {
+pub async fn doc_list(
+    Extension(ref conn): Extension<DatabaseConnection>,
+) -> Result<impl IntoResponse, ApiError> {
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
@@ -35,7 +37,7 @@ pub async fn doc_list(Extension(ref conn): Extension<DatabaseConnection>) -> Api
 pub async fn doc_by_id(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> ApiResult<Docs> {
+) -> Result<impl IntoResponse, ApiError> {
     match services::docs::get_doc_by_id(id, conn).await {
         Ok(document) => {
             debug!("Retrieved document with id {:?}", document.id);
@@ -50,7 +52,7 @@ pub async fn doc_by_id(
 pub async fn doc_create(
     Json(input): Json<Docs>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> ApiResult<Docs> {
+) -> Result<impl IntoResponse, ApiError> {
     let result = services::docs::create_doc(input, conn).await;
     match result {
         Ok(document) => {
@@ -67,7 +69,7 @@ pub async fn doc_update(
     Path(id): Path<i64>,
     Json(input): Json<Docs>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> ApiResult<Docs> {
+) -> Result<impl IntoResponse, ApiError> {
     match services::docs::update_doc(input, id, conn).await {
         Ok(document) => {
             debug!("Document with id {:?} was updated", document.id);
@@ -82,7 +84,7 @@ pub async fn doc_update(
 pub async fn doc_delete(
     Path(id): Path<i64>,
     Extension(ref conn): Extension<DatabaseConnection>,
-) -> ApiResult<u64> {
+) -> Result<impl IntoResponse, ApiError> {
     match services::docs::delete_doc(id, conn).await {
         Ok(document) => {
             debug!("deleted document with id {id}");

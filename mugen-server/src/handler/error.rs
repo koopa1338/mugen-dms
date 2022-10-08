@@ -5,17 +5,11 @@ use std::convert::Infallible;
 use axum::{http::StatusCode, response::IntoResponse, BoxError};
 
 #[cfg(feature = "yew-frontend")]
-pub async fn handle_timeout_error(err: BoxError) -> (StatusCode, String) {
+pub async fn handle_timeout_error(err: BoxError) -> Result<impl IntoResponse, ApiError> {
     if err.is::<tower::timeout::error::Elapsed>() {
-        (
-            StatusCode::REQUEST_TIMEOUT,
-            "Request took too long".to_string(),
-        )
+        ApiError::Timeout("Request took too long".to_string())
     } else {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("Unhandled internal error: {err}"),
-        )
+        ApiError::Internal(format!("Unhandled internal error: {err}"))
     }
 }
 
