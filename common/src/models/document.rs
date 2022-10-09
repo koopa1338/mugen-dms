@@ -5,16 +5,17 @@ use crate::DateTimeWithTimeZone;
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export)]
-pub struct Docs {
+pub struct Doc {
     #[serde(skip_deserializing)]
     pub id: Option<i64>,
     pub created: DateTimeWithTimeZone,
-    pub last_updated: Option<DateTimeWithTimeZone>,
+    pub updated: Option<DateTimeWithTimeZone>,
     pub filetype: Option<String>,
     pub version: i32,
     pub size: i64,
     #[serde(deserialize_with = "deserialize_b64", serialize_with = "serialize_b64")]
     pub data: Option<Vec<u8>>,
+    pub category_id: Option<i64>,
 }
 
 fn deserialize_b64<'de, D>(deserializer: D) -> Result<Option<Vec<u8>>, D::Error>
@@ -37,7 +38,7 @@ where
     s.serialize_none()
 }
 
-impl std::fmt::Display for Docs {
+impl std::fmt::Display for Doc {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f)?;
         writeln!(f, "Document (")?;
@@ -45,14 +46,17 @@ impl std::fmt::Display for Docs {
             writeln!(f, "\tid: {}", id)?;
         }
         writeln!(f, "\tcreated: {}", self.created)?;
-        if let Some(last_updated) = self.last_updated {
-            writeln!(f, "\tlast_updated: {}", last_updated)?;
+        if let Some(updated) = self.updated {
+            writeln!(f, "\tlast_updated: {}", updated)?;
         }
         if let Some(ft) = &self.filetype {
             writeln!(f, "\tfiletype: {}", ft)?;
         }
         writeln!(f, "\tversion: {}", self.version)?;
         writeln!(f, "\tsize: {}", self.size)?;
+        if let Some(c) = &self.category_id {
+            writeln!(f, "\tcategory_id: {}", c)?;
+        }
         write!(f, ")")
     }
 }

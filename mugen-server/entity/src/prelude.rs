@@ -1,3 +1,7 @@
-pub use super::docs::documents::{
-    ActiveModel as DocumentsActiveModel, Entity as Documents, Model as DocumentsModel,
+pub use super::document::{
+    ActiveModel as DocumentAM, Entity as DocumentEntity, Model as DocumentModel,
+};
+
+pub use super::category::{
+    ActiveModel as CategoryAM, Entity as CategoryEntity, Model as CategoryModel,
 };
