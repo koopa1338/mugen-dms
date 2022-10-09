@@ -2,7 +2,6 @@ use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::Json;
 use axum::{extract::Extension, http::StatusCode, routing::get, Router};
-use common::models::documents::Docs;
 use sea_orm::DatabaseConnection;
 
 use crate::services;
@@ -10,6 +9,8 @@ use tracing::{debug, trace};
 use tracing_attributes::instrument;
 
 use super::ApiError;
+
+use common::models::document::Doc;
 
 pub fn router() -> Router {
     Router::new()
@@ -27,6 +28,7 @@ pub async fn doc_list(
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
+            trace!("{documents:?}");
             Ok(Json(documents))
         }
         Err(dberror) => Err(dberror.into()),
@@ -50,7 +52,7 @@ pub async fn doc_by_id(
 
 #[instrument(skip(conn, input))]
 pub async fn doc_create(
-    Json(input): Json<Docs>,
+    Json(input): Json<Doc>,
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<impl IntoResponse, ApiError> {
     let result = services::docs::create_doc(input, conn).await;
@@ -67,7 +69,7 @@ pub async fn doc_create(
 #[instrument(skip(conn, input))]
 pub async fn doc_update(
     Path(id): Path<i64>,
-    Json(input): Json<Docs>,
+    Json(input): Json<Doc>,
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<impl IntoResponse, ApiError> {
     match services::docs::update_doc(input, id, conn).await {
