@@ -35,4 +35,3 @@ impl Related<super::category::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
-

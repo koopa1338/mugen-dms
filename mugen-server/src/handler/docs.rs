@@ -28,6 +28,7 @@ pub async fn doc_list(
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
+            trace!("{documents:?}");
             Ok(Json(documents))
         }
         Err(dberror) => Err(dberror.into()),

@@ -1,14 +1,13 @@
-pub mod document;
 pub mod category;
+pub mod document;
 
 pub mod prelude;
 
-use common::models::document::Doc;
-use common::models::category::Category;
-use document::{ActiveModel as DocumentAM, Model as DocumentModel};
 use category::{ActiveModel as CategoryAM, Model as CategoryModel};
+use common::models::category::Category;
+use common::models::document::Doc;
+use document::{ActiveModel as DocumentAM, Model as DocumentModel};
 use sea_orm::{ActiveValue::NotSet, Set};
-
 
 impl std::fmt::Display for DocumentModel {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
