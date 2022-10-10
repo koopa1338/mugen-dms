@@ -1,12 +1,31 @@
+use sea_orm::{EntityTrait, PrimaryKeyTrait};
+
 pub mod category;
 pub mod document;
 
 pub mod prelude;
 
+pub trait PrimaryKeySetter<T, P>
+where
+    T: EntityTrait,
+    P: Into<<T::PrimaryKey as PrimaryKeyTrait>::ValueType> + std::fmt::Display + Clone,
+{
+    fn set_pk(&mut self, pk: P);
+}
+
 mod doc_utils {
-    use super::document::{ActiveModel as DocumentAM, Model as DocumentModel};
+    use super::document::{
+        ActiveModel as DocumentAM, Entity as DocumentEntity, Model as DocumentModel,
+    };
+    use super::PrimaryKeySetter;
     use common::models::document::Doc;
     use sea_orm::{ActiveValue::NotSet, Set};
+
+    impl PrimaryKeySetter<DocumentEntity, i64> for DocumentAM {
+        fn set_pk(&mut self, pk: i64) {
+            self.id = Set(pk);
+        }
+    }
 
     impl std::fmt::Display for DocumentModel {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -67,9 +86,18 @@ mod doc_utils {
 }
 
 mod category_utils {
-    use super::category::{ActiveModel as CategoryAM, Model as CategoryModel};
+    use super::category::{
+        ActiveModel as CategoryAM, Entity as CategoryEntity, Model as CategoryModel,
+    };
+    use super::PrimaryKeySetter;
     use common::models::category::Category;
     use sea_orm::{ActiveValue::NotSet, Set};
+
+    impl PrimaryKeySetter<CategoryEntity, i64> for CategoryAM {
+        fn set_pk(&mut self, pk: i64) {
+            self.id = Set(pk);
+        }
+    }
 
     impl std::fmt::Display for CategoryModel {
         fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
