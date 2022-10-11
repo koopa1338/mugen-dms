@@ -1,3 +1,5 @@
+#![allow(clippy::doc_markdown)]
+
 use sea_orm::{EntityTrait, PrimaryKeyTrait};
 
 pub mod category;

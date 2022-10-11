@@ -1,4 +1,4 @@
-#![allow(unused_imports, dead_code, unused_variables)]
+#![allow(clippy::module_name_repetitions)]
 
 mod config;
 mod error;
@@ -19,7 +19,7 @@ use crate::utils::logging::init;
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let log_guard = init()?;
+    let mut log_guard = init()?;
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());
@@ -33,8 +33,10 @@ async fn main() -> Result<()> {
     tokio::join!(frontend, backend);
 
     #[cfg(not(feature = "yew-frontend"))]
-    let (be, cron) = tokio::join!(backend, cron);
+    let (_be, cron) = tokio::join!(backend, cron);
     cron?;
+
+    log_guard.clear();
 
     Ok(())
 }

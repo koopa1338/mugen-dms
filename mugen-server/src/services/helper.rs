@@ -1,7 +1,7 @@
 use entity::PrimaryKeySetter;
 use migration::DbErr;
 use sea_orm::{
-    ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel, PrimaryKeyTrait, Set, ActiveModelBehavior,
+    ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel, PrimaryKeyTrait, ActiveModelBehavior,
 };
 
 pub async fn get_entity_by_pk<T, R, P>(pk: P, conn: &DatabaseConnection) -> Result<R, DbErr>

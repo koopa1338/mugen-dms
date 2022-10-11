@@ -1,5 +1,5 @@
 use axum::{
-    http::{request::Parts, StatusCode},
+    http::StatusCode,
     response::{IntoResponse, Response},
     Json,
 };

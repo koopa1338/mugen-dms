@@ -1,7 +1,7 @@
 use axum::extract::Path;
 use axum::response::IntoResponse;
 use axum::Json;
-use axum::{extract::Extension, http::StatusCode, routing::get, Router};
+use axum::{extract::Extension, routing::get, Router};
 use sea_orm::DatabaseConnection;
 
 use crate::services;

@@ -1,8 +1,7 @@
 use anyhow::Result;
 
 use migration::migrate_database;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection, DbErr};
-use serde::{Deserialize, Serialize};
+use sea_orm::{ConnectOptions, Database, DatabaseConnection};
 use std::time::Duration;
 
 use super::app;

@@ -2,7 +2,7 @@ use super::helper;
 use common::models::category::Category;
 use entity::prelude::*;
 use sea_orm::{
-    prelude::*, ActiveValue::NotSet, DatabaseConnection, DeleteResult, IntoActiveModel, Set,
+    prelude::*, DatabaseConnection,
 };
 use tracing_attributes::instrument;
 

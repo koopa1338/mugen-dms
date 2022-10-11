@@ -2,7 +2,7 @@ use super::helper;
 use common::models::document::Doc;
 use entity::prelude::*;
 use sea_orm::{
-    prelude::*, ActiveValue::NotSet, DatabaseConnection, DeleteResult, Set,
+    prelude::*, DatabaseConnection, DeleteResult,
 };
 use tracing_attributes::instrument;
 
