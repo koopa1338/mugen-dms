@@ -4,21 +4,9 @@ version = "0.1.0"
 authors = ["koopa1338 <sinner1991@gmail.com>"]
 edition = "2021"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
-
 [dependencies]
-wasm-bindgen = "0.2.79"
-wee_alloc = { version = "0.4.5", optional = true }
-yew = "0.19.3"
-yew-router = "0.16.0"
-
-[features]
-default = ["wee_alloc"]
-
-[dev-dependencies]
-wasm-bindgen-test = "0.3.29"
-
-[profile.release]
-opt-level = "s"
-
+console_error_panic_hook = "0.1"
+wasm-bindgen = "0.2"
+wee_alloc = "0.4"
+yew = "0.19"
+yew-router = "0.16"

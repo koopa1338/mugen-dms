@@ -1,6 +1,4 @@
 /target
-assets/js/mugen_ui*
-assets/js/uikit*
-assets/css/uikit*
+assets
 mugen.log
 /log

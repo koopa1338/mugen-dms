@@ -1,0 +1,8 @@
+[build]
+target = "index.html"
+dist = "../assets"
+
+[[hooks]]
+stage = "build"
+command = "sh"
+command_arguments = ["-c", "npx tailwindcss -i static/app.css -o $TRUNK_STAGING_DIR/app.css"]

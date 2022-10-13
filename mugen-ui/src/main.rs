@@ -1,15 +1,14 @@
-#![recursion_limit = "512"]
+#![recursion_limit = "1024"]
 
 mod components;
-
 use components::app::App;
-use wasm_bindgen::prelude::*;
 
-#[cfg(feature = "wee_alloc")]
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[wasm_bindgen]
-pub fn run_app() {
+use console_error_panic_hook::set_once as set_panic_hook;
+
+fn main() {
+    set_panic_hook();
     yew::start_app::<App>();
 }
