@@ -1,4 +1,5 @@
 use super::navigation::Menu;
+use super::navigation::NavLink;
 use super::router::AppRoute;
 
 use yew::{html, Component, Context, Html};
@@ -24,12 +25,19 @@ impl Component for App {
 
     fn view(&self, _ctx: &Context<Self>) -> Html {
         html! {
-            <div>
-                <Menu/>
-                <div class="uk-container uk-margin uk-align-center">
-                    <BrowserRouter>
-                        <Switch<AppRoute> render={Switch::render(switch)} />
-                    </BrowserRouter>
+            <div class="bg-white dark:bg-gray-900">
+                <Menu>
+                    <NavLink title="Home" url="" />
+                    <NavLink title="Docs" url="docs" />
+                </Menu>
+                <div class="bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-400">
+                    <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
+                        <div class="max-w-screen-md">
+                            <BrowserRouter>
+                                <Switch<AppRoute> render={Switch::render(switch)} />
+                            </BrowserRouter>
+                        </div>
+                    </div>
                 </div>
             </div>
         }
@@ -39,19 +47,19 @@ impl Component for App {
 fn switch(routes: &AppRoute) -> Html {
     match routes {
         AppRoute::Main => html! {
-            <div class="uk-card-default uk-card-body">
-                <h3 class="uk-card-title">{"Home"}</h3>
+            <div>
+                <h3 class="">{"Home"}</h3>
                 <p>{"This is the main route"}</p>
             </div>
         },
         AppRoute::Docs => html! {
-            <div class="uk-card-default uk-card-body">
-                <h3 class="uk-card-title">{"Docs"}</h3>
+            <div>
+                <h3 class="">{"Docs"}</h3>
                 <p>{"This is the docs route"}</p>
             </div>
         },
         AppRoute::NotFound => html! {
-            {"Route not found!"}
+            <h3 class="">{"Route not found!"}</h3>
         },
     }
 }
