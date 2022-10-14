@@ -5,7 +5,7 @@ use ts_rs::TS;
 #[ts(export)]
 pub struct Category {
     #[serde(skip_deserializing)]
-    pub id: Option<i64>,
+    pub id: Option<i32>,
     pub title: String,
 }
 

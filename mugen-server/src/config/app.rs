@@ -11,13 +11,13 @@ use clap::Parser;
 use sea_orm::DatabaseConnection;
 use tower_http::trace::TraceLayer;
 
+use crate::handler::categories;
 use crate::handler::docs;
 
 const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 const BACKEND_PORT: u16 = 4000;
 #[cfg(feature = "yew-frontend")]
 const FRONTEND_PORT: u16 = 3000;
-
 #[derive(Clone, Parser)]
 pub struct Config {
     #[clap(long, env)]
@@ -61,7 +61,7 @@ pub async fn static_routes(asset_path: String) {
 
 pub async fn api_routes(conn: DatabaseConnection) {
     let backend = Router::new()
-        .nest("/api", docs::router())
+        .nest("/api", Router::merge(docs::router(), categories::router()))
         .layer(Extension(conn))
         .layer(
             ServiceBuilder::new()

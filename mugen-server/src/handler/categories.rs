@@ -38,7 +38,7 @@ pub async fn category_list(
 
 #[instrument(skip(conn))]
 pub async fn category_by_id(
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<impl IntoResponse, ApiError> {
     match categories::get_category_by_id(id, conn).await {
@@ -69,7 +69,7 @@ pub async fn category_create(
 
 #[instrument(skip(conn, input))]
 pub async fn category_update(
-    Path(id): Path<i64>,
+    Path(id): Path<i32>,
     Json(input): Json<Category>,
     Extension(ref conn): Extension<DatabaseConnection>,
 ) -> Result<impl IntoResponse, ApiError> {

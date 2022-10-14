@@ -95,8 +95,8 @@ mod category_utils {
     use common::models::category::Category;
     use sea_orm::{ActiveValue::NotSet, Set};
 
-    impl PrimaryKeySetter<CategoryEntity, i64> for CategoryAM {
-        fn set_pk(&mut self, pk: i64) {
+    impl PrimaryKeySetter<CategoryEntity, i32> for CategoryAM {
+        fn set_pk(&mut self, pk: i32) {
             self.id = Set(pk);
         }
     }

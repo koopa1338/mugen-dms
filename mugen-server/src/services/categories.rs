@@ -13,9 +13,9 @@ pub async fn get_categories(conn: &DatabaseConnection) -> Result<Vec<Category>, 
 }
 
 #[instrument(skip(conn))]
-pub async fn get_category_by_id(id: i64, conn: &DatabaseConnection) -> Result<Category, DbErr> {
+pub async fn get_category_by_id(id: i32, conn: &DatabaseConnection) -> Result<Category, DbErr> {
     tracing::debug!("Requested category with id {id}.");
-    helper::get_entity_by_pk::<CategoryEntity, Category, i64>(id, conn).await
+    helper::get_entity_by_pk::<CategoryEntity, Category, i32>(id, conn).await
 }
 
 #[instrument(skip(conn, data))]
@@ -27,11 +27,11 @@ pub async fn create_category(data: Category, conn: &DatabaseConnection) -> Resul
 #[instrument(skip(conn, data))]
 pub async fn update_category(
     data: Category,
-    id: i64,
+    id: i32,
     conn: &DatabaseConnection,
 ) -> Result<Category, DbErr> {
     tracing::debug!("Updating category with id {id}.");
-    helper::update_entity_by_pk::<CategoryEntity, Category, i64, CategoryAM>(data, id, conn).await
+    helper::update_entity_by_pk::<CategoryEntity, Category, i32, CategoryAM>(data, id, conn).await
 }
 
 // #[instrument(skip(conn))]
