@@ -46,9 +46,18 @@ impl From<DbErr> for ApiError {
     fn from(err: DbErr) -> Self {
         // TODO: custom error messages for each case
         match err {
-            DbErr::Conn(msg)
-            | DbErr::Exec(msg)
-            | DbErr::Query(msg)
+            DbErr::TryIntoErr { from, into, source } => {
+                error!("Failed to convert {source} from {from} into {into}");
+                ApiError::Internal("Conversion error".to_string())
+            }
+            DbErr::Conn(runtime_error)
+            | DbErr::Exec(runtime_error)
+            | DbErr::Query(runtime_error) => {
+                error!("Runtime Error {runtime_error}");
+                Self::Internal("Runtime Error".to_string())
+            }
+            DbErr::RecordNotFound(msg) => Self::NotFound(msg),
+            DbErr::AttrNotSet(msg)
             | DbErr::Custom(msg)
             | DbErr::Type(msg)
             | DbErr::Json(msg)
@@ -56,9 +65,14 @@ impl From<DbErr> for ApiError {
                 error!(msg);
                 Self::Internal(msg)
             }
-            DbErr::RecordNotFound(msg) => {
-                error!(msg);
-                Self::NotFound(msg)
+            DbErr::UnpackInsertId | DbErr::UpdateGetPrimeryKey | DbErr::ConnectionAcquire => {
+                error!("Internal server error");
+                Self::Internal("Internal server error".to_string())
+            }
+            DbErr::ConvertFromU64(msg) => {
+                let error_msg = msg.to_string();
+                error!(error_msg);
+                Self::Internal(error_msg)
             }
         }
     }
