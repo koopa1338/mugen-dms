@@ -10,5 +10,5 @@ use console_error_panic_hook::set_once as set_panic_hook;
 
 fn main() {
     set_panic_hook();
-    yew::start_app::<App>();
+    yew::Renderer::<App>::new().render();
 }

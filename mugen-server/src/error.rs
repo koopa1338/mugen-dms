@@ -7,7 +7,6 @@ use migration::DbErr;
 use sea_orm::JsonValue;
 use serde_json::json;
 use std::{error::Error, fmt::Display};
-use tracing::error;
 
 #[derive(Clone, Debug)]
 pub enum ApiError {
@@ -15,6 +14,8 @@ pub enum ApiError {
     Internal(String),
     Timeout(String),
 }
+
+pub type ApiResult<T> = Result<T, ApiError>;
 
 impl ApiError {
     fn status_code(&self) -> StatusCode {
@@ -28,7 +29,9 @@ impl ApiError {
     fn error_message(&self) -> String {
         // TODO: custom error messages for each case
         match self {
-            Self::NotFound(msg) | Self::Internal(msg) | Self::Timeout(msg) => msg.clone(),
+            Self::NotFound(ref msg) | Self::Internal(ref msg) | Self::Timeout(ref msg) => {
+                msg.clone()
+            }
         }
     }
 
@@ -47,13 +50,14 @@ impl From<DbErr> for ApiError {
         // TODO: custom error messages for each case
         match err {
             DbErr::TryIntoErr { from, into, source } => {
-                error!("Failed to convert {source} from {from} into {into}");
+                tracing::error!("Failed to convert {source} from {from} into {into}");
                 ApiError::Internal("Conversion error".to_string())
             }
-            DbErr::Conn(runtime_error)
-            | DbErr::Exec(runtime_error)
-            | DbErr::Query(runtime_error) => {
-                error!("Runtime Error {runtime_error}");
+            DbErr::Conn(_) | DbErr::ConnectionAcquire => {
+                Self::Timeout("Connection Error".to_string())
+            }
+            DbErr::Exec(runtime_error) | DbErr::Query(runtime_error) => {
+                tracing::error!("Runtime Error {runtime_error}");
                 Self::Internal("Runtime Error".to_string())
             }
             DbErr::RecordNotFound(msg) => Self::NotFound(msg),
@@ -62,21 +66,23 @@ impl From<DbErr> for ApiError {
             | DbErr::Type(msg)
             | DbErr::Json(msg)
             | DbErr::Migration(msg) => {
-                error!(msg);
+                tracing::error!(msg);
                 Self::Internal(msg)
-            }
-            DbErr::UnpackInsertId | DbErr::UpdateGetPrimeryKey | DbErr::ConnectionAcquire => {
-                error!("Internal server error");
-                Self::Internal("Internal server error".to_string())
             }
             DbErr::ConvertFromU64(msg) => {
                 let error_msg = msg.to_string();
-                error!(error_msg);
+                tracing::error!(error_msg);
                 Self::Internal(error_msg)
+            }
+            DbErr::UnpackInsertId | DbErr::UpdateGetPrimaryKey => {
+                tracing::error!("Internal server error");
+                Self::Internal("Internal server error".to_string())
             }
         }
     }
 }
+
+impl Error for ApiError {}
 
 impl Display for ApiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -84,8 +90,6 @@ impl Display for ApiError {
         writeln!(f, "Body: {:?}", self.error_message())
     }
 }
-
-impl Error for ApiError {}
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {

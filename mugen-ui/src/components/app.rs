@@ -19,7 +19,7 @@ impl Component for App {
         false
     }
 
-    fn changed(&mut self, _ctx: &Context<Self>) -> bool {
+    fn changed(&mut self, _ctx: &Context<Self>, _old_props: &Self::Properties) -> bool {
         true
     }
 
@@ -34,7 +34,7 @@ impl Component for App {
                     <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
                         <div class="max-w-screen-md">
                             <BrowserRouter>
-                                <Switch<AppRoute> render={Switch::render(switch)} />
+                                <Switch<AppRoute> render={switch} />
                             </BrowserRouter>
                         </div>
                     </div>
@@ -44,7 +44,7 @@ impl Component for App {
     }
 }
 
-fn switch(routes: &AppRoute) -> Html {
+fn switch(routes: AppRoute) -> Html {
     match routes {
         AppRoute::Main => html! {
             <div>

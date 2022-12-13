@@ -68,7 +68,7 @@ pub fn init() -> Result<Vec<WorkerGuard>> {
             .filter(|file| file.enabled)
             .for_each(|entry| {
                 let log_dir = &entry.path;
-                if !log_dir.exists() && create_dir_all(&log_dir).is_ok() {
+                if !log_dir.exists() && create_dir_all(log_dir).is_ok() {
                     let appender = tracing_appender::rolling::never(log_dir, &entry.filename);
                     let (file_writer, guard) = tracing_appender::non_blocking(appender);
                     guards.push(guard);

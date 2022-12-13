@@ -5,8 +5,9 @@ authors = ["koopa1338 <sinner1991@gmail.com>"]
 edition = "2021"
 
 [dependencies]
-axum = "0.5"
+axum = { version = "0.6", features = ["macros"] }
 dotenv = "0.15"
+thiserror = "1.0"
 tokio = { version = "1.20", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [

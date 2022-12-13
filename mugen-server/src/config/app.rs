@@ -2,17 +2,16 @@ use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::time::Duration;
 
-use axum::Extension;
 use tower::{BoxError, ServiceBuilder};
 
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, Router};
 
 use clap::Parser;
-use sea_orm::DatabaseConnection;
 use tower_http::trace::TraceLayer;
 
 use crate::handler::categories;
 use crate::handler::docs;
+use crate::AppState;
 
 const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
 const BACKEND_PORT: u16 = 4000;
@@ -59,10 +58,10 @@ pub async fn static_routes(asset_path: String) {
     serve(frontend, FRONTEND_PORT).await
 }
 
-pub async fn api_routes(conn: DatabaseConnection) {
+pub async fn api_routes(app_state: AppState) {
     let backend = Router::new()
-        .nest("/api", Router::merge(docs::router(), categories::router()))
-        .layer(Extension(conn))
+        .nest("/api", Router::merge(docs::router().with_state(app_state.clone()), categories::router().with_state(app_state.clone())))
+        .with_state(app_state)
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {

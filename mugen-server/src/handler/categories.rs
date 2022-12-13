@@ -1,19 +1,20 @@
-use axum::extract::Path;
+use axum::extract::{Path, State};
 use axum::response::IntoResponse;
 use axum::Json;
-use axum::{extract::Extension, routing::get, Router};
+use axum::Router;
+use axum::routing::get;
 use sea_orm::DatabaseConnection;
 
-use crate::services;
+use crate::{services, AppState};
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
 
-use super::ApiError;
+use crate::error::ApiResult as Result;
 
 use common::models::category::Category;
 use services::categories;
 
-pub fn router() -> Router {
+pub fn router() -> Router<AppState> {
     Router::new()
         .route("/categories", get(category_list).post(category_create))
         .route(
@@ -24,8 +25,8 @@ pub fn router() -> Router {
 
 #[instrument(skip(conn))]
 pub async fn category_list(
-    Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<impl IntoResponse, ApiError> {
+    State(ref conn): State<DatabaseConnection>,
+) -> Result<impl IntoResponse> {
     match categories::get_categories(conn).await {
         Ok(categories) => {
             debug!("Retrieved {} categories", categories.len());
@@ -38,9 +39,9 @@ pub async fn category_list(
 
 #[instrument(skip(conn))]
 pub async fn category_by_id(
+    State(ref conn): State<DatabaseConnection>,
     Path(id): Path<i32>,
-    Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<impl IntoResponse, ApiError> {
+) -> Result<impl IntoResponse> {
     match categories::get_category_by_id(id, conn).await {
         Ok(category) => {
             debug!("Retrieved category with id {:?}", category.id);
@@ -53,9 +54,9 @@ pub async fn category_by_id(
 
 #[instrument(skip(conn, input))]
 pub async fn category_create(
+    State(ref conn): State<DatabaseConnection>,
     Json(input): Json<Category>,
-    Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<impl IntoResponse, ApiError> {
+) -> Result<impl IntoResponse> {
     let result = categories::create_category(input, conn).await;
     match result {
         Ok(category) => {
@@ -63,16 +64,13 @@ pub async fn category_create(
             trace!("{category}");
             Ok(Json(category))
         }
-        Err(dberror) => Err(dberror.into()),
-    }
-}
-
+        Err(dberror) => Err(dberror.into()), } }
 #[instrument(skip(conn, input))]
 pub async fn category_update(
+    State(ref conn): State<DatabaseConnection>,
     Path(id): Path<i32>,
     Json(input): Json<Category>,
-    Extension(ref conn): Extension<DatabaseConnection>,
-) -> Result<impl IntoResponse, ApiError> {
+) -> Result<impl IntoResponse> {
     match categories::update_category(input, id, conn).await {
         Ok(category) => {
             debug!("Category with id {:?} was updated", category.id);
