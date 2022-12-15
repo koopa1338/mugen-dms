@@ -14,7 +14,7 @@ impl std::fmt::Display for Category {
         writeln!(f)?;
         writeln!(f, "Category (")?;
         if let Some(id) = self.id {
-            writeln!(f, "\tid: {}", id)?;
+            writeln!(f, "\tid: {id}")?;
         }
         writeln!(f, "\ttitle: {}", self.title)?;
         write!(f, ")")

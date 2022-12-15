@@ -43,19 +43,19 @@ impl std::fmt::Display for Doc {
         writeln!(f)?;
         writeln!(f, "Document (")?;
         if let Some(id) = self.id {
-            writeln!(f, "\tid: {}", id)?;
+            writeln!(f, "\tid: {id}")?;
         }
         writeln!(f, "\tcreated: {}", self.created)?;
         if let Some(updated) = self.updated {
-            writeln!(f, "\tlast_updated: {}", updated)?;
+            writeln!(f, "\tlast_updated: {updated}")?;
         }
         if let Some(ft) = &self.filetype {
-            writeln!(f, "\tfiletype: {}", ft)?;
+            writeln!(f, "\tfiletype: {ft}")?;
         }
         writeln!(f, "\tversion: {}", self.version)?;
         writeln!(f, "\tsize: {}", self.size)?;
         if let Some(c) = &self.category_id {
-            writeln!(f, "\tcategory_id: {}", c)?;
+            writeln!(f, "\tcategory_id: {c}")?;
         }
         write!(f, ")")
     }

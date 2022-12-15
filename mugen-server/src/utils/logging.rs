@@ -91,7 +91,7 @@ pub fn init() -> Result<Vec<WorkerGuard>> {
                             layers.push(layer);
                         }
                         Err(_) => {
-                            eprintln!("Error parsing file targets. failed to initialize file logging for {:#?}", entry);
+                            eprintln!("Error parsing file targets. failed to initialize file logging for {entry:#?}");
                         }
                     }
                 }
