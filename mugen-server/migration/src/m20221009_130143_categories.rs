@@ -12,6 +12,8 @@ enum Category {
     Title,
 }
 
+const FK_DOC_CATEGORY: &str = "FK_document_category";
+
 #[async_trait::async_trait]
 impl MigrationTrait for Migration {
     async fn up(&self, manager: &SchemaManager) -> Result<(), DbErr> {
@@ -39,7 +41,7 @@ impl MigrationTrait for Migration {
                     .add_column(ColumnDef::new(Document::CategoryId).integer())
                     .add_foreign_key(
                         TableForeignKey::new()
-                            .name("FK_document_category")
+                            .name(FK_DOC_CATEGORY)
                             .from_tbl(Document::Table)
                             .from_col(Document::CategoryId)
                             .to_tbl(Category::Table)
@@ -55,8 +57,7 @@ impl MigrationTrait for Migration {
             .alter_table(
                 Table::alter()
                     .table(Document::Table)
-                    .drop_column(Document::CategoryId)
-                    .drop_foreign_key(Alias::new("FK_document_category"))
+                    .drop_foreign_key(Alias::new(FK_DOC_CATEGORY))
                     .clone(),
             )
             .await?;
