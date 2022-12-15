@@ -17,7 +17,7 @@ version = "0.10"
 features = [
   "macros",
   "debug-print",
-  "runtime-tokio-native-tls",
+  "runtime-tokio-rustls",
   "sqlx-postgres",
   "with-chrono",
   "with-json",
