@@ -1,7 +1,8 @@
 use entity::PrimaryKeySetter;
 use migration::DbErr;
 use sea_orm::{
-    ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel, PrimaryKeyTrait, ActiveModelBehavior,
+    ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel,
+    PrimaryKeyTrait,
 };
 
 pub async fn get_entity_by_pk<T, R, P>(pk: P, conn: &DatabaseConnection) -> Result<R, DbErr>
@@ -20,7 +21,7 @@ where
 pub async fn get_entities<T, R>(conn: &DatabaseConnection) -> Result<R, DbErr>
 where
     T: EntityTrait,
-    R: FromIterator<T::Model>
+    R: FromIterator<T::Model>,
 {
     let entities = T::find().all(conn).await?;
     Ok(R::from_iter(entities))
@@ -43,10 +44,7 @@ where
     T::update(active_model).exec(conn).await.map(Into::into)
 }
 
-pub async fn create_entity<T, R, A>(
-    data: R,
-    conn: &DatabaseConnection,
-) -> Result<R, DbErr>
+pub async fn create_entity<T, R, A>(data: R, conn: &DatabaseConnection) -> Result<R, DbErr>
 where
     T: EntityTrait,
     R: From<T::Model> + Into<A>,

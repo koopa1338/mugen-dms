@@ -1,9 +1,7 @@
 use super::helper;
 use common::models::category::Category;
 use entity::prelude::*;
-use sea_orm::{
-    prelude::*, DatabaseConnection,
-};
+use sea_orm::{prelude::*, DatabaseConnection};
 use tracing_attributes::instrument;
 
 #[instrument(skip(conn))]

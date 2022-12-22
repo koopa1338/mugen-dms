@@ -22,9 +22,7 @@ pub fn router() -> Router<AppState> {
 }
 
 #[instrument(skip(conn))]
-pub async fn doc_list(
-    State(ref conn): State<DatabaseConnection>,
-) -> Result<impl IntoResponse> {
+pub async fn doc_list(State(ref conn): State<DatabaseConnection>) -> Result<impl IntoResponse> {
     match services::docs::get_docs(conn).await {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());

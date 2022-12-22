@@ -1,9 +1,7 @@
 use super::helper;
 use common::models::document::Doc;
 use entity::prelude::*;
-use sea_orm::{
-    prelude::*, DatabaseConnection, DeleteResult,
-};
+use sea_orm::{prelude::*, DatabaseConnection, DeleteResult};
 use tracing_attributes::instrument;
 
 #[instrument(skip(conn))]

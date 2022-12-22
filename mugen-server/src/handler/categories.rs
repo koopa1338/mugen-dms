@@ -1,8 +1,8 @@
 use axum::extract::{Path, State};
 use axum::response::IntoResponse;
+use axum::routing::get;
 use axum::Json;
 use axum::Router;
-use axum::routing::get;
 use sea_orm::DatabaseConnection;
 
 use crate::{services, AppState};
@@ -64,7 +64,9 @@ pub async fn category_create(
             trace!("{category}");
             Ok(Json(category))
         }
-        Err(dberror) => Err(dberror.into()), } }
+        Err(dberror) => Err(dberror.into()),
+    }
+}
 #[instrument(skip(conn, input))]
 pub async fn category_update(
     State(ref conn): State<DatabaseConnection>,
