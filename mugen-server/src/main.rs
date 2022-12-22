@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
     let cron = scanner_cron();
 
     #[cfg(feature = "yew-frontend")]
-    let frontend = app::static_routes(config.asset_path);
+    let frontend = app::frontend::static_routes(config.asset_path);
 
     #[cfg(feature = "yew-frontend")]
     tokio::join!(frontend, backend);
