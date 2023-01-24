@@ -4,3 +4,7 @@ members = [
     "mugen-server",
     "common",
 ]
+
+[workspace.package]
+authors = ["koopa1338 <sinner1991@gmail.com>"]
+edition = "2021"

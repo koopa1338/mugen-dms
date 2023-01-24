@@ -1,8 +1,8 @@
 [package]
 name = "mugen-ui"
 version = "0.1.0"
-authors = ["koopa1338 <sinner1991@gmail.com>"]
-edition = "2021"
+edition.workspace = true
+authors.workspace = true
 
 [dependencies]
 console_error_panic_hook = "0.1"
