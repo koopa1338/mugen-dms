@@ -30,10 +30,10 @@ sea-orm = { version = "0.10", features = [
     "with-chrono",
 ], default-features = false }
 anyhow = "1.0"
-clap = { version = "3.2", features = ["derive", "env"] }
+clap = { version = "4.1", features = ["derive", "env"] }
 entity = { path = "entity" }
 migration = { path = "migration" }
-toml = "0.6"
+toml = "0.7"
 tokio_schedule = "0.3"
 common = { path = "../common" }
 
