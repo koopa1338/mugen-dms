@@ -16,7 +16,7 @@ use dotenv::dotenv;
 use sea_orm::DatabaseConnection;
 
 use crate::utils::cron::scanner_cron;
-use crate::utils::logging::init;
+use crate::utils::logging;
 
 #[derive(Debug, Clone, FromRef)]
 pub struct AppState {
@@ -26,7 +26,7 @@ pub struct AppState {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let mut log_guard = init()?;
+    let mut log_guard = logging::init()?;
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());
