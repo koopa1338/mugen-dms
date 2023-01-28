@@ -83,18 +83,17 @@ pub async fn category_update(
     }
 }
 
-// #[instrument(skip(conn))]
-// pub async fn doc_delete(
-//     Path(id): Path<i64>,
-//     Extension(ref conn): Extension<DatabaseConnection>,
-// ) -> Result<impl IntoResponse, ApiError> {
-//     match services::docs::delete_doc(id, conn).await {
-//         Ok(document) => {
-//             debug!("deleted document with id {id}");
-//             // TODO: we might want to respond with useful json
-//             Ok(Json(document.rows_affected))
-//         }
-//         Err(dberror) => Err(dberror.into()),
-//     }
-// }
-//
+#[instrument(skip(conn))]
+pub async fn doc_delete(
+    State(ref conn): State<DatabaseConnection>,
+    Path(id): Path<i32>,
+) -> Result<impl IntoResponse> {
+    match services::categories::delete_category(id, conn).await {
+        Ok(category) => {
+            debug!("deleted category with id {id}");
+            // TODO: we might want to respond with useful json
+            Ok(Json(category.rows_affected))
+        }
+        Err(dberror) => Err(dberror.into()),
+    }
+}

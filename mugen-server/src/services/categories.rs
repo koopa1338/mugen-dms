@@ -1,7 +1,7 @@
 use super::helper;
 use common::models::category::Category;
 use entity::prelude::*;
-use sea_orm::{prelude::*, DatabaseConnection};
+use sea_orm::{prelude::*, DatabaseConnection, DeleteResult};
 use tracing_attributes::instrument;
 
 #[instrument(skip(conn))]
@@ -32,9 +32,8 @@ pub async fn update_category(
     helper::update_entity_by_pk::<CategoryEntity, Category, i32, CategoryAM>(data, id, conn).await
 }
 
-// #[instrument(skip(conn))]
-// pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResult, DbErr> {
-//     tracing::debug!("Delete document with id {id}.");
-//     DocumentEntity::delete_by_id(id).exec(conn).await
-// }
-//
+#[instrument(skip(conn))]
+pub async fn delete_category(id: i32, conn: &DatabaseConnection) -> Result<DeleteResult, DbErr> {
+    tracing::debug!("Delete category with id {id}.");
+    CategoryEntity::delete_by_id(id).exec(conn).await
+}
