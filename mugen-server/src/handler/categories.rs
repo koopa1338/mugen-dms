@@ -19,7 +19,7 @@ pub fn router() -> Router<AppState> {
         .route("/categories", get(category_list).post(category_create))
         .route(
             "/categories/:id",
-            get(category_by_id).patch(category_update), // TODO: .delete(category_delete),
+            get(category_by_id).patch(category_update).delete(category_delete),
         )
 }
 
@@ -84,7 +84,7 @@ pub async fn category_update(
 }
 
 #[instrument(skip(conn))]
-pub async fn doc_delete(
+pub async fn category_delete(
     State(ref conn): State<DatabaseConnection>,
     Path(id): Path<i32>,
 ) -> Result<impl IntoResponse> {
