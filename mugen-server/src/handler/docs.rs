@@ -14,9 +14,9 @@ use common::models::document::Doc;
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/docs", get(doc_list).post(doc_create))
+        .route("/doc", get(doc_list).post(doc_create))
         .route(
-            "/docs/:id",
+            "/doc/:id",
             get(doc_by_id).patch(doc_update).delete(doc_delete),
         )
 }

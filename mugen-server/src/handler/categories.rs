@@ -16,9 +16,9 @@ use services::categories;
 
 pub fn router() -> Router<AppState> {
     Router::new()
-        .route("/categories", get(category_list).post(category_create))
+        .route("/category", get(category_list).post(category_create))
         .route(
-            "/categories/:id",
+            "/category/:id",
             get(category_by_id).patch(category_update).delete(category_delete),
         )
 }
