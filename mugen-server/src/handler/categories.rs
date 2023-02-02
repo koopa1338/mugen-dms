@@ -15,12 +15,17 @@ use common::models::category::Category;
 use services::categories;
 
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/category", get(category_list).post(category_create))
-        .route(
-            "/category/:id",
-            get(category_by_id).patch(category_update).delete(category_delete),
-        )
+    Router::new().nest(
+        "/category",
+        Router::new()
+            .route("/", get(category_list).post(category_create))
+            .route(
+                "/:id",
+                get(category_by_id)
+                    .put(category_update)
+                    .delete(category_delete),
+            ),
+    )
 }
 
 #[instrument(skip(conn))]

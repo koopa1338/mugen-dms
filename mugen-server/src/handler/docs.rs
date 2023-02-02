@@ -13,12 +13,12 @@ use crate::error::ApiResult as Result;
 use common::models::document::Doc;
 
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/doc", get(doc_list).post(doc_create))
-        .route(
-            "/doc/:id",
-            get(doc_by_id).patch(doc_update).delete(doc_delete),
-        )
+    Router::new().nest(
+        "/doc",
+        Router::new()
+            .route("/", get(doc_list).post(doc_create))
+            .route("/:id", get(doc_by_id).put(doc_update).delete(doc_delete)),
+    )
 }
 
 #[instrument(skip(conn))]
