@@ -74,7 +74,10 @@ impl From<DbErr> for ApiError {
                 tracing::error!(error_msg);
                 Self::Internal(error_msg)
             }
-            DbErr::UnpackInsertId | DbErr::UpdateGetPrimaryKey => {
+            DbErr::RecordNotInserted
+            | DbErr::RecordNotUpdated
+            | DbErr::UnpackInsertId
+            | DbErr::UpdateGetPrimaryKey => {
                 tracing::error!("Internal server error");
                 Self::Internal("Internal server error".to_string())
             }
