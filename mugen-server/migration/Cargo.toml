@@ -11,4 +11,4 @@ path = "src/lib.rs"
 [dependencies]
 entity = { path = "../entity" }
 sea-orm-migration = { version = "0.11", features = [ "runtime-tokio-rustls", "sqlx-postgres" ] }
-tokio = { version = "1.24", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1.25", features = ["rt-multi-thread", "macros"] }

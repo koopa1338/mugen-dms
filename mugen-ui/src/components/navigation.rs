@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use yew::{function_component, html, Component, Context, Html, Properties, ChildrenWithProps};
+use yew::{function_component, html, ChildrenWithProps, Component, Context, Html, Properties};
 
 #[derive(Clone, Debug, PartialEq, Properties)]
 pub struct MenuProps {
