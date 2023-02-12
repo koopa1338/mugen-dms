@@ -16,7 +16,7 @@ use dotenv::dotenv;
 use sea_orm::DatabaseConnection;
 
 use crate::utils::cron::scanner_cron;
-use crate::utils::logging;
+use crate::utils::logging::DynamicLogger;
 
 #[derive(Debug, Clone, FromRef)]
 pub struct AppState {
@@ -26,7 +26,9 @@ pub struct AppState {
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv().ok();
-    let mut log_guard = logging::init()?;
+
+    let logger = DynamicLogger::new(dotenv::var("LOGGING")?)?;
+    logger.init()?;
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());
@@ -44,8 +46,6 @@ async fn main() -> Result<()> {
     #[cfg(not(feature = "yew-frontend"))]
     let (_be, cron) = tokio::join!(backend, cron);
     cron?;
-
-    log_guard.clear();
 
     Ok(())
 }
