@@ -1,13 +1,14 @@
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use std::cell::RefCell;
 use std::fmt::Debug;
 use std::fs::{create_dir_all, read_to_string};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
+use tracing::Level;
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::Registry;
 use tracing_subscriber::{filter::Targets, fmt, prelude::*, Layer};
+use tracing_subscriber::{EnvFilter, Registry};
 
 #[derive(Clone, Debug, Default, Deserialize)]
 #[serde(rename_all(deserialize = "lowercase"))]
@@ -58,10 +59,32 @@ struct StreamLogger {
 
 #[derive(Debug, Deserialize)]
 struct LogConfig {
+    #[serde(deserialize_with = "deserialize_loglevel")]
+    #[serde(default = "default_loglevel")]
+    log_level: Level,
     stream_logger: StreamLogger,
     file_logger: Option<Vec<FileLogger>>,
 }
 
+const fn default_loglevel() -> Level {
+    Level::INFO
+}
+
+fn deserialize_loglevel<'de, D>(deserializer: D) -> Result<Level, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let raw: String = String::deserialize(deserializer)?;
+    let level = match raw.to_lowercase().as_str() {
+        "debug" => Level::DEBUG,
+        "warn" => Level::WARN,
+        "error" => Level::ERROR,
+        "trace" => Level::TRACE,
+        _ => Level::INFO,
+    };
+
+    Ok(level)
+}
 pub struct DynamicLogger {
     config: LogConfig,
     layers: RefCell<Vec<Box<dyn Layer<Registry> + Send + Sync>>>,
@@ -83,7 +106,6 @@ impl DynamicLogger {
         if !self.config.stream_logger.options.enabled {
             return Ok(());
         }
-        
 
         match Targets::from_str(&options.modules.join(",")) {
             Ok(targets) => {
@@ -168,8 +190,12 @@ impl DynamicLogger {
     }
 
     pub fn init(&self) -> Result<()> {
+        let envfilter = EnvFilter::from_default_env().add_directive(self.config.log_level.into());
         self.init_stdout()?;
         self.init_filelogger();
+        self.layers
+            .borrow_mut()
+            .push(fmt::layer().with_filter(envfilter).boxed());
         tracing_subscriber::registry()
             .with(self.layers.take())
             .init();
