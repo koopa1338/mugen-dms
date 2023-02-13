@@ -198,24 +198,26 @@ impl DynamicLogger {
     }
 
     pub fn init(&self) -> Result<()> {
-        let envfilter =
-            EnvFilter::from_default_env().add_directive(self.config.global.log_level.into());
         self.init_stdout()?;
         self.init_filelogger();
-        let options = self.config.global.options.clone();
-        let layer = fmt::layer()
-            .with_file(options.file)
-            .with_line_number(options.line_number)
-            .with_thread_names(options.thread_name)
-            .with_thread_ids(options.thread_id);
+        if self.config.global.options.enabled {
+            let options = self.config.global.options.clone();
+            let envfilter =
+                EnvFilter::from_default_env().add_directive(self.config.global.log_level.into());
+            let layer = fmt::layer()
+                .with_file(options.file)
+                .with_line_number(options.line_number)
+                .with_thread_names(options.thread_name)
+                .with_thread_ids(options.thread_id);
 
-        let env_layer = match self.config.global.options.format {
-            LogFormat::Full => layer.with_filter(envfilter).boxed(),
-            LogFormat::Compact => layer.compact().with_filter(envfilter).boxed(),
-            LogFormat::Pretty => layer.pretty().with_filter(envfilter).boxed(),
-            LogFormat::Json => layer.json().with_filter(envfilter).boxed(),
-        };
-        self.layers.borrow_mut().push(env_layer);
+            let env_layer = match self.config.global.options.format {
+                LogFormat::Full => layer.with_filter(envfilter).boxed(),
+                LogFormat::Compact => layer.compact().with_filter(envfilter).boxed(),
+                LogFormat::Pretty => layer.pretty().with_filter(envfilter).boxed(),
+                LogFormat::Json => layer.json().with_filter(envfilter).boxed(),
+            };
+            self.layers.borrow_mut().push(env_layer);
+        }
         tracing_subscriber::registry()
             .with(self.layers.take())
             .init();
