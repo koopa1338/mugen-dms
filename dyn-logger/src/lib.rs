@@ -19,21 +19,41 @@ enum LogFormat {
     Json,
 }
 
+fn default_as_true() -> bool {
+    true
+}
+
 #[derive(Debug, Deserialize)]
 struct FileLogger {
-    enabled: bool,
     filename: String,
     path: PathBuf,
+    #[serde(flatten)]
+    options: SharedOptions,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+struct SharedOptions {
+    #[serde(default = "default_as_true")]
+    enabled: bool,
     modules: Vec<String>,
+    #[serde(default)]
     format: LogFormat,
+    #[serde(default)]
+    line_number: bool,
+    #[serde(default)]
+    file: bool,
+    #[serde(default)]
+    thread_name: bool,
+    #[serde(default)]
+    thread_id: bool,
 }
 
 #[derive(Debug, Deserialize)]
 struct StreamLogger {
-    enabled: bool,
-    format: Option<LogFormat>,
+    #[serde(default)]
     color: bool,
-    modules: Vec<String>,
+    #[serde(flatten)]
+    options: SharedOptions,
 }
 
 #[derive(Debug, Deserialize)]
@@ -59,14 +79,21 @@ impl DynamicLogger {
     }
 
     fn init_stdout(&self) -> Result<()> {
-        if !self.config.stream_logger.enabled {
+        let options = self.config.stream_logger.options.clone();
+        if !self.config.stream_logger.options.enabled {
             return Ok(());
         }
+        
 
-        match Targets::from_str(&self.config.stream_logger.modules.join(",")) {
+        match Targets::from_str(&options.modules.join(",")) {
             Ok(targets) => {
-                let stream_layer = fmt::Layer::new().with_writer(std::io::stdout);
-                let format = &self.config.stream_logger.format.clone().unwrap_or_default();
+                let stream_layer = fmt::Layer::new()
+                    .with_writer(std::io::stdout)
+                    .with_file(options.file)
+                    .with_line_number(options.line_number)
+                    .with_thread_names(options.thread_name)
+                    .with_thread_ids(options.thread_id);
+                let format = &options.format.clone();
                 let layer = match format {
                     LogFormat::Full => stream_layer
                         .with_ansi(self.config.stream_logger.color)
@@ -101,10 +128,17 @@ impl DynamicLogger {
             let (file_writer, guard) = tracing_appender::non_blocking(appender);
             self.guards.borrow_mut().push(guard);
 
-            match Targets::from_str(&entry.modules.join(",")) {
+            let options = entry.options.clone();
+            match Targets::from_str(&options.modules.join(",")) {
                 Ok(file_targets) => {
-                    let file_layer = fmt::Layer::new().with_writer(file_writer).with_ansi(false);
-                    let layer = match entry.format {
+                    let file_layer = fmt::Layer::new()
+                        .with_writer(file_writer)
+                        .with_ansi(false)
+                        .with_file(options.file)
+                        .with_line_number(options.line_number)
+                        .with_thread_names(options.thread_name)
+                        .with_thread_ids(options.thread_id);
+                    let layer = match options.format {
                         LogFormat::Full => file_layer.with_filter(file_targets).boxed(),
                         LogFormat::Compact => {
                             file_layer.compact().with_filter(file_targets).boxed()
@@ -126,7 +160,7 @@ impl DynamicLogger {
         if let Some(file_logger_table) = &self.config.file_logger {
             file_logger_table
                 .iter()
-                .filter(|file| file.enabled)
+                .filter(|file| file.options.enabled)
                 .for_each(|entry| {
                     self.register_filelogger_target(entry);
                 });
