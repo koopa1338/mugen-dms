@@ -36,6 +36,7 @@ migration = { path = "migration" }
 toml = "0.7"
 tokio_schedule = "0.3"
 common = { path = "../common" }
+dyn-logger = { path = "../dyn-logger" }
 
 [features]
 yew-frontend = []

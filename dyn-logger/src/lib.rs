@@ -9,9 +9,10 @@ use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::Registry;
 use tracing_subscriber::{filter::Targets, fmt, prelude::*, Layer};
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Default, Deserialize)]
 #[serde(rename_all(deserialize = "lowercase"))]
-pub enum LogFormat {
+enum LogFormat {
+    #[default]
     Full,
     Compact,
     Pretty,
@@ -19,25 +20,26 @@ pub enum LogFormat {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct FileLogger {
-    pub enabled: bool,
-    pub filename: String,
-    pub path: PathBuf,
-    pub modules: Vec<String>,
-    pub format: LogFormat,
+struct FileLogger {
+    enabled: bool,
+    filename: String,
+    path: PathBuf,
+    modules: Vec<String>,
+    format: LogFormat,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct StreamLogger {
-    pub enabled: bool,
-    pub color: bool,
-    pub modules: Vec<String>,
+struct StreamLogger {
+    enabled: bool,
+    format: Option<LogFormat>,
+    color: bool,
+    modules: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct LogConfig {
-    pub stream_logger: StreamLogger,
-    pub file_logger: Option<Vec<FileLogger>>,
+struct LogConfig {
+    stream_logger: StreamLogger,
+    file_logger: Option<Vec<FileLogger>>,
 }
 
 pub struct DynamicLogger {
@@ -57,15 +59,29 @@ impl DynamicLogger {
     }
 
     fn init_stdout(&self) -> Result<()> {
+        if !self.config.stream_logger.enabled {
+            return Ok(());
+        }
+
         match Targets::from_str(&self.config.stream_logger.modules.join(",")) {
             Ok(targets) => {
-                let stream_layer = fmt::Layer::new()
-                    .with_writer(std::io::stdout)
-                    .with_ansi(self.config.stream_logger.color)
-                    .with_filter(targets)
-                    .boxed();
+                let stream_layer = fmt::Layer::new().with_writer(std::io::stdout);
+                let format = &self.config.stream_logger.format.clone().unwrap_or_default();
+                let layer = match format {
+                    LogFormat::Full => stream_layer
+                        .with_ansi(self.config.stream_logger.color)
+                        .with_filter(targets)
+                        .boxed(),
+                    LogFormat::Compact => stream_layer
+                        .with_ansi(self.config.stream_logger.color)
+                        .compact()
+                        .with_filter(targets)
+                        .boxed(),
+                    LogFormat::Pretty => stream_layer.pretty().with_filter(targets).boxed(),
+                    LogFormat::Json => stream_layer.json().with_filter(targets).boxed(),
+                };
 
-                self.layers.borrow_mut().push(stream_layer);
+                self.layers.borrow_mut().push(layer);
                 Ok(())
             }
             Err(msg) => {
@@ -106,22 +122,20 @@ impl DynamicLogger {
         }
     }
 
-    fn init_filelogger(&self) -> Result<()> {
+    fn init_filelogger(&self) {
         if let Some(file_logger_table) = &self.config.file_logger {
             file_logger_table
-                .into_iter()
+                .iter()
                 .filter(|file| file.enabled)
                 .for_each(|entry| {
                     self.register_filelogger_target(entry);
                 });
         }
-
-        Ok(())
     }
 
     pub fn init(&self) -> Result<()> {
         self.init_stdout()?;
-        self.init_filelogger()?;
+        self.init_filelogger();
         tracing_subscriber::registry()
             .with(self.layers.take())
             .init();

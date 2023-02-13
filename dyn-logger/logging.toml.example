@@ -1,0 +1,30 @@
+ # general logging (std out)
+[stream_logger]
+enabled = true
+color = true # defaults to false if format is pretty or json
+format = "json" # Options: `full`, `compact`, `pretty` and `json`
+modules = [
+    "tower_http=debug",
+    "mugen_server::handler=trace",
+]
+
+# logging to files
+[[file_logger]]
+enabled = true
+filename = "db.log"
+path = "./logs"
+format = "json" # Options: `full`, `compact`, `pretty` and `json`
+modules = [
+    "mugen_server::config::db=trace",
+]
+
+[[file_logger]]
+enabled = true
+filename = "request.log"
+path = "./logs"
+format = "compact" # Options: `full`, `compact`, `pretty` and `json`
+modules = [
+    "mugen_server::handler=trace",
+    "mugen_server::utils=trace",
+    "mugen_server=trace",
+]

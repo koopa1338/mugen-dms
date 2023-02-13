@@ -3,6 +3,7 @@ members = [
     "mugen-ui",
     "mugen-server",
     "common",
+    "dyn-logger",
 ]
 
 [workspace.package]

@@ -1,0 +1,17 @@
+[package]
+name = "dyn-logger"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.7"
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "json",
+    "fmt",
+    "registry",
+] }
+tracing-appender = "0.2"

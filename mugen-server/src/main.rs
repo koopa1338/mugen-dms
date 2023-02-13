@@ -16,7 +16,7 @@ use dotenv::dotenv;
 use sea_orm::DatabaseConnection;
 
 use crate::utils::cron::scanner_cron;
-use crate::utils::logging::DynamicLogger;
+use dyn_logger::DynamicLogger;
 
 #[derive(Debug, Clone, FromRef)]
 pub struct AppState {
