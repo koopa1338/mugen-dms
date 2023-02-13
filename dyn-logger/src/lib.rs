@@ -30,13 +30,13 @@ struct FileLogger {
     path: PathBuf,
     #[serde(flatten)]
     options: SharedOptions,
+    modules: Vec<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
 struct SharedOptions {
     #[serde(default = "default_as_true")]
     enabled: bool,
-    modules: Vec<String>,
     #[serde(default)]
     format: LogFormat,
     #[serde(default)]
@@ -55,15 +55,23 @@ struct StreamLogger {
     color: bool,
     #[serde(flatten)]
     options: SharedOptions,
+    modules: Vec<String>,
 }
 
 #[derive(Debug, Deserialize)]
 struct LogConfig {
+    global: GlobalLogger,
+    stream_logger: StreamLogger,
+    file_logger: Option<Vec<FileLogger>>,
+}
+
+#[derive(Debug, Deserialize)]
+struct GlobalLogger {
     #[serde(deserialize_with = "deserialize_loglevel")]
     #[serde(default = "default_loglevel")]
     log_level: Level,
-    stream_logger: StreamLogger,
-    file_logger: Option<Vec<FileLogger>>,
+    #[serde(flatten)]
+    options: SharedOptions,
 }
 
 const fn default_loglevel() -> Level {
@@ -107,7 +115,7 @@ impl DynamicLogger {
             return Ok(());
         }
 
-        match Targets::from_str(&options.modules.join(",")) {
+        match Targets::from_str(&self.config.stream_logger.modules.join(",")) {
             Ok(targets) => {
                 let stream_layer = fmt::Layer::new()
                     .with_writer(std::io::stdout)
@@ -151,7 +159,7 @@ impl DynamicLogger {
             self.guards.borrow_mut().push(guard);
 
             let options = entry.options.clone();
-            match Targets::from_str(&options.modules.join(",")) {
+            match Targets::from_str(&entry.modules.join(",")) {
                 Ok(file_targets) => {
                     let file_layer = fmt::Layer::new()
                         .with_writer(file_writer)
@@ -190,12 +198,24 @@ impl DynamicLogger {
     }
 
     pub fn init(&self) -> Result<()> {
-        let envfilter = EnvFilter::from_default_env().add_directive(self.config.log_level.into());
+        let envfilter =
+            EnvFilter::from_default_env().add_directive(self.config.global.log_level.into());
         self.init_stdout()?;
         self.init_filelogger();
-        self.layers
-            .borrow_mut()
-            .push(fmt::layer().with_filter(envfilter).boxed());
+        let options = self.config.global.options.clone();
+        let layer = fmt::layer()
+            .with_file(options.file)
+            .with_line_number(options.line_number)
+            .with_thread_names(options.thread_name)
+            .with_thread_ids(options.thread_id);
+
+        let env_layer = match self.config.global.options.format {
+            LogFormat::Full => layer.with_filter(envfilter).boxed(),
+            LogFormat::Compact => layer.compact().with_filter(envfilter).boxed(),
+            LogFormat::Pretty => layer.pretty().with_filter(envfilter).boxed(),
+            LogFormat::Json => layer.json().with_filter(envfilter).boxed(),
+        };
+        self.layers.borrow_mut().push(env_layer);
         tracing_subscriber::registry()
             .with(self.layers.take())
             .init();
