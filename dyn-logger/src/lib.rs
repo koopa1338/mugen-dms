@@ -1,62 +1,16 @@
 use anyhow::Result;
-use serde::{Deserialize, Deserializer};
+use serde::Deserialize;
 use std::cell::RefCell;
 use std::fmt::Debug;
 use std::fs::{create_dir_all, read_to_string};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::str::FromStr;
-use tracing::Level;
 use tracing_appender::non_blocking::WorkerGuard;
-use tracing_subscriber::{filter::Targets, fmt, prelude::*, Layer};
-use tracing_subscriber::{EnvFilter, Registry};
+use tracing_subscriber::{filter::Targets, fmt, prelude::*, EnvFilter, Layer, Registry};
 
-#[derive(Clone, Debug, Default, Deserialize)]
-#[serde(rename_all(deserialize = "lowercase"))]
-enum LogFormat {
-    #[default]
-    Full,
-    Compact,
-    Pretty,
-    Json,
-}
-
-fn default_as_true() -> bool {
-    true
-}
-
-#[derive(Debug, Deserialize)]
-struct FileLogger {
-    filename: String,
-    path: PathBuf,
-    #[serde(flatten)]
-    options: SharedOptions,
-    modules: Vec<String>,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-struct SharedOptions {
-    #[serde(default = "default_as_true")]
-    enabled: bool,
-    #[serde(default)]
-    format: LogFormat,
-    #[serde(default)]
-    line_number: bool,
-    #[serde(default)]
-    file: bool,
-    #[serde(default)]
-    thread_name: bool,
-    #[serde(default)]
-    thread_id: bool,
-}
-
-#[derive(Debug, Deserialize)]
-struct StreamLogger {
-    #[serde(default)]
-    color: bool,
-    #[serde(flatten)]
-    options: SharedOptions,
-    modules: Vec<String>,
-}
+mod logger;
+mod utils;
+use logger::*;
 
 #[derive(Debug, Deserialize)]
 struct LogConfig {
@@ -65,50 +19,18 @@ struct LogConfig {
     file_logger: Option<Vec<FileLogger>>,
 }
 
-#[derive(Debug, Deserialize)]
-struct GlobalLogger {
-    #[serde(deserialize_with = "deserialize_loglevel")]
-    #[serde(default = "default_loglevel")]
-    log_level: Level,
-    #[serde(flatten)]
-    options: SharedOptions,
-}
-
-const fn default_loglevel() -> Level {
-    Level::INFO
-}
-
-fn deserialize_loglevel<'de, D>(deserializer: D) -> Result<Level, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let raw: String = String::deserialize(deserializer)?;
-    let level = match raw.to_lowercase().as_str() {
-        "debug" => Level::DEBUG,
-        "warn" => Level::WARN,
-        "error" => Level::ERROR,
-        "trace" => Level::TRACE,
-        _ => Level::INFO,
-    };
-
-    Ok(level)
-}
 pub struct DynamicLogger {
     config: LogConfig,
     layers: RefCell<Vec<Box<dyn Layer<Registry> + Send + Sync>>>,
     guards: RefCell<Vec<WorkerGuard>>,
 }
 
-impl DynamicLogger {
-    pub fn new(path: impl AsRef<Path>) -> Result<Self> {
-        let config = toml::from_str(&read_to_string(path.as_ref())?)?;
-        Ok(Self {
-            config,
-            layers: RefCell::new(Vec::new()),
-            guards: RefCell::new(Vec::new()),
-        })
-    }
+pub trait DynamicLogging {
+    fn init_stdout(&self) -> Result<()>;
+    fn init_filelogger(&self);
+}
 
+impl DynamicLogging for DynamicLogger {
     fn init_stdout(&self) -> Result<()> {
         let options = self.config.stream_logger.options.clone();
         if !self.config.stream_logger.options.enabled {
@@ -150,6 +72,55 @@ impl DynamicLogger {
         }
     }
 
+    fn init_filelogger(&self) {
+        if let Some(file_logger_table) = &self.config.file_logger {
+            file_logger_table
+                .iter()
+                .filter(|file| file.options.enabled)
+                .for_each(|entry| {
+                    self.register_filelogger_target(entry);
+                });
+        }
+    }
+}
+
+impl DynamicLogger {
+    pub fn new(path: impl AsRef<Path>) -> Result<Self> {
+        let config = toml::from_str(&read_to_string(path.as_ref())?)?;
+        Ok(Self {
+            config,
+            layers: RefCell::new(Vec::new()),
+            guards: RefCell::new(Vec::new()),
+        })
+    }
+
+    pub fn init(&self) -> Result<()> {
+        self.init_stdout()?;
+        self.init_filelogger();
+        if self.config.global.options.enabled {
+            let options = self.config.global.options.clone();
+            let envfilter =
+                EnvFilter::from_default_env().add_directive(self.config.global.log_level.into());
+            let layer = fmt::layer()
+                .with_file(options.file)
+                .with_line_number(options.line_number)
+                .with_thread_names(options.thread_name)
+                .with_thread_ids(options.thread_id);
+
+            let env_layer = match self.config.global.options.format {
+                LogFormat::Full => layer.with_filter(envfilter).boxed(),
+                LogFormat::Compact => layer.compact().with_filter(envfilter).boxed(),
+                LogFormat::Pretty => layer.pretty().with_filter(envfilter).boxed(),
+                LogFormat::Json => layer.json().with_filter(envfilter).boxed(),
+            };
+            self.layers.borrow_mut().push(env_layer);
+        }
+        tracing_subscriber::registry()
+            .with(self.layers.take())
+            .init();
+        Ok(())
+    }
+
     fn register_filelogger_target(&self, entry: &FileLogger) {
         let log_dir = &entry.path;
         let dirs = create_dir_all(log_dir);
@@ -184,43 +155,5 @@ impl DynamicLogger {
                 }
             }
         }
-    }
-
-    fn init_filelogger(&self) {
-        if let Some(file_logger_table) = &self.config.file_logger {
-            file_logger_table
-                .iter()
-                .filter(|file| file.options.enabled)
-                .for_each(|entry| {
-                    self.register_filelogger_target(entry);
-                });
-        }
-    }
-
-    pub fn init(&self) -> Result<()> {
-        self.init_stdout()?;
-        self.init_filelogger();
-        if self.config.global.options.enabled {
-            let options = self.config.global.options.clone();
-            let envfilter =
-                EnvFilter::from_default_env().add_directive(self.config.global.log_level.into());
-            let layer = fmt::layer()
-                .with_file(options.file)
-                .with_line_number(options.line_number)
-                .with_thread_names(options.thread_name)
-                .with_thread_ids(options.thread_id);
-
-            let env_layer = match self.config.global.options.format {
-                LogFormat::Full => layer.with_filter(envfilter).boxed(),
-                LogFormat::Compact => layer.compact().with_filter(envfilter).boxed(),
-                LogFormat::Pretty => layer.pretty().with_filter(envfilter).boxed(),
-                LogFormat::Json => layer.json().with_filter(envfilter).boxed(),
-            };
-            self.layers.borrow_mut().push(env_layer);
-        }
-        tracing_subscriber::registry()
-            .with(self.layers.take())
-            .init();
-        Ok(())
     }
 }
