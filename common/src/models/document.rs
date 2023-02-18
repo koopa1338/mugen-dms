@@ -15,7 +15,7 @@ pub struct Doc {
     pub size: i64,
     #[serde(deserialize_with = "deserialize_b64", serialize_with = "serialize_b64")]
     pub data: Option<Vec<u8>>,
-    pub category_id: Option<i64>,
+    pub category_id: Option<i32>,
 }
 
 fn deserialize_b64<'de, D>(deserializer: D) -> Result<Option<Vec<u8>>, D::Error>

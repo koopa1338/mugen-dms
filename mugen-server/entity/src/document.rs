@@ -13,7 +13,7 @@ pub struct Model {
     pub version: i32,
     pub size: i64,
     pub data: Option<Vec<u8>>,
-    pub category_id: Option<i64>,
+    pub category_id: Option<i32>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
