@@ -42,13 +42,12 @@ pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResu
 
 /// Returns all Documents that are linked to the Category with the passed `id`.
 #[instrument(skip(conn))]
-pub async fn get_docs_by_category(
-    id: i32,
-    conn: &DatabaseConnection,
-) -> Result<Vec<DocumentModel>, DbErr> {
+pub async fn get_docs_by_category(id: i32, conn: &DatabaseConnection) -> Result<Vec<Doc>, DbErr> {
     tracing::debug!("Fetch Documents with linked Category id {id}.");
-    DocumentEntity::find()
+    Ok(DocumentEntity::find()
         .filter(category::Column::Id.eq(id))
         .all(conn)
-        .await
+        .await?
+        .into_iter()
+        .collect::<Vec<_>>())
 }

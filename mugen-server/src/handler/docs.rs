@@ -1,8 +1,9 @@
-use axum::extract::{Path, State};
+use axum::extract::{Path, Query, State};
 use axum::response::IntoResponse;
 use axum::Json;
 use axum::{routing::get, Router};
 use sea_orm::DatabaseConnection;
+use serde::Deserialize;
 
 use crate::{services, AppState};
 use tracing::{debug, trace};
@@ -21,9 +22,22 @@ pub fn router() -> Router<AppState> {
     )
 }
 
+#[derive(Debug, Deserialize)]
+pub struct QueryCategory {
+    pub category_id: Option<i32>,
+}
+
 #[instrument(skip(conn))]
-pub async fn doc_list(State(ref conn): State<DatabaseConnection>) -> Result<impl IntoResponse> {
-    match services::docs::get_docs(conn).await {
+pub async fn doc_list(
+    State(ref conn): State<DatabaseConnection>,
+    Query(category): Query<QueryCategory>,
+) -> Result<impl IntoResponse> {
+    let docs = if let Some(category_id) = category.category_id {
+        services::docs::get_docs_by_category(category_id, conn).await
+    } else {
+        services::docs::get_docs(conn).await
+    };
+    match docs {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());
             trace!("{documents:?}");

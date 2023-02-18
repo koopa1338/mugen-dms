@@ -44,15 +44,5 @@ pub async fn update_category(
 #[instrument(skip(conn))]
 pub async fn delete_category(id: i32, conn: &DatabaseConnection) -> Result<DeleteResult, DbErr> {
     tracing::debug!("Delete category with id {id}.");
-    let docs_with_category = docs::get_docs_by_category(id, conn).await?;
-    if docs_with_category.is_empty() {
-        tracing::debug!("No Documents linked to Category id {id}, deleting...");
-        return CategoryEntity::delete_by_id(id).exec(conn).await;
-    }
-    tracing::error!(
-        "Failed to delete Category with id {id}, Documents are linked: {docs_with_category:#?}"
-    );
-    Err(DbErr::Custom(
-        "Cannot delete category, it is referenced by at least one document.".to_owned(),
-    ))
+    CategoryEntity::delete_by_id(id).exec(conn).await
 }
