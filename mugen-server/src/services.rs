@@ -2,23 +2,23 @@ use entity::PrimaryKeySetter;
 use migration::DbErr;
 use sea_orm::{
     ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel,
-    PrimaryKeyTrait,
+    PrimaryKeyTrait, DeleteResult,
 };
 
 pub mod categories;
 pub mod docs;
 
 #[async_trait::async_trait]
-trait SeaServiceTrait
+trait CRUDTrait
 where
-    Self: From<<<Self as crate::services::SeaServiceTrait>::Entity as EntityTrait>::Model>
+    Self: From<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model>
         + Into<Self::AModel>
         + Send,
     Vec<Self>:
-        FromIterator<<<Self as crate::services::SeaServiceTrait>::Entity as EntityTrait>::Model>,
+        FromIterator<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model>,
 {
     type Entity: EntityTrait;
-    type Pk: Into<<<<Self as crate::services::SeaServiceTrait>::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>
+    type Pk: Into<<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>
         + std::fmt::Display
         + Clone
         + Sync
@@ -28,6 +28,20 @@ where
         + ActiveModelBehavior
         + Send;
 
+    async fn create_entity(data: Self, conn: &DatabaseConnection) -> Result<Self, DbErr>
+    where
+        <<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model:
+            IntoActiveModel<Self::AModel>,
+    {
+        let active_model: Self::AModel = data.into();
+        active_model.insert(conn).await.map(Into::into)
+    }
+
+    async fn get_entities(conn: &DatabaseConnection) -> Result<Vec<Self>, DbErr> {
+        let entities = Self::Entity::find().all(conn).await?;
+        Ok(<Vec<Self>>::from_iter(entities))
+    }
+
     async fn get_entity_by_pk(pk: Self::Pk, conn: &DatabaseConnection) -> Result<Self, DbErr> {
         Self::Entity::find_by_id(pk.clone().into())
             .one(conn)
@@ -36,19 +50,14 @@ where
             .map(Into::into)
     }
 
-    async fn get_entities(conn: &DatabaseConnection) -> Result<Vec<Self>, DbErr> {
-        let entities = Self::Entity::find().all(conn).await?;
-        Ok(<Vec<Self>>::from_iter(entities))
-    }
-
     async fn update_entity_by_pk(
         data: Self,
         pk: Self::Pk,
         conn: &DatabaseConnection,
     ) -> Result<Self, DbErr>
     where
-        <<Self as crate::services::SeaServiceTrait>::Entity as sea_orm::EntityTrait>::Model:
-            IntoActiveModel<<Self as crate::services::SeaServiceTrait>::AModel>,
+        <<Self as crate::services::CRUDTrait>::Entity as sea_orm::EntityTrait>::Model:
+            IntoActiveModel<<Self as crate::services::CRUDTrait>::AModel>,
     {
         let mut active_model: Self::AModel = data.into();
         active_model.set_pk(pk);
@@ -58,12 +67,11 @@ where
             .map(Into::into)
     }
 
-    async fn create_entity(data: Self, conn: &DatabaseConnection) -> Result<Self, DbErr>
-    where
-        <<Self as crate::services::SeaServiceTrait>::Entity as EntityTrait>::Model:
-            IntoActiveModel<Self::AModel>,
-    {
-        let active_model: Self::AModel = data.into();
-        active_model.insert(conn).await.map(Into::into)
+    async fn delete_entity_by_pk(
+        pk: Self::Pk,
+        conn: &DatabaseConnection,
+    ) -> Result<DeleteResult, DbErr> {
+        Self::Entity::delete_by_id(pk).exec(conn).await
     }
+
 }
