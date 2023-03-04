@@ -1,5 +1,3 @@
-use crate::services::docs;
-
 use super::CRUDTrait;
 use common::models::category::Category;
 use entity::prelude::*;
