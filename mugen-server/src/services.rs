@@ -1,8 +1,8 @@
 use entity::PrimaryKeySetter;
 use migration::DbErr;
 use sea_orm::{
-    ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, EntityTrait, IntoActiveModel,
-    PrimaryKeyTrait, DeleteResult,
+    ActiveModelBehavior, ActiveModelTrait, DatabaseConnection, DeleteResult, EntityTrait,
+    IntoActiveModel, PrimaryKeyTrait,
 };
 
 pub mod categories;
@@ -14,8 +14,7 @@ where
     Self: From<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model>
         + Into<Self::AModel>
         + Send,
-    Vec<Self>:
-        FromIterator<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model>,
+    Vec<Self>: FromIterator<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model>,
 {
     type Entity: EntityTrait;
     type Pk: Into<<<<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::PrimaryKey as PrimaryKeyTrait>::ValueType>
@@ -73,5 +72,4 @@ where
     ) -> Result<DeleteResult, DbErr> {
         Self::Entity::delete_by_id(pk).exec(conn).await
     }
-
 }
