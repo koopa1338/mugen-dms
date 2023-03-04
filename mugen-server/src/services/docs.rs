@@ -45,7 +45,7 @@ pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResu
 pub async fn get_docs_by_category(id: i32, conn: &DatabaseConnection) -> Result<Vec<Doc>, DbErr> {
     tracing::debug!("Fetch Documents with linked Category id {id}.");
     Ok(DocumentEntity::find()
-        .filter(category::Column::Id.eq(id))
+        .filter(document::Column::CategoryId.eq(id))
         .all(conn)
         .await?
         .into_iter()
