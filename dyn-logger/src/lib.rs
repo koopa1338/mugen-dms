@@ -45,7 +45,7 @@ impl DynamicLogging for DynamicLogger {
                     .with_line_number(options.line_number)
                     .with_thread_names(options.thread_name)
                     .with_thread_ids(options.thread_id);
-                let format = &options.format.clone();
+                let format = &options.format;
                 let layer = match format {
                     LogFormat::Full => stream_layer
                         .with_ansi(self.config.stream_logger.color)
