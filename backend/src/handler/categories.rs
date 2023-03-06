@@ -5,7 +5,8 @@ use axum::Json;
 use axum::Router;
 use sea_orm::DatabaseConnection;
 
-use crate::{services, AppState};
+use crate::config::app::AppState;
+use crate::services;
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
 

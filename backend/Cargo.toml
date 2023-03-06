@@ -1,5 +1,5 @@
 [package]
-name = "mugen-server"
+name = "mugen-backend"
 version = "0.1.0"
 edition.workspace = true
 authors.workspace = true
@@ -38,6 +38,3 @@ tokio_schedule = "0.3"
 common = { path = "../common" }
 dyn-logger = { path = "../dyn-logger" }
 async-trait = "0.1.64"
-
-[features]
-yew-frontend = []

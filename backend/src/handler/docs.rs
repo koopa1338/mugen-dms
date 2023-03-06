@@ -5,7 +5,8 @@ use axum::{routing::get, Router};
 use sea_orm::DatabaseConnection;
 use serde::Deserialize;
 
-use crate::{services, AppState};
+use crate::config::app::AppState;
+use crate::services;
 use tracing::{debug, trace};
 use tracing_attributes::instrument;
 
