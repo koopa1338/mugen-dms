@@ -68,8 +68,7 @@ pub async fn doc_create(
     State(ref conn): State<DatabaseConnection>,
     Json(input): Json<Doc>,
 ) -> Result<impl IntoResponse> {
-    let result = services::docs::create_doc(input, conn).await;
-    match result {
+    match services::docs::create_doc(input, conn).await {
         Ok(document) => {
             debug!("Created document with id {:?}", document.id);
             trace!("{document}");
