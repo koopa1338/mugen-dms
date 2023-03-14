@@ -14,6 +14,7 @@ use crate::error::ApiResult as Result;
 
 use common::models::document::Doc;
 
+/// Returns a router for the document resource.
 pub fn router() -> Router<AppState> {
     Router::new().nest(
         "/doc",
@@ -28,6 +29,16 @@ pub struct QueryCategory {
     pub category_id: Option<i32>,
 }
 
+/// Handler for retrieving a list of documents.
+///
+/// ## Arguments
+///
+/// * `conn` - A reference to a [DatabaseConnection].
+/// * `category` - A optional [QueryCategory] query parameter to filter docs by category
+///
+/// ## Returns
+///
+/// Returns a JSON response containing the retrieved documents on success, or a [DbErr] error on failure.
 #[instrument(skip(conn))]
 pub async fn doc_list(
     State(ref conn): State<DatabaseConnection>,
@@ -48,6 +59,16 @@ pub async fn doc_list(
     }
 }
 
+/// Handler for retrieving a [Doc] by its ID.
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Doc] to retrieve
+///
+/// ## Returns
+///
+/// Returns a JSON-encoded document if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn))]
 pub async fn doc_by_id(
     State(ref conn): State<DatabaseConnection>,
@@ -63,6 +84,16 @@ pub async fn doc_by_id(
     }
 }
 
+/// Handler for creating a new document.
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Json(input)` - The [Doc] to create, provided as JSON data.
+///
+/// ## Returns
+///
+/// Returns a JSON response containing the newly created [Doc] if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn, input))]
 pub async fn doc_create(
     State(ref conn): State<DatabaseConnection>,
@@ -78,6 +109,17 @@ pub async fn doc_create(
     }
 }
 
+/// Handler for updating a [Doc].
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Doc] to update
+/// * `Json(input)` - New JSON data for the [Doc].
+///
+/// ## Returns
+///
+/// Returns the JSON-encoded updated document if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn, input))]
 pub async fn doc_update(
     State(ref conn): State<DatabaseConnection>,
@@ -94,6 +136,16 @@ pub async fn doc_update(
     }
 }
 
+/// Handler for deleting a [Doc].
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Doc] to delete
+///
+/// ## Returns
+///
+/// Returns the JSON-encoded affected rows if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn))]
 pub async fn doc_delete(
     State(ref conn): State<DatabaseConnection>,

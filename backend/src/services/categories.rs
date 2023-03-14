@@ -12,16 +12,16 @@ impl CRUDTrait for Category {
 
 /// Creates a new category with the given data and returns it on success.
 /// 
-/// # Arguments
+/// ## Arguments
 /// 
-/// * `data` - A `Category` object containing the data for the new category.
-/// * `conn` - A reference to a `DatabaseConnection` object representing the database connection.
+/// * `data` - A [Category] object containing the data for the new category.
+/// * `conn` - A reference to a [DatabaseConnection] object representing the database connection.
 /// 
-/// # Returns
+/// ## Returns
 ///
-/// A `Result` object containing the newly created `Category` object on success, or a `DbErr` error on failure.
+/// A `Result` object containing the newly created [Category] object on success, or a [DbErr] error on failure.
 ///
-/// # Example
+/// ## Example
 /// 
 /// ```rust
 /// let category = Category {
@@ -40,15 +40,15 @@ pub async fn create_category(data: Category, conn: &DatabaseConnection) -> Resul
 
 /// Gets all categories from the database and returns them on success.
 /// 
-/// # Arguments
+/// ## Arguments
 ///
-/// * `conn` - A reference to a `DatabaseConnection` object representing the database connection.
+/// * `conn` - A reference to a [DatabaseConnection] object representing the database connection.
 ///
-/// # Returns
+/// ## Returns
 ///
-/// A `Result` object containing a `Vec` of `Category` objects on success, or a `DbErr` error on failure.
+/// A `Result` object containing a `Vec` of [Category] objects on success, or a `DbErr` error on failure.
 ///
-/// # Example
+/// ## Example
 ///
 /// ```rust
 /// let result = get_categories(&conn);
@@ -69,11 +69,11 @@ pub async fn get_categories(conn: &DatabaseConnection) -> Result<Vec<Category>, 
 /// ## Arguments
 ///
 /// * `id` - An `i32` value representing the ID of the category to retrieve.
-/// * `conn` - A reference to a `DatabaseConnection` object representing the database connection.
+/// * `conn` - A reference to a [DatabaseConnection] object representing the database connection.
 ///
 /// ## Returns
 ///
-/// A `Result` object containing the retrieved `Category` object on success, or a `DbErr` error on failure.
+/// A `Result` object containing the retrieved [Category] object on success, or a [DbErr] error on failure.
 ///
 /// ## Example
 ///
@@ -95,13 +95,13 @@ pub async fn get_category_by_id(id: i32, conn: &DatabaseConnection) -> Result<Ca
 ///
 /// ## Arguments
 ///
-/// * `data` - A `Category` struct representing the updated data for the category.
-/// * `id` - The primary key ID of the `Category` entity to be updated.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `data` - A [Category] struct representing the updated data for the category.
+/// * `id` - The primary key ID of the [Category] entity to be updated.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing the updated `Category` entity, or a `DbErr` if the operation failed.
+/// A `Result` containing the updated [Category] entity, or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -130,13 +130,13 @@ pub async fn update_category(
 ///
 /// ## Arguments
 ///
-/// * `id` - The primary key ID of the `Category` entity to be deleted.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `id` - The primary key ID of the [Category] entity to be deleted.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `DeleteResult` struct representing the result of the delete operation,
-/// or a `DbErr` if the operation failed.
+/// A `Result` containing a [DeleteResult] struct representing the result of the delete operation,
+/// or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///

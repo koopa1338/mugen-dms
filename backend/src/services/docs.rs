@@ -10,17 +10,17 @@ impl CRUDTrait for Doc {
     type AModel = DocumentAM;
 }
 
-/// Inserts a new `Doc` entity into the database.
+/// Inserts a new [Doc] entity into the database.
 ///
 /// ## Arguments
 ///
-/// * `data` - The `Doc` entity to be inserted into the database.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `data` - The [Doc] entity to be inserted into the database.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `Doc` struct representing the newly created `Doc` entity,
-/// or a `DbErr` if the operation failed.
+/// A `Result` containing a [Doc] struct representing the newly created [Doc] entity,
+/// or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -41,16 +41,16 @@ pub async fn create_doc(data: Doc, conn: &DatabaseConnection) -> Result<Doc, DbE
     Doc::create_entity(data, conn).await
 }
 
-/// Returns all `Doc` entities from the database.
+/// Returns all [Doc] entities from the database.
 ///
 /// ## Arguments
 ///
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `Vec` of `Doc` structs representing all `Doc` entities in the database,
-/// or a `DbErr` if the operation failed.
+/// A `Result` containing a `Vec` of [Doc] structs representing all [Doc] entities in the database,
+/// or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -65,17 +65,17 @@ pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<Doc>, DbErr> {
     Doc::get_entities(conn).await
 }
 
-/// Returns a `Doc` entity with the specified ID from the database.
+/// Returns a [Doc] entity with the specified ID from the database.
 ///
 /// ## Arguments
 ///
-/// * `id` - The ID of the `Doc` entity to retrieve.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `id` - The ID of the [Doc] entity to retrieve.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `Doc` struct representing the `Doc` entity with the specified ID,
-/// or a `DbErr` if the operation failed.
+/// A `Result` containing a [Doc] struct representing the [Doc] entity with the specified ID,
+/// or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -90,18 +90,18 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Doc, Db
     Doc::get_entity_by_pk(id, conn).await
 }
 
-/// Updates a `Doc` entity with the specified data and ID in the database.
+/// Updates a [Doc] entity with the specified data and ID in the database.
 ///
 /// ## Arguments
 ///
-/// * `data` - The new data for the `Doc` entity.
-/// * `id` - The ID of the `Doc` entity to update.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `data` - The new data for the [Doc] entity.
+/// * `id` - The ID of the [Doc] entity to update.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `Doc` struct representing the updated `Doc` entity,
-/// or a `DbErr` if the operation failed.
+/// A `Result` containing a [Doc] struct representing the updated [Doc] entity,
+/// or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -121,17 +121,17 @@ pub async fn update_doc(data: Doc, id: i64, conn: &DatabaseConnection) -> Result
     Doc::update_entity_by_pk(data, id, conn).await
 }
 
-/// Deletes a `Doc` entity with the specified ID from the database.
+/// Deletes a [Doc] entity with the specified ID from the database.
 ///
 /// ## Arguments
 ///
-/// * `id` - The ID of the `Doc` entity to delete.
-/// * `conn` - A reference to the `DatabaseConnection` to be used for the operation.
+/// * `id` - The ID of the [Doc] entity to delete.
+/// * `conn` - A reference to the [DatabaseConnection] to be used for the operation.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `DeleteResult` struct representing the result of the
-/// delete operation, or a `DbErr` if the operation failed.
+/// A `Result` containing a [DeleteResult] struct representing the result of the
+/// delete operation, or a [DbErr] if the operation failed.
 ///
 /// ## Example
 ///
@@ -151,11 +151,11 @@ pub async fn delete_doc(id: i64, conn: &DatabaseConnection) -> Result<DeleteResu
 /// ## Arguments
 ///
 /// * `id` - An `i32` that represents the ID of the category to search documents for.
-/// * `conn` - A reference to a `DatabaseConnection` to execute the query on.
+/// * `conn` - A reference to a [DatabaseConnection] to execute the query on.
 ///
 /// ## Returns
 ///
-/// A `Result` containing a `Vec` of `Doc` if the query is successful, or a `DbErr` if the query fails.
+/// A `Result` containing a `Vec` of [Doc] if the query is successful, or a [DbErr] if the query fails.
 ///
 /// ## Examples
 ///

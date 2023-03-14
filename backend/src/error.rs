@@ -8,16 +8,21 @@ use sea_orm::JsonValue;
 use serde_json::json;
 use std::{error::Error, fmt::Display};
 
+/// Possible API errors that can be returned.
 #[derive(Clone, Debug)]
 pub enum ApiError {
+    /// The requested resource was not found.
     NotFound(String),
+    /// An internal server error occurred.
     Internal(String),
+    /// The request timed out before a response could be obtained.
     Timeout(String),
 }
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
 impl ApiError {
+    /// Returns the HTTP status code associated with the error.
     fn status_code(&self) -> StatusCode {
         match self {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
@@ -26,6 +31,7 @@ impl ApiError {
         }
     }
 
+    /// Returns an error message associated with the error.
     fn error_message(&self) -> String {
         // TODO: custom error messages for each case
         match self {
@@ -35,6 +41,7 @@ impl ApiError {
         }
     }
 
+    /// Returns a tuple containing the HTTP status code and a JSON object representing the error message.
     fn response(&self) -> (StatusCode, Json<JsonValue>) {
         (
             self.status_code(),

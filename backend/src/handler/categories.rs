@@ -15,6 +15,7 @@ use crate::error::ApiResult as Result;
 use common::models::category::Category;
 use services::categories;
 
+/// Returns a router for the category resource.
 pub fn router() -> Router<AppState> {
     Router::new().nest(
         "/category",
@@ -29,6 +30,15 @@ pub fn router() -> Router<AppState> {
     )
 }
 
+/// Handler for retrieving a list of categories.
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+///
+/// ## Returns
+///
+/// Returns a JSON response containing a list of [Category] on success, or a [DbErr] error on failure.
 #[instrument(skip(conn))]
 pub async fn category_list(
     State(ref conn): State<DatabaseConnection>,
@@ -43,6 +53,16 @@ pub async fn category_list(
     }
 }
 
+/// Handler for retrieving a [Category] by its ID.
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Category] to retrieve
+///
+/// ## Returns
+///
+/// Returns a JSON-encoded category if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn))]
 pub async fn category_by_id(
     State(ref conn): State<DatabaseConnection>,
@@ -58,6 +78,16 @@ pub async fn category_by_id(
     }
 }
 
+/// Handler for creating a new category.
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Json(input)` - The [Category] to create, provided as JSON data.
+///
+/// ## Returns
+///
+/// Returns a JSON response containing the newly created [Category] if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn, input))]
 pub async fn category_create(
     State(ref conn): State<DatabaseConnection>,
@@ -73,6 +103,18 @@ pub async fn category_create(
         Err(dberror) => Err(dberror.into()),
     }
 }
+
+/// Handler for updating a [Category].
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Category] to update
+/// * `Json(input)` - New JSON data for the [Category].
+///
+/// ## Returns
+///
+/// Returns the JSON-encoded updated category if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn, input))]
 pub async fn category_update(
     State(ref conn): State<DatabaseConnection>,
@@ -89,6 +131,16 @@ pub async fn category_update(
     }
 }
 
+/// Handler for deleting a [Category].
+///
+/// ## Arguments
+///
+/// * `State(ref conn)` - Database connection state
+/// * `Path(id)` - ID of the [Category] to delete
+///
+/// ## Returns
+///
+/// Returns the JSON-encoded affected rows if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn))]
 pub async fn category_delete(
     State(ref conn): State<DatabaseConnection>,

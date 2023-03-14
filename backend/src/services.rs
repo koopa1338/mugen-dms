@@ -33,11 +33,11 @@ where
     /// ## Arguments
     ///
     /// * `data` - The data to be inserted as a new entity in the database.
-    /// * `conn` - A reference to a database connection.
+    /// * `conn` - A reference to a [DatabaseConnection].
     ///
     /// ## Returns
     ///
-    /// Returns a result containing the newly created entity on success, or an error on failure.
+    /// Returns a result containing the newly created entity on success, or an [DbErr] on failure.
     async fn create_entity(data: Self, conn: &DatabaseConnection) -> Result<Self, DbErr>
     where
         <<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model:
@@ -51,11 +51,11 @@ where
     ///
     /// ## Arguments
     ///
-    /// * `conn` - A reference to a database connection.
+    /// * `conn` - A reference to a [DatabaseConnection].
     ///
     /// ## Returns
     ///
-    /// Returns a result containing a vector of all entities on success, or an error on failure.
+    /// Returns a result containing a vector of all entities on success, or an [DbErr] on failure.
     async fn get_entities(conn: &DatabaseConnection) -> Result<Vec<Self>, DbErr> {
         let entities = Self::Entity::find().all(conn).await?;
         Ok(<Vec<Self>>::from_iter(entities))
@@ -66,11 +66,11 @@ where
     /// ## Arguments
     ///
     /// * `pk` - The primary key of the entity to be retrieved.
-    /// * `conn` - A reference to a database connection.
+    /// * `conn` - A reference to a [DatabaseConnection].
     ///
     /// ## Returns
     ///
-    /// Returns a result containing the entity on success, or an error on failure.
+    /// Returns a result containing the entity on success, or an [DbErr] on failure.
     async fn get_entity_by_pk(pk: Self::Pk, conn: &DatabaseConnection) -> Result<Self, DbErr> {
         Self::Entity::find_by_id(pk.clone().into())
             .one(conn)
@@ -85,11 +85,11 @@ where
     ///
     /// * `data` - The new data to replace the existing entity.
     /// * `pk` - The primary key of the entity to be updated.
-    /// * `conn` - A reference to a database connection.
+    /// * `conn` - A reference to a [DatabaseConnection].
     ///
     /// ## Returns
     ///
-    /// Returns a result containing the updated entity on success, or an error on failure.
+    /// Returns a result containing the updated entity on success, or a [DbErr] on failure.
     async fn update_entity_by_pk(
         data: Self,
         pk: Self::Pk,
@@ -112,11 +112,11 @@ where
     /// ## Arguments
     ///
     /// * `pk` - The primary key of the entity to be deleted.
-    /// * `conn` - The database connection to execute the deletion query.
+    /// * `conn` - The [DatabaseConnection] to execute the deletion query.
     ///
     /// ## Returns
     ///
-    /// Returns a `Result` containing the number of deleted rows on success, or a `DbErr` on failure.
+    /// Returns a `Result` containing the number of deleted rows on success, or a [DbErr] on failure.
     async fn delete_entity_by_pk(
         pk: Self::Pk,
         conn: &DatabaseConnection,
