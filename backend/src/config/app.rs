@@ -23,12 +23,15 @@ pub struct Config {
     pub database_url: String,
 }
 
+/// The global state of the application that holds the connection to the database.
 #[derive(Debug, Clone, FromRef)]
 pub struct AppState {
+    /// The connection to the database.
     database: DatabaseConnection,
 }
 
 impl AppState {
+    /// Creates a new instance of `AppState` with the given `DatabaseConnection`.
     pub fn new(database: DatabaseConnection) -> Self {
         Self {
             database
@@ -36,6 +39,7 @@ impl AppState {
     }
 }
 
+/// Mounts the API routes onto a router and serves the backend on a specified port.
 pub async fn api_routes(app_state: AppState) {
     let backend = Router::new()
         .nest(
@@ -66,6 +70,7 @@ pub async fn api_routes(app_state: AppState) {
     serve(backend, BACKEND_PORT).await;
 }
 
+/// Starts serving the provided `app` on the specified `port`.
 async fn serve(app: Router, port: u16) {
     let addr = SocketAddr::from((LOCALHOST, port));
     axum::Server::bind(&addr)

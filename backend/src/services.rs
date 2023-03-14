@@ -8,6 +8,7 @@ use sea_orm::{
 pub mod categories;
 pub mod docs;
 
+/// This trait provides basic CRUD operations for a given entity.
 #[async_trait::async_trait]
 trait CRUDTrait
 where
@@ -27,6 +28,16 @@ where
         + ActiveModelBehavior
         + Send;
 
+    /// Create a new entity in the database.
+    ///
+    /// ## Arguments
+    ///
+    /// * `data` - The data to be inserted as a new entity in the database.
+    /// * `conn` - A reference to a database connection.
+    ///
+    /// ## Returns
+    ///
+    /// Returns a result containing the newly created entity on success, or an error on failure.
     async fn create_entity(data: Self, conn: &DatabaseConnection) -> Result<Self, DbErr>
     where
         <<Self as crate::services::CRUDTrait>::Entity as EntityTrait>::Model:
@@ -36,11 +47,30 @@ where
         active_model.insert(conn).await.map(Into::into)
     }
 
+    /// Get all entities of this type from the database.
+    ///
+    /// ## Arguments
+    ///
+    /// * `conn` - A reference to a database connection.
+    ///
+    /// ## Returns
+    ///
+    /// Returns a result containing a vector of all entities on success, or an error on failure.
     async fn get_entities(conn: &DatabaseConnection) -> Result<Vec<Self>, DbErr> {
         let entities = Self::Entity::find().all(conn).await?;
         Ok(<Vec<Self>>::from_iter(entities))
     }
 
+    /// Get an entity of this type from the database by its primary key.
+    ///
+    /// ## Arguments
+    ///
+    /// * `pk` - The primary key of the entity to be retrieved.
+    /// * `conn` - A reference to a database connection.
+    ///
+    /// ## Returns
+    ///
+    /// Returns a result containing the entity on success, or an error on failure.
     async fn get_entity_by_pk(pk: Self::Pk, conn: &DatabaseConnection) -> Result<Self, DbErr> {
         Self::Entity::find_by_id(pk.clone().into())
             .one(conn)
@@ -49,6 +79,17 @@ where
             .map(Into::into)
     }
 
+    /// Update an entity of this type in the database by its primary key.
+    ///
+    /// ## Arguments
+    ///
+    /// * `data` - The new data to replace the existing entity.
+    /// * `pk` - The primary key of the entity to be updated.
+    /// * `conn` - A reference to a database connection.
+    ///
+    /// ## Returns
+    ///
+    /// Returns a result containing the updated entity on success, or an error on failure.
     async fn update_entity_by_pk(
         data: Self,
         pk: Self::Pk,
@@ -66,6 +107,16 @@ where
             .map(Into::into)
     }
 
+    /// Deletes an entity from the database by its primary key.
+    ///
+    /// ## Arguments
+    ///
+    /// * `pk` - The primary key of the entity to be deleted.
+    /// * `conn` - The database connection to execute the deletion query.
+    ///
+    /// ## Returns
+    ///
+    /// Returns a `Result` containing the number of deleted rows on success, or a `DbErr` on failure.
     async fn delete_entity_by_pk(
         pk: Self::Pk,
         conn: &DatabaseConnection,
