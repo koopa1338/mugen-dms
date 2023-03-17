@@ -20,8 +20,10 @@ use dyn_logger::DynamicLogger;
 async fn main() -> Result<()> {
     dotenv().ok();
 
-    let logger = DynamicLogger::new(dotenv::var("LOGGING")?)?;
-    logger.init()?;
+    let logger = DynamicLogger::new(dotenv::var("LOGGING")?)?
+        .with_stdout()?
+        .with_file_logger()?;
+    logger.init();
 
     let config = app::Config::parse();
     let conn = db::get_database_connection_pool(config.clone());
