@@ -1,4 +1,4 @@
-use serde::{Deserializer, Deserialize};
+use serde::{Deserialize, Deserializer};
 use tracing::Level;
 
 pub(crate) fn default_as_true() -> bool {
