@@ -51,7 +51,7 @@ impl DynamicLogger {
         Ok(self)
     }
 
-    pub fn build(&self) {
+    pub fn init(&self) {
         if self.config.global.options.enabled {
             let options = self.config.global.options.clone();
             let envfilter =
