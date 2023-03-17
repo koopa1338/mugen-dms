@@ -2,7 +2,6 @@
 members = [
     "backend",
     "common",
-    "dyn-logger",
 ]
 
 [workspace.package]
