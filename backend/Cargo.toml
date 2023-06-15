@@ -1,6 +1,6 @@
 [package]
 name = "mugen-backend"
-version = "0.1.0"
+version = "0.1.1"
 edition.workspace = true
 authors.workspace = true
 
@@ -8,7 +8,7 @@ authors.workspace = true
 axum = { version = "0.6", features = ["macros", "http2"] }
 dotenv = "0.15"
 thiserror = "1.0"
-tokio = { version = "1.25", default_features = false, features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.28", default_features = false, features = ["macros", "rt-multi-thread"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = [
     "env-filter",
@@ -30,11 +30,11 @@ sea-orm = { version = "0.11", features = [
     "with-chrono",
 ], default-features = false }
 anyhow = "1.0"
-clap = { version = "4.1", features = ["derive", "env"] }
+clap = { version = "4.3", features = ["derive", "env"] }
 entity = { path = "entity" }
 migration = { path = "migration" }
 toml = "0.7"
 tokio_schedule = "0.3"
 common = { path = "../common" }
 dyn-logger = "0.2"
-async-trait = "0.1.64"
+async-trait = "0.1"
