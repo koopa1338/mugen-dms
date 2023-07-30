@@ -40,14 +40,8 @@ impl AppState {
 /// Mounts the API routes onto a router and serves the backend on a specified port.
 pub async fn api_routes(app_state: AppState) {
     let backend = Router::new()
-        .nest(
-            "/api",
-            Router::merge(
-                docs::router().with_state(app_state.clone()),
-                categories::router().with_state(app_state.clone()),
-            ),
-        )
-        .with_state(app_state)
+        .nest("/api", Router::merge(docs::router(), categories::router()))
+        .with_state(app_state.clone())
         .layer(
             ServiceBuilder::new()
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
