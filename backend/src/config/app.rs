@@ -33,9 +33,7 @@ pub struct AppState {
 impl AppState {
     /// Creates a new instance of `AppState` with the given `DatabaseConnection`.
     pub fn new(database: DatabaseConnection) -> Self {
-        Self {
-            database
-        }
+        Self { database }
     }
 }
 
