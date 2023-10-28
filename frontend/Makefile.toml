@@ -5,6 +5,10 @@ CLIENT_PROCESS_NAME = "trunk"
 command = "trunk"
 args = ["build"]
 
+[tasks.format]
+command = "leptosfmt"
+args = ["./"]
+
 [tasks.pkg]
 command = "trunk"
 args = ["build", "--release"]
