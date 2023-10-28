@@ -12,3 +12,7 @@ args = ["build", "--release"]
 [tasks.serve]
 command = "trunk"
 args = ["serve", "${@}"]
+
+[tasks.serve-release]
+command = "trunk"
+args = ["serve", "${@}", "--release"]
