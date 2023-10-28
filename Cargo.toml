@@ -1,8 +1,5 @@
 [workspace]
-members = [
-    "backend",
-    "common",
-]
+members = ["backend", "common", "frontend"]
 
 [workspace.package]
 authors = ["koopa1338 <sinner1991@gmail.com>"]

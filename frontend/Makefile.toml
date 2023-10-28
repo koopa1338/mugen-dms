@@ -1,0 +1,14 @@
+[env]
+CLIENT_PROCESS_NAME = "trunk"
+
+[tasks.build]
+command = "trunk"
+args = ["build"]
+
+[tasks.pkg]
+command = "trunk"
+args = ["build", "--release"]
+
+[tasks.serve]
+command = "trunk"
+args = ["serve", "${@}"]
