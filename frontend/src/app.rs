@@ -1,7 +1,7 @@
+use crate::components::sidebar::*;
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
-use crate::components::sidebar::*;
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -21,9 +21,5 @@ pub fn App() -> impl IntoView {
 
 #[component]
 fn Home() -> impl IntoView {
-    view! {
-        <div class="">
-            "asdfasdf"
-        </div>
-    }
+    view! { <div class="">"asdfasdf"</div> }
 }
