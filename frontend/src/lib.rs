@@ -1,4 +1,9 @@
 use leptos::*;
+pub mod app;
+pub mod components;
+pub mod routes;
+pub mod api;
+
 
 #[derive(Debug, Copy, Clone)]
 pub struct ToggleSignal {

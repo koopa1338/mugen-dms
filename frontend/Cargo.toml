@@ -4,13 +4,15 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+console_error_panic_hook = { version = "0.1" }
+console_log = { version = "1" }
+gloo-net = { version = "0.4", features = ["http"] }
 leptos = { version = "0.5", features = ["csr", "nightly"] }
 leptos_meta = { version = "0.5", features = ["csr", "nightly"] }
 leptos_router = { version = "0.5", features = ["csr", "nightly"] }
 log = "0.4"
-gloo-net = { version = "0.4", features = ["http"] }
-
-# dependecies for client (enable when csr or hydrate set)
+serde = { version = "1", features = ["derive"] }
 wasm-bindgen = { version = "0.2" }
-console_log = { version = "1" }
-console_error_panic_hook = { version = "0.1" }
+web-sys = { version = "0.3", features = ["AbortController", "AbortSignal"] }
+
+common = { path = "../common" }
