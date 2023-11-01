@@ -4,27 +4,43 @@ use leptos_router::*;
 #[component]
 pub fn Sidebar() -> impl IntoView {
     view! {
-        <aside class="sidebar fixed top-0 bottom-0 lg:left-0 p-2 w-72 overflow-y-auto text-center bg-slate-900">
-            <MenuSection label="Dashboard">
-                <MenuEntry href="/" label="home"/>
-                <MenuEntry href="/documents" label="Documents"/>
-                <MenuEntry href="/categories" label="Categories"/>
-            </MenuSection>
-            <MenuSection label="Manage">
-                <MenuEntry href="/settings" label="Settings"/>
-                <MenuEntry href="/collections" label="Collections"/>
-            </MenuSection>
-            <MenuEntry href="/about" label="About"/>
+        <aside
+            id="separator-sidebar"
+            class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+            aria-label="Sidebar"
+        >
+            <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+                <MenuSection seperator=false>
+                    <MenuEntry href="/" label="Dashboard"/>
+                    <MenuEntry href="/documents" label="Documents"/>
+                    <MenuEntry href="/categories" label="Categories"/>
+                </MenuSection>
+                <MenuSection seperator=true>
+                    <MenuEntry href="/settings" label="Settings"/>
+                    <MenuEntry href="/collections" label="Collections"/>
+                </MenuSection>
+                <MenuEntry href="/about" label="About"/>
+            </div>
         </aside>
     }
 }
 
 #[component]
-pub fn MenuSection(#[prop()] label: &'static str, children: Children) -> impl IntoView {
+pub fn MenuSection(#[prop(optional)] seperator: bool, children: Children) -> impl IntoView {
     view! {
-        <section class="my-5">
-            <h2 class="text-red-400 font-bold">{label}</h2>
-            <ul>{children()}</ul>
+        <section>
+            <ul
+                class="space-y-2 font-medium"
+                class=move || {
+                    if seperator {
+                        "pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+                    } else {
+                        ""
+                    }
+                }
+            >
+                {children()}
+            </ul>
         </section>
     }
 }
@@ -33,7 +49,12 @@ pub fn MenuSection(#[prop()] label: &'static str, children: Children) -> impl In
 pub fn MenuEntry<H: ToHref + 'static>(href: H, #[prop()] label: &'static str) -> impl IntoView {
     view! {
         <li class="list-none">
-            <A href=href class="text-yellow-200 hover:text-yellow-400" >{label}</A>
+            <A
+                href=href
+                class="flex items-center p-2 text-gray-900 rounded-sm dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            >
+                <span class="ml-3">{label}</span>
+            </A>
         </li>
     }
 }
