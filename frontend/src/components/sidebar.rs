@@ -1,61 +1,39 @@
 use leptos::*;
 use leptos_router::*;
-use mugen_frontend::ToggleSignal;
 
 #[component]
 pub fn Sidebar() -> impl IntoView {
     view! {
-        <nav class="sidebar">
-            <ul>
-                <MultiMenu label="Home">
-                    <SingleMenu href="/kekw" label="kekw"/>
-                    <SingleMenu href="/kekw" label="kekw"/>
-                    <SingleMenu href="/kekw" label="kekw"/>
-                    <SingleMenu href="/kekw" label="kekw"/>
-                    <SingleMenu href="/kekw" label="kekw"/>
-                </MultiMenu>
-                <SingleMenu href="/nononono" label="trolololo"/>
-            </ul>
-        </nav>
+        <aside class="sidebar fixed top-0 bottom-0 lg:left-0 p-2 w-72 overflow-y-auto text-center bg-slate-900">
+            <MenuSection label="Dashboard">
+                <MenuEntry href="/" label="home"/>
+                <MenuEntry href="/documents" label="Documents"/>
+                <MenuEntry href="/categories" label="Categories"/>
+            </MenuSection>
+            <MenuSection label="Manage">
+                <MenuEntry href="/settings" label="Settings"/>
+                <MenuEntry href="/collections" label="Collections"/>
+            </MenuSection>
+            <MenuEntry href="/about" label="About"/>
+        </aside>
     }
 }
 
 #[component]
-pub fn MultiMenu(#[prop(optional)] label: &'static str, children: Children) -> impl IntoView {
-    let mut collapsed = ToggleSignal::new(false);
-    let toggle = move |_| collapsed.toggle();
-
-    // Collapse dropdown then the url has been changed
-    let location = use_location();
-    create_effect(move |_| {
-        location.pathname.track();
-        collapsed.set(false);
-    });
-
+pub fn MenuSection(#[prop()] label: &'static str, children: Children) -> impl IntoView {
     view! {
-        <li>
-            <a on:click=toggle>{label}</a>
-            <div class=move || {
-                if !collapsed.get() {
-                    "grid transition-all duration-300 ease-in-out opacity-0 grid-rows-[0fr]"
-                } else {
-                    "grid transition-all duration-300 ease-in-out opacity-100 grid-rows-[1fr]"
-                }
-            }>
-                <ul class="min-h-0">{children()}</ul>
-            </div>
-        </li>
+        <section class="my-5">
+            <h2 class="text-red-400 font-bold">{label}</h2>
+            <ul>{children()}</ul>
+        </section>
     }
 }
 
 #[component]
-pub fn SingleMenu<H: ToHref + 'static>(
-    href: H,
-    #[prop(optional)] label: &'static str,
-) -> impl IntoView {
+pub fn MenuEntry<H: ToHref + 'static>(href: H, #[prop()] label: &'static str) -> impl IntoView {
     view! {
-        <li>
-            <A href=href>{label}</A>
+        <li class="list-none">
+            <A href=href class="text-yellow-200 hover:text-yellow-400" >{label}</A>
         </li>
     }
 }
