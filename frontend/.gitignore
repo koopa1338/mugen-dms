@@ -15,3 +15,4 @@ test-results/
 end2end/playwright-report/
 playwright/.cache/
 pnpm-lock.yaml
+!assets/
