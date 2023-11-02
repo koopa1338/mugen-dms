@@ -12,17 +12,17 @@ pub fn App() -> impl IntoView {
     view! {
         <Router>
             <Sidebar/>
-            <main class="bg-gray-900 p-3 sm:ml-64">
+            <main class="bg-gray-950 p-3 sm:ml-60">
                 <Routes>
-                    <Route path="/" view=Home />
-                    <Route path="/documents/:id" view=Home />
-                    <Route path="/documents" view=Home />
-                    <Route path="/categories/:id" view=Home />
-                    <Route path="/categories" view=Home />
-                    <Route path="/collections/:id" view=Home />
-                    <Route path="/collections" view=Home />
-                    <Route path="/settings" view=Home />
-                    <Route path="/about" view=Home />
+                    <Route path="/" view=Home/>
+                    <Route path="/documents/:id" view=Home/>
+                    <Route path="/documents" view=Home/>
+                    <Route path="/categories/:id" view=Home/>
+                    <Route path="/categories" view=Home/>
+                    <Route path="/collections/:id" view=Home/>
+                    <Route path="/collections" view=Home/>
+                    <Route path="/settings" view=Home/>
+                    <Route path="/about" view=Home/>
                 </Routes>
             </main>
         </Router>

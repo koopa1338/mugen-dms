@@ -6,10 +6,15 @@ pub fn Sidebar() -> impl IntoView {
     view! {
         <aside
             id="separator-sidebar"
-            class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+            class=r#"
+                fixed top-0 left-0 z-40
+                w-60 h-screen
+                transition-transform -translate-x-full sm:translate-x-0
+                border-r-2 border-r-solid border-r-slate-900"#
             aria-label="Sidebar"
         >
-            <div class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800">
+            <div class="h-full px-2 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-950">
+                <img src="assets/logo.png" class="space-y-2 mx-auto mb-3 w-20 rounded-full"/>
                 <MenuSection seperator=false>
                     <MenuEntry href="/" label="Dashboard"/>
                     <MenuEntry href="/documents" label="Documents"/>
@@ -39,6 +44,7 @@ pub fn MenuSection(#[prop(optional)] seperator: bool, children: Children) -> imp
                     }
                 }
             >
+
                 {children()}
             </ul>
         </section>
@@ -51,9 +57,13 @@ pub fn MenuEntry<H: ToHref + 'static>(href: H, #[prop()] label: &'static str) ->
         <li class="list-none">
             <A
                 href=href
-                class="flex items-center p-2 text-gray-900 rounded-sm dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+                class=r#"
+                    transition-all duration-100 ease-in-out
+                    flex items-center p-2 group
+                    text-gray-900 rounded-sm hover:bg-gray-100 dark:hover:bg-slate-900
+                    dark:text-white dark:hover:text-amber-600 dark:hover:font-semibold"#
             >
-                <span class="ml-3">{label}</span>
+                <span class="ml-2">{label}</span>
             </A>
         </li>
     }
