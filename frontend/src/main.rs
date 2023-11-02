@@ -1,5 +1,5 @@
-use mugen_frontend::app::App;
 use leptos::*;
+use mugen_frontend::app::App;
 
 pub fn main() {
     _ = console_log::init_with_level(log::Level::Debug);
