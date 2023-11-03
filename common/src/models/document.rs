@@ -1,10 +1,10 @@
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use ts_rs::TS;
+// use ts_rs::TS;
 
 use crate::DateTimeWithTimeZone;
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize/* , TS */)]
+// #[ts(export)]
 pub struct Doc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
