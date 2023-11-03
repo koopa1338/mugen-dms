@@ -4,27 +4,26 @@ pub mod app;
 pub mod components;
 pub mod routes;
 
-#[derive(Debug, Copy, Clone)]
-pub struct ToggleSignal {
-    inner: RwSignal<bool>,
+pub trait SignalToggle {
+    fn toggle(&mut self);
 }
 
-impl ToggleSignal {
-    pub fn new(value: bool) -> Self {
-        Self {
-            inner: create_rw_signal(value),
-        }
-    }
-
-    pub fn toggle(&mut self) {
-        self.inner.update(|inner| *inner = !*inner);
-    }
-
-    pub fn get(&self) -> bool {
-        self.inner.get()
-    }
-
-    pub fn set(&self, value: bool) {
-        self.inner.set(value);
+impl SignalToggle for RwSignal<bool> {
+    fn toggle(&mut self) {
+        self.update(|value| *value = !*value);
     }
 }
+
+// TODO: get this to work so we can implement toggle for all signals where the containing type
+// implements the `!` operator
+// impl<T> SignalToggle for T
+// where
+//     T: SignalUpdate,
+//     <T as leptos::SignalUpdate>::Value: Not,
+// {
+//     fn toggle(&mut self) {
+//         self.update(|value| {
+//             *value = !*value
+//         });
+//     }
+// }
