@@ -60,7 +60,12 @@ impl From<DbErr> for ApiError {
                 tracing::error!("Failed to convert {source} from {from} into {into}");
                 ApiError::Internal("Conversion error".to_string())
             }
-            DbErr::Conn(_) | DbErr::ConnectionAcquire => {
+            DbErr::Conn(e) => {
+                tracing::error!("Connection error: {e}");
+                Self::Timeout("Connection Error".to_string())
+            }
+            DbErr::ConnectionAcquire(e) => {
+                tracing::error!("Connection aquire error: {e}");
                 Self::Timeout("Connection Error".to_string())
             }
             DbErr::Exec(runtime_error) | DbErr::Query(runtime_error) => {
