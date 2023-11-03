@@ -1,6 +1,6 @@
 use gloo_net::http::{Method, RequestBuilder};
 use leptos::Serializable;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 pub async fn api_call<T, P>(
     path: &str,
