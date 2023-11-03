@@ -11,18 +11,18 @@ impl CRUDTrait for Category {
 }
 
 /// Creates a new category with the given data and returns it on success.
-/// 
+///
 /// ## Arguments
-/// 
+///
 /// * `data` - A [Category] object containing the data for the new category.
 /// * `conn` - A reference to a [DatabaseConnection] object representing the database connection.
-/// 
+///
 /// ## Returns
 ///
 /// A `Result` object containing the newly created [Category] object on success, or a [DbErr] error on failure.
 ///
 /// ## Example
-/// 
+///
 /// ```rust
 /// let category = Category {
 ///     id: None,
@@ -39,7 +39,7 @@ pub async fn create_category(data: Category, conn: &DatabaseConnection) -> Resul
 }
 
 /// Gets all categories from the database and returns them on success.
-/// 
+///
 /// ## Arguments
 ///
 /// * `conn` - A reference to a [DatabaseConnection] object representing the database connection.
