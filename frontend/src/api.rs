@@ -9,7 +9,7 @@ pub async fn api_call<T, P>(
     query_params: Option<Vec<(&str, &str)>>,
 ) -> Option<T>
 where
-    T: Serializable,
+    T: Serializable, // this means both serializable and deserializable
     P: Serialize,
 {
     let abort_controller = web_sys::AbortController::new().ok();
