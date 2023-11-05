@@ -6,7 +6,7 @@ use crate::DateTimeWithTimeZone;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct Doc {
-    #[serde(skip_deserializing)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<i64>,
     pub created: DateTimeWithTimeZone,
     pub updated: Option<DateTimeWithTimeZone>,

@@ -4,7 +4,7 @@ use ts_rs::TS;
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct Category {
-    #[serde(skip_deserializing)]
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<i32>,
     pub title: String,
 }
