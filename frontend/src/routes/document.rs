@@ -31,7 +31,7 @@ pub(crate) fn Documents() -> impl IntoView {
                                         .map(|date| date.format("%d.%m.%Y %H:%M").to_string())
                                         .unwrap_or("never".to_string())}
                                 </th>
-                                <th class="py-2">{doc.size}</th>
+                                <th class="py-2">{doc.filetype}</th>
                             </tr>
                         </For>
                     </tbody>
