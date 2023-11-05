@@ -1,6 +1,7 @@
 use std::net::Ipv4Addr;
 use std::net::SocketAddr;
 use std::time::Duration;
+use tower_http::cors::{Any, CorsLayer};
 
 use axum::extract::FromRef;
 use sea_orm::DatabaseConnection;
@@ -44,6 +45,7 @@ pub async fn api_routes(app_state: AppState) {
         .with_state(app_state.clone())
         .layer(
             ServiceBuilder::new()
+                .layer(CorsLayer::new().allow_origin(Any))
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
                     if error.is::<tower::timeout::error::Elapsed>() {
                         Ok(StatusCode::REQUEST_TIMEOUT)
