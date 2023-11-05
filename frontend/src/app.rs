@@ -3,7 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::components::sidebar::Sidebar;
-use crate::routes::home::Home;
+use crate::routes::{document::Documents, home::Home};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -15,8 +15,8 @@ pub fn App() -> impl IntoView {
             <main class="bg-gray-950 p-3 sm:ml-60">
                 <Routes>
                     <Route path="/" view=Home/>
+                    <Route path="/documents" view=Documents/>
                     <Route path="/documents/:id" view=Home/>
-                    <Route path="/documents" view=Home/>
                     <Route path="/categories/:id" view=Home/>
                     <Route path="/categories" view=Home/>
                     <Route path="/collections/:id" view=Home/>
