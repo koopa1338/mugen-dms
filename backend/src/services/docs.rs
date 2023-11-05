@@ -116,8 +116,10 @@ pub async fn get_doc_by_id(id: i64, conn: &DatabaseConnection) -> Result<Doc, Db
 /// // ...
 /// ```
 #[instrument(skip(conn, data))]
-pub async fn update_doc(data: Doc, id: i64, conn: &DatabaseConnection) -> Result<Doc, DbErr> {
+pub async fn update_doc(mut data: Doc, id: i64, conn: &DatabaseConnection) -> Result<Doc, DbErr> {
     tracing::debug!("Updating document with id {id}.");
+
+    data.updated = Some(chrono::offset::Local::now().fixed_offset());
     Doc::update_entity_by_pk(data, id, conn).await
 }
 
