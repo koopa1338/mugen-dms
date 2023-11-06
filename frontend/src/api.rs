@@ -32,7 +32,6 @@ where
         builder = builder.query(params);
     }
 
-    // TODO: map errors to suitable error messages for frontend
     let req = if let Some(payload) = payload {
         builder
             .json(&payload)
