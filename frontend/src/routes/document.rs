@@ -23,9 +23,7 @@ pub(crate) fn Documents() -> impl IntoView {
                             <tr>
                                 <th class="py-2">{doc.id}</th>
                                 <th class="py-2">{doc.version}</th>
-                                <th class="py-2">
-                                    {doc.created.display()}
-                                </th>
+                                <th class="py-2">{doc.created.display()}</th>
                                 <th class="py-2">
                                     {doc
                                         .updated
