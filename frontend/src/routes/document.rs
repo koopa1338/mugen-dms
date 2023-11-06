@@ -3,6 +3,7 @@ use gloo_net::http::Method;
 use leptos::*;
 
 use crate::api::{api_call, FetchError};
+use crate::ChronoFormat;
 
 #[component]
 pub(crate) fn Documents() -> impl IntoView {
@@ -23,12 +24,12 @@ pub(crate) fn Documents() -> impl IntoView {
                                 <th class="py-2">{doc.id}</th>
                                 <th class="py-2">{doc.version}</th>
                                 <th class="py-2">
-                                    {doc.created.format("%d.%m.%Y %H:%M").to_string()}
+                                    {doc.created.display()}
                                 </th>
                                 <th class="py-2">
                                     {doc
                                         .updated
-                                        .map(|date| date.format("%d.%m.%Y %H:%M").to_string())
+                                        .map(|date| date.display())
                                         .unwrap_or("never".to_string())}
                                 </th>
                                 <th class="py-2">{doc.filetype}</th>
