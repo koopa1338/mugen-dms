@@ -15,6 +15,12 @@ log = "0.4"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 wasm-bindgen = { version = "0.2" }
-web-sys = { version = "0.3", features = ["AbortController", "AbortSignal"] }
+web-sys = { version = "0.3", features = [
+  "AbortController",
+  "AbortSignal",
+  "File",
+  "FileList",
+  "DataTransfer",
+] }
 
 common = { path = "../common" }
