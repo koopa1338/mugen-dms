@@ -10,7 +10,7 @@ pub fn Upload(
 ) -> impl IntoView {
     let on_file_addition = move |files: FileList| {
         if let Some(custom_request) = callback {
-            custom_request.call(files);
+            Callback::call(&custom_request, files);
         }
     };
     let input_ref = create_node_ref::<html::Input>();
