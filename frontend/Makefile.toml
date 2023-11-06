@@ -5,9 +5,9 @@ CLIENT_PROCESS_NAME = "trunk"
 command = "trunk"
 args = ["build"]
 
-[tasks.format]
+[tasks.fmt]
 command = "leptosfmt"
-args = ["./"]
+args = ["."]
 
 [tasks.pkg]
 command = "trunk"
