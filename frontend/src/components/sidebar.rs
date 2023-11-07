@@ -38,7 +38,7 @@ pub fn MenuSection(#[prop(optional)] seperator: bool, children: Children) -> imp
                 class="space-y-2 font-medium"
                 class=move || {
                     if seperator {
-                        "pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+                        "pt-4 mt-4 border-t border-gray-700"
                     } else {
                         ""
                     }
@@ -60,8 +60,8 @@ pub fn MenuEntry<H: ToHref + 'static>(href: H, #[prop()] label: &'static str) ->
                 class=r#"
                 transition-all duration-100 ease-in-out
                 flex items-center p-2 group
-                text-gray-900 rounded-sm hover:bg-gray-100 dark:hover:bg-slate-900
-                dark:text-white dark:hover:text-amber-600 dark:hover:font-semibold"#
+                rounded-md hover:bg-slate-900
+                text-white hover:text-amber-600 hover:font-semibold"#
             >
                 <span class="ml-2">{label}</span>
             </A>
