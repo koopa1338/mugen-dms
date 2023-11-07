@@ -5,13 +5,11 @@ use web_sys::FileList;
 pub fn Upload(
     #[prop(optional, into)] accept: MaybeSignal<String>,
     #[prop(optional, into)] multiple: MaybeSignal<bool>,
-    #[prop(optional, into)] callback: Option<Callback<FileList, ()>>,
-    children: Children,
+    #[prop(into)] callback: Callback<FileList, ()>,
+    #[prop(optional)] children: Option<Children>,
 ) -> impl IntoView {
     let on_file_addition = move |files: FileList| {
-        if let Some(custom_request) = callback {
-            Callback::call(&custom_request, files);
-        }
+        Callback::call(&callback, files);
     };
     let input_ref = create_node_ref::<html::Input>();
 
@@ -24,7 +22,7 @@ pub fn Upload(
     };
     let on_click = move |_| {
         if let Some(input_ref) = input_ref.get_untracked() {
-            input_ref.click();
+            let _ = input_ref.show_picker();
         }
     };
 
@@ -50,24 +48,33 @@ pub fn Upload(
         is_trigger_dragover.set(false);
     };
 
-
     view! {
-        <div class="text-gray-500">
-            <input
-                class=""
-                ref=input_ref
-                type="file"
-                accept=move || accept.get()
-                multiple=move || multiple.get()
-                on:change=on_change
-            />
-            <div on:click=on_click
+        <div class="w-full rounded-md bg-gray-900 p-3">
+            <div class="w-full p-5 rounded-md border border-2 border-dotted"
+                class=("border-amber-600", move|| is_trigger_dragover.get())
                 on:drop=on_trigger_drop
                 on:dragover=on_trigger_dragover
                 on:dragenter=on_trigger_dragenter
                 on:dragleave=on_trigger_dragleave
             >
-                {children()}
+                <input class="hidden invisible"
+                    ref=input_ref
+                    type="file"
+                    accept=move || accept.get()
+                    multiple=move || multiple.get()
+                    on:change=on_change
+                    on:click=move |ev| ev.stop_propagation()
+                />
+                <div class="text-gray-500 p-2 mt-2 flex flex-justify">
+                    <button
+                        class="rounded-md bg-amber-600 text-semibold cursor-pointer text-white p-2 m-2"
+                        on:click=on_click>
+                        "Select files"
+                    </button>
+                    <p class="text-gray-500">"Drag and drop files here or click for file dialogue"</p>
+                </div>
+
+                <div>{children.map(|c| c())}</div>
             </div>
         </div>
     }
