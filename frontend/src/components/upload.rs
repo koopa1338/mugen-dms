@@ -50,14 +50,16 @@ pub fn Upload(
 
     view! {
         <div class="w-full rounded-md bg-gray-900 p-3">
-            <div class="w-full p-5 rounded-md border border-2 border-dotted"
-                class=("border-amber-600", move|| is_trigger_dragover.get())
+            <div
+                class="w-full p-5 rounded-md border border-2 border-dotted"
+                class=("border-amber-600", move || is_trigger_dragover.get())
                 on:drop=on_trigger_drop
                 on:dragover=on_trigger_dragover
                 on:dragenter=on_trigger_dragenter
                 on:dragleave=on_trigger_dragleave
             >
-                <input class="hidden invisible"
+                <input
+                    class="hidden invisible"
                     ref=input_ref
                     type="file"
                     accept=move || accept.get()
@@ -68,10 +70,13 @@ pub fn Upload(
                 <div class="text-gray-500 p-2 mt-2 flex flex-justify">
                     <button
                         class="rounded-md bg-amber-600 text-semibold cursor-pointer text-white p-2 m-2"
-                        on:click=on_click>
+                        on:click=on_click
+                    >
                         "Select files"
                     </button>
-                    <p class="text-gray-500">"Drag and drop files here or click for file dialogue"</p>
+                    <p class="text-gray-500">
+                        "Drag and drop files here or click for file dialogue"
+                    </p>
                 </div>
 
                 <div>{children.map(|c| c())}</div>

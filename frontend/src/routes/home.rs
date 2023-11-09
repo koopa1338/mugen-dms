@@ -10,14 +10,9 @@ pub(crate) fn Home() -> impl IntoView {
         for idx in 0..file_list.length() {
             logging::warn!(
                 "filename: {:?}",
-                file_list
-                    .item(idx)
-                    .map(|file| file.name())
-                    .unwrap()
+                file_list.item(idx).map(|file| file.name()).unwrap()
             );
         }
     };
-    view! {
-        <Upload callback=upload_callback multiple=true/>
-    }
+    view! { <Upload callback=upload_callback multiple=true/> }
 }
