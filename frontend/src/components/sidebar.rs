@@ -36,13 +36,7 @@ pub fn MenuSection(#[prop(optional)] seperator: bool, children: Children) -> imp
         <section>
             <ul
                 class="space-y-2 font-medium"
-                class=move || {
-                    if seperator {
-                        "pt-4 mt-4 border-t border-gray-700"
-                    } else {
-                        ""
-                    }
-                }
+                class=move || { if seperator { "pt-4 mt-4 border-t border-gray-700" } else { "" } }
             >
 
                 {children()}
