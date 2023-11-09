@@ -19,36 +19,43 @@ pub(crate) fn Documents() -> impl IntoView {
                 "api/doc",
                 Method::GET,
                 None,
-                Some(vec![("page", &page.to_string()), ("page_size", "1")]),
+                Some(vec![("page", &page.to_string())]),
             )
             .await
         },
     );
 
-    // FIXME: this keeps fetching the api and doesn't stop when elements reach the end of the
-    // viewport
     let _ = use_infinite_scroll_with_options(
         el,
         move |_| async move {
+            if documents
+                .get()
+                .map(|data| data.ok().map(|res| res.is_empty()))
+                .flatten()
+                .unwrap_or_default()
+                || documents.loading().get()
+            {
+                return;
+            }
             page_set.update(|page| *page += 1);
             documents.and_then(|k| set_data.update(|d| d.extend_from_slice(&k.clone())));
         },
-        UseInfiniteScrollOptions::default().distance(200.0),
+        UseInfiniteScrollOptions::default().distance(10.0),
     );
 
     let documents_view = move || {
         view! {
-            <tbody node_ref=el>
+            <tbody
+                node_ref=el
+                class="w-full h-[calc(100%-2em)] overflow-y-scroll overflow-x-auto overflow-x-wrap-break-word scrollbar-thin block"
+            >
                 <For each=move || data.get().clone() key=|doc| doc.id let:doc>
-                    <tr>
+                    <tr class="table w-full table-fixed">
                         <th class="py-2">{doc.id}</th>
                         <th class="py-2">{doc.version}</th>
                         <th class="py-2">{doc.created.display()}</th>
                         <th class="py-2">
-                            {doc
-                                .updated
-                                .map(|date| date.display())
-                                .unwrap_or("never".to_string())}
+                            {doc.updated.map(|date| date.display()).unwrap_or("never".to_string())}
                         </th>
                         <th class="py-2">{doc.filetype}</th>
                     </tr>
@@ -58,10 +65,10 @@ pub(crate) fn Documents() -> impl IntoView {
     };
 
     view! {
-        <div class="grid grid-cols-1 gap-4 mb-4">
-            <div class="rounded bg-gray-900 p-3">
-                <table class="table-auto text-gray-500 w-full">
-                    <thead>
+        <div class="grid grid-cols-1 gap-4 mb-4 h-full">
+            <div class="rounded bg-gray-900 p-3 h-full">
+                <table class="table-fixed text-gray-500 w-full h-full">
+                    <thead class="table w-full table-fixed mb-1">
                         <tr class="border-b border-slate-100 font-medium">
                             <th>"ID"</th>
                             <th>"Version"</th>
