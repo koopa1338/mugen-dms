@@ -6,11 +6,11 @@ pub fn Sidebar() -> impl IntoView {
     view! {
         <aside
             id="separator-sidebar"
-            class=r#"
+            class=r"
             fixed top-0 left-0 z-40
             w-60 h-screen
             transition-transform -translate-x-full sm:translate-x-0
-            border-r-2 border-r-solid border-r-slate-900"#
+            border-r-2 border-r-solid border-r-slate-900"
             aria-label="Sidebar"
         >
             <div class="h-full px-2 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-950">
@@ -51,11 +51,11 @@ pub fn MenuEntry<H: ToHref + 'static>(href: H, #[prop()] label: &'static str) ->
         <li class="list-none">
             <A
                 href=href
-                class=r#"
+                class=r"
                 transition-all duration-100 ease-in-out
                 flex items-center p-2 group
                 rounded-md hover:bg-slate-900
-                text-white hover:text-amber-600 hover:font-semibold"#
+                text-white hover:text-amber-600 hover:font-semibold"
             >
                 <span class="ml-2">{label}</span>
             </A>

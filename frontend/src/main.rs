@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::mount_to_body;
 use mugen_frontend::app::App;
 
 pub fn main() {
