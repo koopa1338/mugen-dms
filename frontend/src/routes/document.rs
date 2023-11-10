@@ -58,7 +58,7 @@ pub(crate) fn Documents() -> impl IntoView {
                         <th class="py-2">{doc.version}</th>
                         <th class="py-2">{doc.created.display()}</th>
                         <th class="py-2">
-                            {doc.updated.map(|date| date.display()).unwrap_or("never".to_string())}
+                            {doc.updated.map_or("never".to_string(), |date| date.display())}
                         </th>
                         <th class="py-2">{doc.filetype}</th>
                     </tr>
@@ -85,7 +85,6 @@ pub(crate) fn Documents() -> impl IntoView {
                     }>
 
                         {
-                            let documents_view = documents_view.clone();
                             view! {
                                 // TODO: make a error template for reuse
                                 <ErrorBoundary fallback=|errors| {
