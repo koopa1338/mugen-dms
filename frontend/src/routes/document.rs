@@ -28,17 +28,20 @@ pub(crate) fn Documents() -> impl IntoView {
     let _ = use_infinite_scroll_with_options(
         el,
         move |_| async move {
-            if documents
-                .get()
-                .map(|data| data.ok().map(|res| res.is_empty()))
-                .flatten()
-                .unwrap_or_default()
-                || documents.loading().get()
-            {
+            // FIXME: this is no reactive context so any access to the resource or other signals
+            // will trigger a warning
+            if documents.loading().get_untracked() {
                 return;
             }
-            page_set.update(|page| *page += 1);
-            documents.and_then(|k| set_data.update(|d| d.extend_from_slice(&k.clone())));
+
+            documents.and_then(|data| {
+                if data.is_empty() {
+                    // we hit the last page, no more elements
+                    return;
+                }
+                page_set.update(|page| *page += 1);
+                set_data.update(|d| d.extend_from_slice(data));
+            });
         },
         UseInfiniteScrollOptions::default().distance(10.0),
     );
@@ -49,7 +52,7 @@ pub(crate) fn Documents() -> impl IntoView {
                 node_ref=el
                 class="w-full h-[calc(100%-2em)] overflow-y-scroll overflow-x-auto overflow-x-wrap-break-word scrollbar-thin block"
             >
-                <For each=move || data.get().clone() key=|doc| doc.id let:doc>
+                <For each=move || data.get() key=|doc: &Doc| doc.id let:doc>
                     <tr class="table w-full table-fixed">
                         <th class="py-2">{doc.id}</th>
                         <th class="py-2">{doc.version}</th>
