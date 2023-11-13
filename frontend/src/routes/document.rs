@@ -12,6 +12,15 @@ pub(crate) fn Documents() -> impl IntoView {
     let (page, page_set) = create_signal(1);
     let (data, set_data) = create_signal(vec![]);
 
+    let _ = use_infinite_scroll_with_options(
+        el,
+        move |_| async move {
+            // this is called too often
+            page_set.update(|page| *page += 1);
+        },
+        UseInfiniteScrollOptions::default(),
+    );
+
     let documents = create_resource(
         move || page.get(),
         move |page| async move {
@@ -25,26 +34,15 @@ pub(crate) fn Documents() -> impl IntoView {
         },
     );
 
-    let _ = use_infinite_scroll_with_options(
-        el,
-        move |_| async move {
-            // FIXME: this is no reactive context so any access to the resource or other signals
-            // will trigger a warning
-            if documents.loading().get_untracked() {
+    create_effect(move |_| {
+        documents.and_then(|data| {
+            if data.is_empty() {
+                // we hit the last page, no more elements
                 return;
             }
-
-            documents.and_then(|data| {
-                if data.is_empty() {
-                    // we hit the last page, no more elements
-                    return;
-                }
-                page_set.update(|page| *page += 1);
-                set_data.update(|d| d.extend_from_slice(data));
-            });
-        },
-        UseInfiniteScrollOptions::default().distance(10.0),
-    );
+            set_data.update(|d| d.extend_from_slice(data));
+        });
+    });
 
     let documents_view = move || {
         view! {
@@ -100,7 +98,6 @@ pub(crate) fn Documents() -> impl IntoView {
                                 }>{documents_view}</ErrorBoundary>
                             }
                         }
-
                     </Transition>
                 </table>
             </div>
