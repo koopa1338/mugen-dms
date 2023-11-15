@@ -13,7 +13,7 @@ pub fn Sidebar() -> impl IntoView {
             border-r-2 border-r-solid border-r-slate-900"
             aria-label="Sidebar"
         >
-            <div class="h-full px-2 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-950">
+            <div class="h-full px-2 py-4 overflow-y-auto bg-gray-950 ">
                 <img src="assets/logo.png" class="space-y-2 mx-auto mb-3 w-20 rounded-full"/>
                 <MenuSection seperator=false>
                     <MenuEntry href="/" label="Dashboard"/>
