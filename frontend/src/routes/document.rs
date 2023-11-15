@@ -1,7 +1,7 @@
 use common::models::document::Doc;
 use gloo_net::http::Method;
 use leptos::*;
-use leptos_use::{use_infinite_scroll_with_options, UseInfiniteScrollOptions};
+use leptos_use::{use_scroll_with_options, UseScrollOptions};
 
 use crate::api::{api_call, FetchError};
 use crate::ChronoFormat;
@@ -9,17 +9,11 @@ use crate::ChronoFormat;
 #[component]
 pub(crate) fn Documents() -> impl IntoView {
     let el = create_node_ref::<html::Tbody>();
-    let (page, page_set) = create_signal(1);
-    let (data, set_data) = create_signal(vec![]);
+    let (page, page_set) = create_signal(1u32);
+    let (data, data_set) = create_signal(vec![]);
+    let (error, error_set) = create_signal(false);
 
-    let _ = use_infinite_scroll_with_options(
-        el,
-        move |_| async move {
-            // this is called too often
-            page_set.update(|page| *page += 1);
-        },
-        UseInfiniteScrollOptions::default(),
-    );
+    let user_scroll_return = use_scroll_with_options(el, UseScrollOptions::default());
 
     let documents = create_resource(
         move || page.get(),
@@ -35,13 +29,33 @@ pub(crate) fn Documents() -> impl IntoView {
     );
 
     create_effect(move |_| {
-        documents.and_then(|data| {
-            if data.is_empty() {
-                // we hit the last page, no more elements
-                return;
+        if user_scroll_return.arrived_state.get().bottom && !user_scroll_return.is_scrolling.get() {
+            page_set.update(|page| *page = page.saturating_add(1));
+            (user_scroll_return.measure)();
+            if error.get_untracked() {
+                documents.refetch();
             }
-            set_data.update(|d| d.extend_from_slice(data));
-        });
+        }
+    });
+
+    create_effect(move |_| {
+        if let Some(docs) = documents.get() {
+            match docs {
+                Ok(data) if !data.is_empty() => {
+                    data_set.update(|d| d.extend_from_slice(&data));
+                    error_set.set_untracked(false);
+                }
+                Err(_e) => {
+                    error_set.set_untracked(true);
+                    page_set.update_untracked(|page| {
+                        if *page > 1 {
+                            *page = page.saturating_sub(1);
+                        }
+                    });
+                }
+                _ => return,
+            }
+        }
     });
 
     let documents_view = move || {
