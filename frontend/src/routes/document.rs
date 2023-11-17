@@ -4,10 +4,20 @@ use leptos::*;
 use leptos_use::{use_scroll_with_options, UseScrollOptions};
 
 use crate::api::{api_call, FetchError};
+use crate::components::grid::Grid;
 use crate::ChronoFormat;
 
 #[component]
 pub(crate) fn Documents() -> impl IntoView {
+    view! {
+        <Grid classes="grid-cols-1 mb-4 h-full">
+            <DocumentsTable/>
+        </Grid>
+    }
+}
+
+#[component]
+pub(crate) fn DocumentsTable() -> impl IntoView {
     let el = create_node_ref::<html::Tbody>();
     let (page, page_set) = create_signal(1u32);
     let (data, data_set) = create_signal(vec![]);
@@ -80,7 +90,6 @@ pub(crate) fn Documents() -> impl IntoView {
     };
 
     view! {
-        <div class="grid grid-cols-1 gap-4 mb-4 h-full">
             <div class="rounded bg-gray-900 p-3 h-full">
                 <table class="table-fixed text-gray-500 w-full h-full">
                     <thead class="table w-full table-fixed mb-1">
@@ -115,6 +124,5 @@ pub(crate) fn Documents() -> impl IntoView {
                     </Transition>
                 </table>
             </div>
-        </div>
     }
 }

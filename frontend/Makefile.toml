@@ -1,5 +1,6 @@
 [env]
 CLIENT_PROCESS_NAME = "trunk"
+RUSTFLAGS = "--cfg=web_sys_unstable_apis"
 
 [tasks.build]
 command = "trunk"
