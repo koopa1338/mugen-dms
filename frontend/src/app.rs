@@ -3,7 +3,7 @@ use leptos_meta::*;
 use leptos_router::*;
 
 use crate::components::sidebar::Sidebar;
-use crate::routes::{document::Documents, home::Home};
+use crate::routes::{about::About, dashboard::Dashboard, document::Documents};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -14,61 +14,17 @@ pub fn App() -> impl IntoView {
             <Sidebar/>
             <main class="bg-gray-950 p-3 sm:ml-60 h-screen">
                 <Routes>
-                    <Route path="/" view=Home/>
+                    <Route path="/" view=Dashboard/>
                     <Route path="/documents" view=Documents/>
-                    <Route path="/documents/:id" view=Home/>
-                    <Route path="/categories/:id" view=Home/>
-                    <Route path="/categories" view=Home/>
-                    <Route path="/collections/:id" view=Home/>
-                    <Route path="/collections" view=Home/>
-                    <Route path="/settings" view=Home/>
+                    <Route path="/documents/:id" view=Dashboard/>
+                    <Route path="/categories/:id" view=Dashboard/>
+                    <Route path="/categories" view=Dashboard/>
+                    <Route path="/collections/:id" view=Dashboard/>
+                    <Route path="/collections" view=Dashboard/>
+                    <Route path="/settings" view=Dashboard/>
                     <Route path="/about" view=About/>
                 </Routes>
             </main>
         </Router>
-    }
-}
-
-#[component]
-pub fn About() -> impl IntoView {
-    view! {
-        <div class="rounded bg-gray-900 p-3 text-gray-500">
-            <h2 class="text-2xl font-bold mb-4">"Overview"</h2>
-            <p>
-                "Mugen-dms is an open-source document management software, offering powerful and efficient solutions built entirely in Rust. It utilizes Leptos for the frontend and Axum with Sea ORM for the backend, ensuring a seamless and performant user experience."
-            </p>
-
-            <h2 class="text-2xl font-bold mt-6 mb-4">"Key Perks"</h2>
-            <ul class="list-disc ml-6">
-                <li>
-                    "Outstanding Performance: Mugen-dms is designed for high-speed document handling and management."
-                </li>
-                <li>
-                    "Emphasis on Safety: Rust's strong type system and memory safety guarantee secure operations."
-                </li>
-                <li>
-                    "Low Resource Footprint: We prioritize efficiency and minimize resource consumption."
-                </li>
-                <li>
-                    "Easy Setup: Mugen-dms comes with a straightforward and user-friendly installation process."
-                </li>
-                <li>
-                    "Open Source: Developed and maintained by a single contributor, available for the community."
-                </li>
-            </ul>
-
-            <h2 class="text-2xl font-bold mt-6 mb-4">"Contact the Maintainer"</h2>
-            <p>
-                "If you have any issues or feature requests, feel free to open an issue on github "
-                <a
-                    class="transition-all duration-100 ease-in-out text-bold text-white hover:text-amber-600"
-                    href="https://github.com/koopa1338/mugen-dms"
-                    target="_blank"
-                    title="Link to github repository"
-                >
-                    here
-                </a> "."
-            </p>
-        </div>
     }
 }
