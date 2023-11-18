@@ -1,5 +1,3 @@
-use leptos::*;
-use web_sys::FileList;
 use charming::{
     component::{self, *},
     df,
@@ -7,21 +5,21 @@ use charming::{
     series::{self, *},
     Animation as ResizeAnimation, Chart, ChartResize, Easing, WasmRenderer,
 };
+use gloo_file::{FileList, futures};
+use leptos::{*, callback::Callback};
 
 use crate::components::{chart::Chart, grid::Grid, upload::Upload};
 
-
 #[component]
 pub(crate) fn Dashboard() -> impl IntoView {
-    let upload_callback = move |file_list: FileList| {
-        logging::warn!("Number of uploaded files: {}", file_list.length());
-        for idx in 0..file_list.length() {
-            logging::warn!(
-                "filename: {:?}",
-                file_list.item(idx).map(|file| file.name()).unwrap()
-            );
+    let upload_closure =  move |file_list: FileList| async move {
+        for file in file_list.iter() {
+            let bytes = futures::read_as_bytes(&file).await.expect("filereaderror");
+            logging::warn!("file bytes: {:?}", bytes);
         }
     };
+
+    let upload_callback = Callback::new(upload_closure);
 
     // testing chart
     let chart = Chart::new()

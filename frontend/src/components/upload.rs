@@ -1,22 +1,27 @@
+use gloo_file::FileList;
 use leptos::*;
-use web_sys::FileList;
+use std::future::Future;
+use wasm_bindgen_futures::spawn_local;
 
 #[component]
-pub fn Upload(
+pub fn Upload<T>(
     #[prop(optional, into)] accept: MaybeSignal<String>,
     #[prop(optional, into)] multiple: MaybeSignal<bool>,
-    #[prop(into)] callback: Callback<FileList, ()>,
+    #[prop(into)] callback: Callback<FileList, T>,
     #[prop(optional)] children: Option<Children>,
-) -> impl IntoView {
+) -> impl IntoView
+where
+    T: Future<Output = ()> + 'static,
+{
     let on_file_addition = move |files: FileList| {
-        Callback::call(&callback, files);
+        spawn_local(Callback::call(&callback, files));
     };
     let input_ref = create_node_ref::<html::Input>();
 
     let on_change = move |_| {
         if let Some(input_ref) = input_ref.get_untracked() {
             if let Some(files) = input_ref.files() {
-                on_file_addition(files);
+                on_file_addition(FileList::from(files));
             }
         }
     };
@@ -31,7 +36,7 @@ pub fn Upload(
         event.prevent_default();
         if let Some(data) = event.data_transfer() {
             if let Some(files) = data.files() {
-                on_file_addition(files);
+                on_file_addition(FileList::from(files));
             }
         }
         is_trigger_dragover.set(false);
