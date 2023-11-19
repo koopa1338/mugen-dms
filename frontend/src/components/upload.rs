@@ -36,10 +36,28 @@ where
     let on_trigger_drop = move |event: ev::DragEvent| {
         event.prevent_default();
         if let Some(data) = event.data_transfer() {
-            if let Some(files) = data.files() {
-                on_file_addition(FileList::from(files));
+            if let Some(input) = input_ref.get_untracked() {
+                if let Some(files) = data.files() {
+                    let ft = input.accept();
+                    let accepted = ft.split(',').collect::<Vec<_>>();
+                    let mut all_files_valid = true;
+                    for idx in 0..files.length() {
+                        if let Some(file) = files.item(idx) {
+                            let file_type = file.type_();
+                            let contain = accepted.contains(&file_type.as_str());
+                            if !contain {
+                                logging::warn!("filetype of file was {file_type} but only one of the following filetypes is allowed: {accepted:#?}");
+                            }
+                            all_files_valid &= contain;
+                        }
+                    }
+                    if all_files_valid {
+                        on_file_addition(FileList::from(files));
+                    }
+                }
             }
         }
+
         is_trigger_dragover.set(false);
     };
     let on_trigger_dragover = move |event: ev::DragEvent| {
