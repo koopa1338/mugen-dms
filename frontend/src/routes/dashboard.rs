@@ -35,7 +35,7 @@ pub(crate) fn Dashboard() -> impl IntoView {
     view! {
         <Grid classes="grid-cols-2 mb-4 h-full">
             <Chart chart=chart id="chart-test"/>
-            <Upload callback=upload_callback multiple=true/>
+            <Upload callback=upload_callback multiple=true accept="application/pdf"/>
         </Grid>
     }
 }
