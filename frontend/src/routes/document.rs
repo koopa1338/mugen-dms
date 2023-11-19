@@ -63,7 +63,7 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
                         }
                     });
                 }
-                _ => return,
+                _ => {},
             }
         }
     });
