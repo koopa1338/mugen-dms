@@ -5,14 +5,14 @@ use charming::{
     series::{self, *},
     Animation as ResizeAnimation, Chart, ChartResize, Easing, WasmRenderer,
 };
-use gloo_file::{FileList, futures};
-use leptos::{*, callback::Callback};
+use gloo_file::{futures, FileList};
+use leptos::{callback::Callback, *};
 
 use crate::components::{chart::Chart, grid::Grid, upload::Upload};
 
 #[component]
 pub(crate) fn Dashboard() -> impl IntoView {
-    let upload_closure =  move |file_list: FileList| async move {
+    let upload_closure = move |file_list: FileList| async move {
         for file in file_list.iter() {
             let bytes = futures::read_as_bytes(&file).await.expect("filereaderror");
             logging::warn!("file bytes: {:?}", bytes);

@@ -16,6 +16,7 @@ where
     let on_file_addition = move |files: FileList| {
         spawn_local(Callback::call(&callback, files));
     };
+
     let input_ref = create_node_ref::<html::Input>();
 
     let on_change = move |_| {
@@ -47,6 +48,7 @@ where
     };
     let on_trigger_dragenter = move |event: ev::DragEvent| {
         event.prevent_default();
+        is_trigger_dragover.set(true);
     };
     let on_trigger_dragleave = move |event: ev::DragEvent| {
         event.prevent_default();
@@ -55,36 +57,41 @@ where
 
     view! {
         <div class="w-full rounded-md bg-gray-900 p-3">
-            <div
-                class="w-full p-5 rounded-md border border-2 border-dotted"
-                class=("border-amber-600", move || is_trigger_dragover.get())
-                on:drop=on_trigger_drop
-                on:dragover=on_trigger_dragover
-                on:dragenter=on_trigger_dragenter
-                on:dragleave=on_trigger_dragleave
-            >
-                <input
-                    class="hidden invisible"
-                    ref=input_ref
-                    type="file"
-                    accept=move || accept.get()
-                    multiple=move || multiple.get()
-                    on:change=on_change
-                    on:click=move |ev| ev.stop_propagation()
-                />
-                <div class="text-gray-500 p-2 mt-2 flex flex-justify">
-                    <button
-                        class="rounded-md bg-amber-600 text-semibold cursor-pointer text-white p-2 m-2"
-                        on:click=on_click
-                    >
-                        "Select files"
-                    </button>
-                    <p class="text-gray-500">
-                        "Drag and drop files here or click for file dialogue"
-                    </p>
-                </div>
+            <div class="p-5">
+                <div
+                    class="w-full rounded-md border border-2 border-dotted transition-all duration 200"
+                    class=("border-amber-600", move || is_trigger_dragover.get())
+                    on:drop=on_trigger_drop
+                    on:dragover=on_trigger_dragover
+                    on:dragenter=on_trigger_dragenter
+                    on:dragleave=on_trigger_dragleave
+                >
+                    <input
+                        class="hidden invisible"
+                        ref=input_ref
+                        type="file"
+                        accept=move || accept.get()
+                        multiple=move || multiple.get()
+                        on:change=on_change
+                        on:click=move |ev| ev.stop_propagation()
+                    />
+                    <div class="text-gray-500 p-2 mt-2 flex flex-justify items-center">
+                        <button
+                            class="rounded-md bg-amber-600 hover:bg-amber-700 text-semibold text-4xl cursor-pointer text-white px-3 m-2 transition-all duration-200"
+                            on:click=on_click
+                        >
+                            ""
+                        </button>
+                        <p
+                            class="transition-all duration-200"
+                            class=("text-amber-600", move || is_trigger_dragover.get())
+                        >
+                            "Drag and drop files here or click for file dialogue"
+                        </p>
+                    </div>
 
-                <div>{children.map(|c| c())}</div>
+                    <div>{children.map(|c| c())}</div>
+                </div>
             </div>
         </div>
     }
