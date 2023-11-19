@@ -39,9 +39,14 @@ pub fn Chart(#[prop()] chart: Chart, #[prop()] id: &'static str) -> impl IntoVie
     // });
 
     view! {
-            <div class="rounded bg-gray-900 p-3 h-full">
-                <div node_ref=el class="transition-all w-full h-5/6" id={id}></div>
-                <button class="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-800 transition-all duration 150 text-white" on:click=move |_| size_set.set((800, 600))>"Resize to 800x600"</button>
-            </div>
+        <div class="rounded bg-gray-900 p-3 h-full">
+            <div node_ref=el class="transition-all w-full h-5/6" id=id></div>
+            <button
+                class="px-3 py-2 rounded-md bg-gray-700 hover:bg-gray-800 transition-all duration 150 text-white"
+                on:click=move |_| size_set.set((800, 600))
+            >
+                "Resize to 800x600"
+            </button>
+        </div>
     }
 }

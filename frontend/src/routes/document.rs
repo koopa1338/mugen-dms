@@ -63,7 +63,7 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
                         }
                     });
                 }
-                _ => {},
+                _ => {}
             }
         }
     });
@@ -90,39 +90,40 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
     };
 
     view! {
-            <div class="rounded bg-gray-900 p-3 h-full">
-                <table class="table-fixed text-gray-500 w-full h-full">
-                    <thead class="table w-full table-fixed mb-1">
-                        <tr class="border-b border-slate-100 font-medium">
-                            <th>"ID"</th>
-                            <th>"Version"</th>
-                            <th>"Created"</th>
-                            <th>"Updated"</th>
-                            <th>"Filetype"</th>
-                        </tr>
-                    </thead>
-                    <Transition fallback=move || {
-                        view! { <p>"Loading..."</p> }
-                    }>
+        <div class="rounded bg-gray-900 p-3 h-full">
+            <table class="table-fixed text-gray-500 w-full h-full">
+                <thead class="table w-full table-fixed mb-1">
+                    <tr class="border-b border-slate-100 font-medium">
+                        <th>"ID"</th>
+                        <th>"Version"</th>
+                        <th>"Created"</th>
+                        <th>"Updated"</th>
+                        <th>"Filetype"</th>
+                    </tr>
+                </thead>
+                <Transition fallback=move || {
+                    view! { <p>"Loading..."</p> }
+                }>
 
-                        {
-                            view! {
-                                // TODO: make a error template for reuse
-                                <ErrorBoundary fallback=|errors| {
-                                    view! {
-                                        {move || {
-                                            errors
-                                                .get()
-                                                .into_iter()
-                                                .map(|(_, e)| view! { <p>{e.to_string()}</p> })
-                                                .collect::<Vec<_>>()
-                                        }}
-                                    }
-                                }>{documents_view}</ErrorBoundary>
-                            }
+                    {
+                        view! {
+                            // TODO: make a error template for reuse
+                            <ErrorBoundary fallback=|errors| {
+                                view! {
+                                    {move || {
+                                        errors
+                                            .get()
+                                            .into_iter()
+                                            .map(|(_, e)| view! { <p>{e.to_string()}</p> })
+                                            .collect::<Vec<_>>()
+                                    }}
+                                }
+                            }>{documents_view}</ErrorBoundary>
                         }
-                    </Transition>
-                </table>
-            </div>
+                    }
+
+                </Transition>
+            </table>
+        </div>
     }
 }
