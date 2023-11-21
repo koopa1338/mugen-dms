@@ -14,6 +14,8 @@ use crate::error::ApiResult as Result;
 
 use common::models::document::Doc;
 
+use super::QueryPagination;
+
 /// Returns a router for the document resource.
 pub fn router() -> Router<AppState> {
     Router::new().nest(
@@ -43,12 +45,25 @@ pub struct QueryCategory {
 pub async fn doc_list(
     State(ref conn): State<DatabaseConnection>,
     Query(category): Query<QueryCategory>,
+    Query(QueryPagination { page, page_size }): Query<QueryPagination>,
 ) -> Result<impl IntoResponse> {
-    let docs = if let Some(category_id) = category.category_id {
-        services::docs::get_docs_by_category(category_id, conn).await
+    let docs = if let Some(page) = page {
+        let page_size = page_size.unwrap_or(50);
+        if let Some(category_id) = category.category_id {
+            services::docs::get_docs_by_category_paginated(category_id, page, page_size, conn).await
+        } else {
+            services::docs::get_docs_paginated(page, page_size, conn).await
+        }
+
     } else {
-        services::docs::get_docs(conn).await
+        if let Some(category_id) = category.category_id {
+            services::docs::get_docs_by_category(category_id, conn).await
+        } else {
+            services::docs::get_docs(conn).await
+        }
+
     };
+
     match docs {
         Ok(documents) => {
             debug!("Retrieved {} documents", documents.len());

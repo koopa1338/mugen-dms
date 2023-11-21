@@ -1,0 +1,30 @@
+[package]
+name = "mugen-frontend"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+charming = { version = "0.2", features = ["wasm"] }
+console_error_panic_hook = { version = "0.1" }
+console_log = { version = "1" }
+gloo-net = { version = "0.4", features = ["http"] }
+gloo-utils = "0.2"
+gloo-file = { version = "0.3", features = ["futures"] }
+leptos = { version = "0.5", features = ["csr", "nightly"] }
+leptos_meta = { version = "0.5", features = ["csr", "nightly"] }
+leptos_router = { version = "0.5", features = ["csr", "nightly"] }
+log = "0.4"
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+wasm-bindgen = { version = "0.2" }
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
+  "AbortController",
+  "AbortSignal",
+  "File",
+  "FileList",
+  "DataTransfer",
+] }
+
+common = { path = "../common" }
+leptos-use = "0.8.1"

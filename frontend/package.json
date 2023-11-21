@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "echarts": "^5.4.3",
+    "echarts-gl": "^2.0.9",
+    "tailwind-scrollbar": "^3.0.5",
+    "tailwindcss": "^3.3.5"
+  }
+}
