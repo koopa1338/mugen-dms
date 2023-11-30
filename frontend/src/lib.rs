@@ -1,4 +1,5 @@
 use leptos::*;
+use std::ops::Not;
 pub mod api;
 pub mod app;
 pub mod components;
@@ -8,25 +9,14 @@ pub trait SignalToggle {
     fn toggle(&mut self);
 }
 
-impl SignalToggle for RwSignal<bool> {
+impl<T> SignalToggle for T
+where
+    T: SignalUpdate<Value = T> + Not<Output = T>,
+{
     fn toggle(&mut self) {
-        self.update(|value| *value = !*value);
+        self.update(|&mut mut value| value = !value);
     }
 }
-
-// TODO: get this to work so we can implement toggle for all signals where the containing type
-// implements the `!` operator
-// impl<T> SignalToggle for T
-// where
-//     T: SignalUpdate,
-//     <T as leptos::SignalUpdate>::Value: Not,
-// {
-//     fn toggle(&mut self) {
-//         self.update(|value| {
-//             *value = !*value
-//         });
-//     }
-// }
 
 trait ChronoFormat {
     fn display(&self) -> String;
