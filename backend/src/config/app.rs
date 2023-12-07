@@ -1,6 +1,7 @@
+use axum::serve;
 use std::net::Ipv4Addr;
-use std::net::SocketAddr;
 use std::time::Duration;
+use tokio::net::TcpListener;
 use tower_http::cors::{Any, CorsLayer};
 
 use axum::extract::FromRef;
@@ -61,14 +62,15 @@ pub async fn api_routes(app_state: AppState) {
                 .into_inner(),
         );
     tracing::debug!("Serving backend on {LOCALHOST}:{BACKEND_PORT}");
-    serve(backend, BACKEND_PORT).await;
+    init(backend, BACKEND_PORT).await;
 }
 
 /// Starts serving the provided `app` on the specified `port`.
-async fn serve(app: Router, port: u16) {
-    let addr = SocketAddr::from((LOCALHOST, port));
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
+async fn init(app: Router, port: u16) {
+    let listener = TcpListener::bind((LOCALHOST, port))
+        .await
+        .expect("Error creating tcp listener on {LOCALHOST}:{port}");
+    serve(listener, app)
         .await
         .expect("Error serving app service");
 }
