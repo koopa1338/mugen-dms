@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-charming = { version = "0.2", features = ["wasm"] }
 console_error_panic_hook = { version = "0.1" }
 console_log = { version = "1" }
 gloo-net = { version = "0.4", features = ["http"] }
