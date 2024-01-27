@@ -6,12 +6,12 @@ edition = "2021"
 [dependencies]
 console_error_panic_hook = { version = "0.1" }
 console_log = { version = "1" }
-gloo-net = { version = "0.4", features = ["http"] }
+gloo-net = { version = "0.5", features = ["http"] }
 gloo-utils = "0.2"
 gloo-file = { version = "0.3", features = ["futures"] }
-leptos = { version = "0.5", features = ["csr", "nightly"] }
-leptos_meta = { version = "0.5", features = ["csr", "nightly"] }
-leptos_router = { version = "0.5", features = ["csr", "nightly"] }
+leptos = { version = "0.6", features = ["csr", "nightly"] }
+leptos_meta = { version = "0.6", features = ["csr", "nightly"] }
+leptos_router = { version = "0.6", features = ["csr", "nightly"] }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
@@ -26,4 +26,4 @@ web-sys = { version = "0.3", features = [
 ] }
 
 common = { path = "../common" }
-leptos-use = "0.8.1"
+leptos-use = "0.9"
