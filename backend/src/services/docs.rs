@@ -4,10 +4,22 @@ use entity::prelude::*;
 use sea_orm::{prelude::*, DatabaseConnection, DeleteResult};
 use tracing_attributes::instrument;
 
-impl CRUDTrait for Doc {
-    type Entity = DocumentEntity;
-    type Pk = i64;
-    type AModel = DocumentAM;
+// impl CRUDTrait for Doc {
+//     type Entity = DocumentEntity;
+//     type Pk = i64;
+//     type AModel = DocumentAM;
+// }
+
+crud!(Doc, DocumentEntity, i64, DocumentAM);
+
+macro_rules! crud {
+    ($impl:ty, $entity:ty, $pk:ty, $amodel:ty) => {
+        impl CRUDTrait for $impl {
+            type Entity = $entity;
+            type Pk = $pk;
+            type AModel = $amodel;
+        }
+    };
 }
 
 /// Inserts a new [Doc] entity into the database.
@@ -63,6 +75,22 @@ pub async fn create_doc(data: Doc, conn: &DatabaseConnection) -> Result<Doc, DbE
 pub async fn get_docs(conn: &DatabaseConnection) -> Result<Vec<Doc>, DbErr> {
     tracing::debug!("Requested all documents.");
     Doc::get_entities(conn).await
+}
+
+#[instrument(skip(conn))]
+pub async fn get_docs_paginated(
+    page: u64,
+    page_size: u64,
+    conn: &DatabaseConnection,
+) -> Result<Vec<Doc>, DbErr> {
+    tracing::debug!("Requested documents paginated with page: {page} and page_size: {page_size}.");
+    let docs = DocumentEntity::find().paginate(conn, page_size);
+    let max_page = docs.num_pages().await?;
+    if page > max_page {
+        return Ok(Vec::new());
+    }
+
+    Ok(docs.fetch_page(page).await?.into_iter().collect::<Vec<_>>())
 }
 
 /// Returns a [Doc] entity with the specified ID from the database.
@@ -175,4 +203,24 @@ pub async fn get_docs_by_category(id: i32, conn: &DatabaseConnection) -> Result<
         .await?
         .into_iter()
         .collect::<Vec<_>>())
+}
+
+#[instrument(skip(conn))]
+pub async fn get_docs_by_category_paginated(
+    id: i32,
+    page: u64,
+    page_size: u64,
+    conn: &DatabaseConnection,
+) -> Result<Vec<Doc>, DbErr> {
+    tracing::debug!("Fetch Documents with linked Category id {id} and paginated with page: {page} and page_size: {page_size}.");
+
+    let docs = DocumentEntity::find()
+        .filter(document::Column::CategoryId.eq(id))
+        .paginate(conn, page_size);
+    let max_page = docs.num_pages().await?;
+    if page > max_page {
+        return Ok(Vec::new());
+    }
+
+    Ok(docs.fetch_page(page).await?.into_iter().collect::<Vec<_>>())
 }

@@ -90,8 +90,8 @@ pub async fn category_by_id(
 /// Returns a JSON response containing the newly created [Category] if successful, otherwise returns a [DbErr] error response.
 #[instrument(skip(conn, input))]
 pub async fn category_create(
-    State(ref conn): State<DatabaseConnection>,
     Json(input): Json<Category>,
+    State(ref conn): State<DatabaseConnection>,
 ) -> Result<impl IntoResponse> {
     let result = categories::create_category(input, conn).await;
     match result {

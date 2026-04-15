@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
-use ts_rs::TS;
+// use ts_rs::TS;
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize, TS)]
-#[ts(export)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize/* , TS */)]
+// #[ts(export)]
 pub struct Category {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<i32>,

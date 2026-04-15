@@ -1,0 +1,23 @@
+[env]
+CLIENT_PROCESS_NAME = "trunk"
+RUSTFLAGS = "--cfg=web_sys_unstable_apis"
+
+[tasks.build]
+command = "trunk"
+args = ["build"]
+
+[tasks.fmt]
+command = "leptosfmt"
+args = ["."]
+
+[tasks.pkg]
+command = "trunk"
+args = ["build", "--release"]
+
+[tasks.serve]
+command = "trunk"
+args = ["serve", "${@}"]
+
+[tasks.serve-release]
+command = "trunk"
+args = ["serve", "${@}", "--release"]
