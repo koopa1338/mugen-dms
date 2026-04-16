@@ -18,11 +18,10 @@ pub fn Sidebar() -> impl IntoView {
                 <MenuSection seperator=false>
                     <MenuEntry href="/" label="Dashboard"/>
                     <MenuEntry href="/documents" label="Documents"/>
-                    <MenuEntry href="/categories" label="Categories"/>
+                    <MenuEntry href="/collections" label="Collections"/>
                 </MenuSection>
                 <MenuSection seperator=true>
                     <MenuEntry href="/settings" label="Settings"/>
-                    <MenuEntry href="/collections" label="Collections"/>
                 </MenuSection>
                 <MenuEntry href="/about" label="About"/>
             </div>

@@ -1,4 +1,4 @@
-use common::models::document::Doc;
+use common::models::document::Document;
 use gloo_net::http::Method;
 use leptos::*;
 use leptos_use::{use_scroll_with_options, UseScrollOptions};
@@ -28,8 +28,8 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
     let documents = create_resource(
         move || page.get(),
         move |page| async move {
-            api_call::<Vec<Doc>, FetchError>(
-                "api/doc",
+            api_call::<Vec<Document>, FetchError>(
+                "api/documents",
                 Method::GET,
                 None,
                 Some(vec![("page", &page.to_string())]),
@@ -74,15 +74,14 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
                 node_ref=el
                 class="w-full h-[calc(100%-2em)] overflow-y-scroll overflow-x-auto overflow-x-wrap-break-word scrollbar-thin block"
             >
-                <For each=move || data.get() key=|doc: &Doc| doc.id let:doc>
+                <For each=move || data.get() key=|doc: &Document| doc.id.clone() let:doc>
                     <tr class="table w-full table-fixed">
                         <th class="py-2">{doc.id}</th>
-                        <th class="py-2">{doc.version}</th>
-                        <th class="py-2">{doc.created.display()}</th>
-                        <th class="py-2">
-                            {doc.updated.map_or("never".to_string(), |date| date.display())}
-                        </th>
+                        <th class="py-2">{doc.filename}</th>
                         <th class="py-2">{doc.filetype}</th>
+                        <th class="py-2">{doc.size.to_string()}</th>
+                        <th class="py-2">{doc.created_at.display()}</th>
+                        <th class="py-2">{doc.updated_at.display()}</th>
                     </tr>
                 </For>
             </tbody>
@@ -95,33 +94,27 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
                 <thead class="table w-full table-fixed mb-1">
                     <tr class="border-b border-slate-100 font-medium">
                         <th>"ID"</th>
-                        <th>"Version"</th>
+                        <th>"Filename"</th>
+                        <th>"Type"</th>
+                        <th>"Size"</th>
                         <th>"Created"</th>
                         <th>"Updated"</th>
-                        <th>"Filetype"</th>
                     </tr>
                 </thead>
                 <Transition fallback=move || {
                     view! { <p>"Loading..."</p> }
                 }>
-
-                    {
+                    <ErrorBoundary fallback=|errors| {
                         view! {
-                            // TODO: make a error template for reuse
-                            <ErrorBoundary fallback=|errors| {
-                                view! {
-                                    {move || {
-                                        errors
-                                            .get()
-                                            .into_iter()
-                                            .map(|(_, e)| view! { <p>{e.to_string()}</p> })
-                                            .collect::<Vec<_>>()
-                                    }}
-                                }
-                            }>{documents_view}</ErrorBoundary>
+                            {move || {
+                                errors
+                                    .get()
+                                    .into_iter()
+                                    .map(|(_, e)| view! { <p>{e.to_string()}</p> })
+                                    .collect::<Vec<_>>()
+                            }}
                         }
-                    }
-
+                    }>{documents_view}</ErrorBoundary>
                 </Transition>
             </table>
         </div>

@@ -1,17 +1,21 @@
 version: "3.8"
 services:
   mugendb:
-    environment:
-      - POSTGRES_USER=mugen
-      - POSTGRES_PASSWORD=mugen
-      - POSTGRES_DB=mugendb
-    image: postgres:14-alpine
+    image: surrealdb/surrealdb:latest
+    command: start --log info --user root --pass root file:/data/mugen.db
     ports:
-      - "5432:5432"
+      - "8000:8000"
     restart: unless-stopped
     volumes:
-      - database:/var/lib/postgresql/data
+      - surrealdb_data:/data
+
+  # Uncomment when Meilisearch integration is added
+  # meilisearch:
+  #   image: getmeili/meilisearch:latest
+  #   ports:
+  #     - "7700:7700"
+  #   volumes:
+  #     - meili_data:/meili_data
 
 volumes:
-  database:
-
+  surrealdb_data:

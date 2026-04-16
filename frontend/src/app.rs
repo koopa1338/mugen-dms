@@ -17,8 +17,6 @@ pub fn App() -> impl IntoView {
                     <Route path="/" view=Dashboard/>
                     <Route path="/documents" view=Documents/>
                     <Route path="/documents/:id" view=Dashboard/>
-                    <Route path="/categories/:id" view=Dashboard/>
-                    <Route path="/categories" view=Dashboard/>
                     <Route path="/collections/:id" view=Dashboard/>
                     <Route path="/collections" view=Dashboard/>
                     <Route path="/settings" view=Dashboard/>
