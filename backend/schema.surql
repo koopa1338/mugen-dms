@@ -1,6 +1,11 @@
 -- mugen-dms SurrealDB schema
 -- Applied idempotently at startup via DEFINE ... (re-running DEFINE is safe in SurrealDB)
 
+-- Schema version tracking table
+DEFINE TABLE IF NOT EXISTS _schema_version SCHEMALESS;
+DEFINE FIELD IF NOT EXISTS version       ON _schema_version TYPE int    ASSERT $value >= 0;
+DEFINE FIELD IF NOT EXISTS applied_at    ON _schema_version TYPE datetime DEFAULT time::now();
+
 -- USER table
 DEFINE TABLE IF NOT EXISTS user SCHEMAFULL;
 DEFINE FIELD IF NOT EXISTS username      ON user TYPE string  ASSERT $value != NONE;
