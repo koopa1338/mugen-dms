@@ -35,6 +35,7 @@ DEFINE FIELD IF NOT EXISTS collection ON document TYPE option<record<collection>
 DEFINE FIELD IF NOT EXISTS owner      ON document TYPE record<user>        ASSERT $value != NONE;
 DEFINE FIELD IF NOT EXISTS ocr_text   ON document TYPE option<string>;
 DEFINE FIELD IF NOT EXISTS tags       ON document TYPE array<string>       DEFAULT [];
-DEFINE INDEX IF NOT EXISTS document_owner_idx       ON document FIELDS owner;
+DEFINE INDEX IF NOT EXISTS collection_owner_idx ON collection FIELDS owner;
+DEFINE INDEX IF NOT EXISTS document_owner_idx   ON document FIELDS owner;
 DEFINE INDEX IF NOT EXISTS document_collection_idx  ON document FIELDS collection;
 DEFINE INDEX IF NOT EXISTS document_updated_idx     ON document FIELDS updated_at;
