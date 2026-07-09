@@ -115,7 +115,6 @@ fn issue_jwt(user: &DbUser, jwt_secret: &str) -> Result<String, ApiError> {
     let claims = Claims {
         sub: record_id_to_string(&user.id),
         username: user.username.clone(),
-        bucket_path: user.bucket_path.clone(),
         exp: expiry,
     };
     encode(

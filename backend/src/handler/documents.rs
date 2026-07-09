@@ -8,6 +8,9 @@ use axum::{
 use serde::Deserialize;
 use tracing_attributes::instrument;
 
+use surrealdb::types::SurrealValue;
+use surrealdb::{engine::any::Any, Surreal};
+
 use crate::{
     auth::{middleware::AuthUser, AuthProvider},
     config::app::AppState,
@@ -17,6 +20,22 @@ use crate::{
 };
 
 use super::{QueryCollection, QueryPagination};
+
+async fn get_user_bucket_path(db: &Surreal<Any>, user_id: &str) -> ApiResult<String> {
+    let mut result = db
+        .query("SELECT bucket_path FROM user WHERE id = $id LIMIT 1")
+        .bind(("id", user_id.to_string()))
+        .await?;
+    let row: Option<BucketPathRow> = result.take(0)?;
+    row.map(|r| r.bucket_path)
+        .ok_or_else(|| ApiError::Unauthorized("User not found".to_string()))
+}
+
+#[derive(SurrealValue)]
+#[allow(dead_code)]
+struct BucketPathRow {
+    bucket_path: String,
+}
 
 pub fn router<S, A>() -> Router<AppState<S, A>>
 where
@@ -153,13 +172,15 @@ where
     let filetype = infer::get(&bytes).map(|t| t.mime_type().to_string());
     let key = svc::make_storage_key(&name);
 
+    let bucket_path = get_user_bucket_path(&state.db, &auth.user_id).await?;
+
     state
         .storage
-        .store(&auth.bucket_path, &key, &bytes)
+        .store(&bucket_path, &key, &bytes)
         .await?;
 
     // filepath stored in DB is bucket-relative: "{bucket}/{key}"
-    let filepath = format!("{}/{}", auth.bucket_path, key);
+    let filepath = format!("{}/{}", bucket_path, key);
 
     let doc = svc::create_document(
         &state.db,

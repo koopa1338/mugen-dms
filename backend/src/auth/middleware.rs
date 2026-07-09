@@ -16,7 +16,6 @@ use crate::auth::Claims;
 pub struct AuthUser {
     pub user_id: String,
     pub username: String,
-    pub bucket_path: String,
 }
 
 impl<S> FromRequestParts<S> for AuthUser
@@ -61,7 +60,6 @@ where
         Ok(AuthUser {
             user_id: claims.sub,
             username: claims.username,
-            bucket_path: claims.bucket_path,
         })
     }
 }

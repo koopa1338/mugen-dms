@@ -13,8 +13,6 @@ pub struct Claims {
     pub sub: String,
     /// Username, for convenience in the frontend
     pub username: String,
-    /// Bucket path, so the handler can resolve storage paths without a DB lookup
-    pub bucket_path: String,
     /// Expiry as Unix timestamp (seconds)
     pub exp: u64,
 }
