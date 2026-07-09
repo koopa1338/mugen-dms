@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn About() -> impl IntoView {
@@ -6,7 +6,7 @@ pub fn About() -> impl IntoView {
         <div class="rounded bg-gray-900 p-3 text-gray-500">
             <h2 class="text-2xl font-bold mb-4">"Overview"</h2>
             <p>
-                "Mugen-dms is an open-source document management software, offering powerful and efficient solutions built entirely in Rust. It utilizes Leptos for the frontend and Axum with Sea ORM for the backend, ensuring a seamless and performant user experience."
+                "Mugen-dms is an open-source document management software, offering powerful and efficient solutions built entirely in Rust. It utilizes Leptos for the frontend and Axum with SurrealDB for the backend, ensuring a seamless and performant user experience."
             </p>
 
             <h2 class="text-2xl font-bold mt-6 mb-4">"Key Perks"</h2>

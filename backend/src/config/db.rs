@@ -1,41 +1,41 @@
-use anyhow::Result;
+use surrealdb::{
+    engine::any::{connect, Any},
+    opt::auth::Root,
+    Surreal,
+};
 
-use migration::migrate_database;
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
-use std::time::Duration;
+use crate::{db::schema::apply_schema, error::ApiError};
 
-use super::app;
+use super::app::Config;
 
-/// Establishes a connection pool to the database specified in the provided app configuration,
-/// sets connection pool options, connects to the database, runs database migrations, and returns
-/// a handle to the connection pool.
+/// Connect to SurrealDB, authenticate if credentials are provided,
+/// select the namespace/database, and apply the schema idempotently.
 ///
-/// ## Arguments
-///
-/// * `config` - An `app::Config` object specifying the database URL.
-///
-/// ## Returns
-///
-/// A `Result` containing a handle to the database connection pool or a database error.
-///
-/// ## Example
-///
-/// ```
-/// let config = app::Config {
-///     database_url: String::from("postgres://user:password@localhost:5432/db"),
-/// };
-/// let conn_pool = get_database_connection_pool(config).await.unwrap();
-/// ```
-pub async fn get_database_connection_pool(config: app::Config) -> Result<DatabaseConnection> {
-    let mut db = ConnectOptions::new(config.database_url);
-    tracing::debug!("Connecting to database.");
-    db.max_connections(100)
-        .min_connections(5)
-        .connect_timeout(Duration::from_secs(8))
-        .idle_timeout(Duration::from_secs(8))
-        .sqlx_logging(true);
+/// `config.database_url` examples:
+/// - `ws://localhost:8000`       remote WebSocket (SurrealDB server)
+/// - `wss://db.example.com`      remote WebSocket with TLS
+/// - `rocksdb://./data/mugen`    embedded RocksDB (no separate process needed)
+/// - `mem://`                    in-memory (tests / CI)
+pub async fn get_db(config: &Config) -> Result<Surreal<Any>, ApiError> {
+    tracing::debug!("Connecting to SurrealDB at {}", config.database_url);
 
-    let connection = Database::connect(db).await?;
-    migrate_database(&connection).await?;
-    Ok(connection)
+    let db = connect(&config.database_url)
+        .await
+        .map_err(|e| ApiError::Internal(format!("SurrealDB connect failed: {e}")))?;
+
+    if let (Some(user), Some(pass)) = (&config.db_user, &config.db_pass) {
+        db.signin(Root { username: user.clone(), password: pass.clone() })
+            .await
+            .map_err(|e| ApiError::Internal(format!("SurrealDB auth failed: {e}")))?;
+    }
+
+    db.use_ns("mugen")
+        .use_db("dms")
+        .await
+        .map_err(|e| ApiError::Internal(format!("SurrealDB use_ns/use_db failed: {e}")))?;
+
+    apply_schema(&db).await?;
+
+    tracing::info!("SurrealDB connected and schema applied.");
+    Ok(db)
 }

@@ -1,9 +1,11 @@
-use common::models::document::Doc;
+use common::models::document::Document;
 use gloo_net::http::Method;
-use leptos::*;
+use leptos::prelude::*;
+use leptos::html;
 use leptos_use::{use_scroll_with_options, UseScrollOptions};
+use wasm_bindgen_futures::spawn_local;
 
-use crate::api::{api_call, FetchError};
+use crate::api::api_call;
 use crate::components::grid::Grid;
 use crate::ChronoFormat;
 
@@ -18,76 +20,59 @@ pub(crate) fn Documents() -> impl IntoView {
 
 #[component]
 pub(crate) fn DocumentsTable() -> impl IntoView {
-    let el = create_node_ref::<html::Tbody>();
-    let (page, page_set) = create_signal(1u32);
-    let (data, data_set) = create_signal(vec![]);
-    let (error, error_set) = create_signal(false);
+    let el = NodeRef::<html::Tbody>::new();
+    let page = RwSignal::new(1u32);
+    let data = RwSignal::new(Vec::<Document>::new());
+    let loading = RwSignal::new(false);
+    let has_more = RwSignal::new(true);
 
     let user_scroll_return = use_scroll_with_options(el, UseScrollOptions::default());
 
-    let documents = create_resource(
-        move || page.get(),
-        move |page| async move {
-            api_call::<Vec<Doc>, FetchError>(
-                "api/doc",
+    let fetch_documents = move |page_val: u32, append: bool| {
+        spawn_local(async move {
+            loading.set(true);
+            let result = api_call::<Vec<Document>, ()>(
+                "api/documents",
                 Method::GET,
                 None,
-                Some(vec![("page", &page.to_string())]),
-            )
-            .await
-        },
-    );
+                Some(vec![("page", &page_val.to_string())]),
+            ).await;
+            loading.set(false);
 
-    create_effect(move |_| {
-        if user_scroll_return.arrived_state.get().bottom && !user_scroll_return.is_scrolling.get() {
-            page_set.update(|page| *page = page.saturating_add(1));
-            (user_scroll_return.measure)();
-            if error.get_untracked() {
-                documents.refetch();
-            }
-        }
-    });
-
-    create_effect(move |_| {
-        if let Some(docs) = documents.get() {
-            match docs {
-                Ok(data) if !data.is_empty() => {
-                    data_set.update(|d| d.extend_from_slice(&data));
-                    error_set.set_untracked(false);
+            match result {
+                Ok(docs) => {
+                    if !append || page_val == 1 {
+                        data.update(Vec::clear);
+                        has_more.set(!docs.is_empty());
+                    }
+                    if docs.is_empty() {
+                        has_more.set(false);
+                    } else {
+                        data.update(|d| d.extend_from_slice(&docs));
+                    }
                 }
-                Err(_e) => {
-                    error_set.set_untracked(true);
-                    page_set.update_untracked(|page| {
-                        if *page > 1 {
-                            *page = page.saturating_sub(1);
-                        }
-                    });
+                Err(_) => {
+                    if append {
+                        page.update(|p| {
+                            if *p > 1 {
+                                *p = p.saturating_sub(1);
+                            }
+                        });
+                    }
                 }
-                _ => {}
             }
-        }
-    });
-
-    let documents_view = move || {
-        view! {
-            <tbody
-                node_ref=el
-                class="w-full h-[calc(100%-2em)] overflow-y-scroll overflow-x-auto overflow-x-wrap-break-word scrollbar-thin block"
-            >
-                <For each=move || data.get() key=|doc: &Doc| doc.id let:doc>
-                    <tr class="table w-full table-fixed">
-                        <th class="py-2">{doc.id}</th>
-                        <th class="py-2">{doc.version}</th>
-                        <th class="py-2">{doc.created.display()}</th>
-                        <th class="py-2">
-                            {doc.updated.map_or("never".to_string(), |date| date.display())}
-                        </th>
-                        <th class="py-2">{doc.filetype}</th>
-                    </tr>
-                </For>
-            </tbody>
-        }
+        });
     };
+
+    Effect::new(move |_| {
+        if user_scroll_return.arrived_state.get().bottom && !user_scroll_return.is_scrolling.get() && has_more.get() && !loading.get() {
+            page.update(|p| *p = p.saturating_add(1));
+            (user_scroll_return.measure)();
+            fetch_documents(page.get(), true);
+        }
+    });
+
+    fetch_documents(1, false);
 
     view! {
         <div class="rounded bg-gray-900 p-3 h-full">
@@ -95,34 +80,34 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
                 <thead class="table w-full table-fixed mb-1">
                     <tr class="border-b border-slate-100 font-medium">
                         <th>"ID"</th>
-                        <th>"Version"</th>
+                        <th>"Filename"</th>
+                        <th>"Type"</th>
+                        <th>"Size"</th>
                         <th>"Created"</th>
                         <th>"Updated"</th>
-                        <th>"Filetype"</th>
                     </tr>
                 </thead>
-                <Transition fallback=move || {
+                <Suspense fallback=move || {
                     view! { <p>"Loading..."</p> }
                 }>
-
-                    {
-                        view! {
-                            // TODO: make a error template for reuse
-                            <ErrorBoundary fallback=|errors| {
-                                view! {
-                                    {move || {
-                                        errors
-                                            .get()
-                                            .into_iter()
-                                            .map(|(_, e)| view! { <p>{e.to_string()}</p> })
-                                            .collect::<Vec<_>>()
-                                    }}
-                                }
-                            }>{documents_view}</ErrorBoundary>
-                        }
-                    }
-
-                </Transition>
+                    <Show when=move || !data.read().is_empty() fallback=|| view! { <p>"No documents"</p> }>
+                        <tbody
+                            node_ref=el
+                            class="w-full h-[calc(100%-2em)] overflow-y-scroll overflow-x-auto overflow-x-wrap-break-word scrollbar-thin block"
+                        >
+                            <For each=move || data.read().clone() key=|doc| doc.id.clone() let:doc>
+                                <tr class="table w-full table-fixed">
+                                    <td class="py-2">{doc.id}</td>
+                                    <td class="py-2">{doc.filename}</td>
+                                    <td class="py-2">{doc.filetype}</td>
+                                    <td class="py-2">{doc.size.to_string()}</td>
+                                    <td class="py-2">{doc.created_at.display()}</td>
+                                    <td class="py-2">{doc.updated_at.display()}</td>
+                                </tr>
+                            </For>
+                        </tbody>
+                    </Show>
+                </Suspense>
             </table>
         </div>
     }

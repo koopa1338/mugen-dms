@@ -1,4 +1,4 @@
-use leptos::*;
+use leptos::prelude::*;
 
 #[component]
 pub fn Grid(#[prop(optional)] classes: Option<&'static str>, children: Children) -> impl IntoView {

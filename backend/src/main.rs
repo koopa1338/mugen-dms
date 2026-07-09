@@ -1,23 +1,25 @@
 #![allow(clippy::module_name_repetitions)]
 
+mod auth;
 mod config;
+mod db;
 mod error;
 mod handler;
 mod services;
+mod storage;
 mod utils;
 
-use config::app;
-use config::db;
-
-use anyhow::Result;
 use clap::Parser;
 use dotenv::dotenv;
-
-use crate::utils::cron::scanner_cron;
 use dyn_logger::DynamicLogger;
 
+use auth::password::PasswordAuthProvider;
+use config::{app, db as db_config};
+use storage::FilesystemStorage;
+use utils::cron::scanner_cron;
+
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     let logger = DynamicLogger::new(dotenv::var("LOGGING")?)?
@@ -26,13 +28,16 @@ async fn main() -> Result<()> {
     logger.init();
 
     let config = app::Config::parse();
-    let conn = db::get_database_connection_pool(config.clone());
-    let backend = app::api_routes(app::AppState::new(conn.await?));
 
-    let cron = scanner_cron();
+    let db = db_config::get_db(&config).await?;
+    let storage = FilesystemStorage::new(config.storage_root.clone());
+    let auth = PasswordAuthProvider::new(db.clone());
+    let state = app::AppState::new(db, storage, auth, config.jwt_secret.clone());
 
-    let (_be, cron) = tokio::join!(backend, cron);
-    cron?;
+    let backend = app::api_routes(state);
+    scanner_cron().await;
+
+    backend.await.map_err(|e| e.to_string())?;
 
     Ok(())
 }

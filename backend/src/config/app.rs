@@ -1,52 +1,85 @@
-use axum::serve;
 use std::net::Ipv4Addr;
+use std::path::PathBuf;
 use std::time::Duration;
-use tokio::net::TcpListener;
-use tower_http::cors::{Any, CorsLayer};
-
-use axum::extract::FromRef;
-use sea_orm::DatabaseConnection;
-use tower::{BoxError, ServiceBuilder};
 
 use axum::{error_handling::HandleErrorLayer, http::StatusCode, Router};
-
 use clap::Parser;
+use surrealdb::{engine::any::Any, Surreal};
+use tower::{BoxError, ServiceBuilder};
+use tower_http::cors::{Any as AnyOrigin, CorsLayer};
 use tower_http::trace::TraceLayer;
+use tokio::net::TcpListener;
+use axum::serve;
 
-use crate::handler::categories;
-use crate::handler::docs;
+use crate::auth::middleware::JwtSecret;
+use crate::auth::AuthProvider;
+use crate::storage::StorageBackend;
 
-const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
+const LOCALHOST: Ipv4Addr = Ipv4Addr::LOCALHOST;
 const BACKEND_PORT: u16 = 4000;
 
 #[derive(Clone, Parser)]
 pub struct Config {
     #[clap(long, env)]
     pub database_url: String,
+
+    /// Username for remote SurrealDB authentication (omit for embedded mode)
+    #[clap(long, env)]
+    pub db_user: Option<String>,
+
+    /// Password for remote SurrealDB authentication
+    #[clap(long, env)]
+    pub db_pass: Option<String>,
+
+    /// Root directory for filesystem file storage
+    #[clap(long, env, default_value = "./storage")]
+    pub storage_root: PathBuf,
+
+    /// Secret key for JWT signing and verification
+    #[clap(long, env)]
+    pub jwt_secret: String,
 }
 
-/// The global state of the application that holds the connection to the database.
-#[derive(Debug, Clone, FromRef)]
-pub struct AppState {
-    /// The connection to the database.
-    database: DatabaseConnection,
+/// Global application state.
+///
+/// `S` is the storage backend (e.g. `FilesystemStorage`; swap for `S3Storage` later).
+/// `A` is the auth provider (e.g. `PasswordAuthProvider`; swap for `OidcAuthProvider` later).
+#[derive(Clone)]
+pub struct AppState<S, A> {
+    pub db: Surreal<Any>,
+    pub storage: S,
+    pub auth: A,
+    pub jwt_secret: String,
 }
 
-impl AppState {
-    /// Creates a new instance of `AppState` with the given `DatabaseConnection`.
-    pub fn new(database: DatabaseConnection) -> Self {
-        Self { database }
+impl<S, A> AppState<S, A> {
+    pub fn new(db: Surreal<Any>, storage: S, auth: A, jwt_secret: String) -> Self {
+        Self { db, storage, auth, jwt_secret }
     }
 }
 
-/// Mounts the API routes onto a router and serves the backend on a specified port.
-pub async fn api_routes(app_state: AppState) {
+/// Mounts all API routes and starts the backend server.
+pub async fn api_routes<S, A>(app_state: AppState<S, A>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
+where
+    S: StorageBackend + Clone + Send + Sync + 'static,
+    A: AuthProvider + Clone + Send + Sync + 'static,
+{
+    use crate::handler::{auth, collections, documents};
+
+    let jwt_secret = app_state.jwt_secret.clone();
+
     let backend = Router::new()
-        .nest("/api", Router::merge(docs::router(), categories::router()))
-        .with_state(app_state.clone())
+        .nest(
+            "/api",
+            Router::new()
+                .merge(auth::router())
+                .merge(documents::router())
+                .merge(collections::router()),
+        )
+        .with_state(app_state)
         .layer(
             ServiceBuilder::new()
-                .layer(CorsLayer::new().allow_origin(Any))
+                .layer(CorsLayer::new().allow_origin(AnyOrigin))
                 .layer(HandleErrorLayer::new(|error: BoxError| async move {
                     if error.is::<tower::timeout::error::Elapsed>() {
                         Ok(StatusCode::REQUEST_TIMEOUT)
@@ -59,18 +92,24 @@ pub async fn api_routes(app_state: AppState) {
                 }))
                 .timeout(Duration::from_secs(10))
                 .layer(TraceLayer::new_for_http())
+                // Inject the JWT secret into request extensions so AuthUser can find it
+                .layer(axum::middleware::from_fn(move |mut req: axum::http::Request<axum::body::Body>, next: axum::middleware::Next| {
+                    let secret = jwt_secret.clone();
+                    async move {
+                        req.extensions_mut().insert(JwtSecret(secret));
+                        next.run(req).await
+                    }
+                }))
                 .into_inner(),
         );
-    tracing::debug!("Serving backend on {LOCALHOST}:{BACKEND_PORT}");
-    init(backend, BACKEND_PORT).await;
-}
 
-/// Starts serving the provided `app` on the specified `port`.
-async fn init(app: Router, port: u16) {
-    let listener = TcpListener::bind((LOCALHOST, port))
+    tracing::debug!("Serving backend on {LOCALHOST}:{BACKEND_PORT}");
+
+    let listener = TcpListener::bind((LOCALHOST, BACKEND_PORT))
         .await
-        .expect("Error creating tcp listener on {LOCALHOST}:{port}");
-    serve(listener, app)
-        .await
-        .expect("Error serving app service");
+        .expect("Error creating TCP listener");
+    serve(listener, backend)
+        .await?;
+
+    Ok(())
 }

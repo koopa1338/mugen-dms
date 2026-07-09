@@ -3,111 +3,66 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use migration::DbErr;
-use sea_orm::JsonValue;
 use serde_json::json;
-use std::{error::Error, fmt::Display};
+use thiserror::Error;
 
-/// Possible API errors that can be returned.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Error)]
 pub enum ApiError {
-    /// The requested resource was not found.
+    #[error("Not found: {0}")]
     NotFound(String),
-    /// An internal server error occurred.
+
+    #[error("Internal error: {0}")]
     Internal(String),
-    /// The request timed out before a response could be obtained.
+
+    #[error("Request timeout: {0}")]
     Timeout(String),
+
+    #[error("Validation error: {0}")]
+    Validation(String),
+
+    #[error("Unauthorized: {0}")]
+    Unauthorized(String),
+
+    #[error("IO error: {0}")]
+    Io(String),
 }
 
 pub type ApiResult<T> = Result<T, ApiError>;
 
+impl From<surrealdb::Error> for ApiError {
+    fn from(err: surrealdb::Error) -> Self {
+        let msg = err.to_string();
+        if msg.contains("parse") || msg.contains("Parse") {
+            ApiError::Validation(msg)
+        } else {
+            tracing::error!("SurrealDB error: {err}");
+            ApiError::Internal(msg)
+        }
+    }
+}
+
+impl From<std::io::Error> for ApiError {
+    fn from(err: std::io::Error) -> Self {
+        tracing::error!("IO error: {err}");
+        ApiError::Io(err.to_string())
+    }
+}
+
 impl ApiError {
-    /// Returns the HTTP status code associated with the error.
     fn status_code(&self) -> StatusCode {
         match self {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
-            Self::Internal(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            Self::Internal(_) | Self::Io(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::Timeout(_) => StatusCode::REQUEST_TIMEOUT,
+            Self::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
+            Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
         }
-    }
-
-    /// Returns an error message associated with the error.
-    fn error_message(&self) -> String {
-        // TODO: custom error messages for each case
-        match self {
-            Self::NotFound(ref msg) | Self::Internal(ref msg) | Self::Timeout(ref msg) => {
-                msg.clone()
-            }
-        }
-    }
-
-    /// Returns a tuple containing the HTTP status code and a JSON object representing the error message.
-    fn response(&self) -> (StatusCode, Json<JsonValue>) {
-        (
-            self.status_code(),
-            Json(json!({
-                "error": self.error_message()
-            })),
-        )
-    }
-}
-
-impl From<DbErr> for ApiError {
-    fn from(err: DbErr) -> Self {
-        // TODO: custom error messages for each case
-        match err {
-            DbErr::TryIntoErr { from, into, source } => {
-                tracing::error!("Failed to convert {source} from {from} into {into}");
-                ApiError::Internal("Conversion error".to_string())
-            }
-            DbErr::Conn(e) => {
-                tracing::error!("Connection error: {e}");
-                Self::Timeout("Connection Error".to_string())
-            }
-            DbErr::ConnectionAcquire(e) => {
-                tracing::error!("Connection aquire error: {e}");
-                Self::Timeout("Connection Error".to_string())
-            }
-            DbErr::Exec(runtime_error) | DbErr::Query(runtime_error) => {
-                tracing::error!("Runtime Error {runtime_error}");
-                Self::Internal("Runtime Error".to_string())
-            }
-            DbErr::RecordNotFound(msg) => Self::NotFound(msg),
-            DbErr::AttrNotSet(msg)
-            | DbErr::Custom(msg)
-            | DbErr::Type(msg)
-            | DbErr::Json(msg)
-            | DbErr::Migration(msg) => {
-                tracing::error!(msg);
-                Self::Internal(msg)
-            }
-            DbErr::ConvertFromU64(msg) => {
-                let error_msg = msg.to_string();
-                tracing::error!(error_msg);
-                Self::Internal(error_msg)
-            }
-            DbErr::RecordNotInserted
-            | DbErr::RecordNotUpdated
-            | DbErr::UnpackInsertId
-            | DbErr::UpdateGetPrimaryKey => {
-                tracing::error!("Internal server error");
-                Self::Internal("Internal server error".to_string())
-            }
-        }
-    }
-}
-
-impl Error for ApiError {}
-
-impl Display for ApiError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "Statuscode: {}", self.status_code())?;
-        writeln!(f, "Body: {:?}", self.error_message())
     }
 }
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
-        self.response().into_response()
+        let body = json!({ "error": self.to_string() });
+        (self.status_code(), Json(body)).into_response()
     }
 }

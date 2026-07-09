@@ -1,10 +1,13 @@
 use gloo_net::http::{Method, RequestBuilder};
 use gloo_utils::errors::JsError;
-use leptos::Serializable;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use web_sys::AbortController;
 
+/// Make an HTTP request to the backend API.
+///
+/// # Errors
+///
+/// Returns [`FetchError`] if the request fails to build, send, or deserialize the response.
 pub async fn api_call<T, P>(
     path: &str,
     method: Method,
@@ -12,22 +15,11 @@ pub async fn api_call<T, P>(
     query_params: Option<Vec<(&str, &str)>>,
 ) -> Result<T, FetchError>
 where
-    T: Serializable, // this means both serializable and deserializable
+    T: for<'de> Deserialize<'de> + Serialize,
     P: Serialize,
 {
-    let abort_controller = web_sys::AbortController::new().ok();
-    let abort_signal = abort_controller.as_ref().map(AbortController::signal);
-
-    // abort in-flight requests if, e.g., we've navigated away from this page
-    leptos::on_cleanup(move || {
-        if let Some(abort_controller) = abort_controller {
-            abort_controller.abort();
-        }
-    });
-
     let mut builder = RequestBuilder::new(&format!("http://localhost:4000/{path}"))
-        .method(method)
-        .abort_signal(abort_signal.as_ref());
+        .method(method);
     if let Some(params) = query_params {
         builder = builder.query(params);
     }
@@ -57,7 +49,7 @@ where
         .await
         .map_err(|e| FetchError::GenericError(e.to_string()))?;
 
-    T::de(&json).map_err(|e| FetchError::GenericError(e.to_string()))
+    serde_json::from_str(&json).map_err(|e| FetchError::GenericError(e.to_string()))
 }
 
 #[derive(Error, Clone, Debug, Deserialize, Serialize)]

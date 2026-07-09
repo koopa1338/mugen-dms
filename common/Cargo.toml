@@ -9,4 +9,3 @@ authors.workspace = true
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 serde = { version = "1.0", features = ["derive"] }
-ts-rs = { version = "7.0", features = ["chrono-impl", "format"] }
