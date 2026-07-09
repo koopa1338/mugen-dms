@@ -1,15 +1,16 @@
 use tokio::task::JoinHandle;
-
-use tokio_schedule::{every, Job};
 use tracing_attributes::instrument;
 
+#[allow(clippy::async_yields_async)]
 #[instrument]
-pub fn scanner_cron() -> JoinHandle<()> {
-    let scanner = every(dotenv::var("scanner_interval").map_or_else(
-        |_error| 30,
-        |value| value.parse::<u32>().expect("no valid number"),
-    ))
-    .seconds()
-    .perform(|| async { tracing::debug!("checking scanned folder (unimplemented)") });
-    tokio::spawn(scanner)
+pub async fn scanner_cron() -> JoinHandle<()> {
+    let interval: u64 = dotenv::var("SCANNER_INTERVAL").map_or(30, |v| v.parse().unwrap_or(30));
+
+    let handle = tokio::spawn(async move {
+        loop {
+            tracing::debug!("checking scanned folder (unimplemented)");
+            tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
+        }
+    });
+    handle
 }

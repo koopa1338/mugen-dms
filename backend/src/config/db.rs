@@ -24,7 +24,7 @@ pub async fn get_db(config: &Config) -> Result<Surreal<Any>, ApiError> {
         .map_err(|e| ApiError::Internal(format!("SurrealDB connect failed: {e}")))?;
 
     if let (Some(user), Some(pass)) = (&config.db_user, &config.db_pass) {
-        db.signin(Root { username: user, password: pass })
+        db.signin(Root { username: user.clone(), password: pass.clone() })
             .await
             .map_err(|e| ApiError::Internal(format!("SurrealDB auth failed: {e}")))?;
     }

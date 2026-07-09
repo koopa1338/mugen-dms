@@ -35,10 +35,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let state = app::AppState::new(db, storage, auth, config.jwt_secret.clone());
 
     let backend = app::api_routes(state);
-    let cron = scanner_cron();
+    scanner_cron().await;
 
-    let (_be, cron) = tokio::join!(backend, cron);
-    cron?;
+    backend.await.map_err(|e| e.to_string())?;
 
     Ok(())
 }

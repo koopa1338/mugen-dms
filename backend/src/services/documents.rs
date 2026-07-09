@@ -5,22 +5,22 @@ use uuid::Uuid;
 
 use common::models::document::Document;
 use crate::{
-    db::{models::DbDocument, parse_thing},
+    db::{models::DbDocument, parse_thing, record_id_to_string},
     error::{ApiError, ApiResult},
 };
 
 impl From<DbDocument> for Document {
     fn from(db: DbDocument) -> Self {
         Self {
-            id: Some(db.id.to_string()),
+            id: Some(record_id_to_string(&db.id)),
             filename: db.filename,
             filepath: db.filepath,
             filetype: db.filetype,
             size: db.size,
             created_at: db.created_at,
             updated_at: db.updated_at,
-            collection_id: db.collection.map(|t| t.to_string()),
-            owner_id: db.owner.to_string(),
+            collection_id: db.collection.map(|t| record_id_to_string(&t)),
+            owner_id: record_id_to_string(&db.owner),
             ocr_text: db.ocr_text,
             tags: db.tags,
         }
@@ -89,20 +89,23 @@ pub async fn get_documents_by_collection(
     Ok(docs.into_iter().map(Into::into).collect())
 }
 
+/// Parameters for creating a document record.
+#[derive(Debug)]
+pub struct CreateDocumentParams {
+    pub filename: String,
+    pub filepath: String,
+    pub filetype: Option<String>,
+    pub size: u64,
+    pub owner_id: String,
+    pub collection_id: Option<String>,
+    pub tags: Vec<String>,
+}
+
 /// Create a document DB record. The file must already be written to storage before calling this.
 #[instrument(skip(db))]
-pub async fn create_document(
-    db: &Surreal<Any>,
-    filename: String,
-    filepath: String,
-    filetype: Option<String>,
-    size: u64,
-    owner_id: &str,
-    collection_id: Option<&str>,
-    tags: Vec<String>,
-) -> ApiResult<Document> {
-    let owner = parse_thing(owner_id)?;
-    let collection: Option<_> = collection_id.map(parse_thing).transpose()?;
+pub async fn create_document(db: &Surreal<Any>, params: CreateDocumentParams) -> ApiResult<Document> {
+    let owner = parse_thing(&params.owner_id)?;
+    let collection: Option<_> = params.collection_id.map(|s| parse_thing(&s)).transpose()?;
     let now = Utc::now();
 
     let created: Option<DbDocument> = db
@@ -120,14 +123,14 @@ pub async fn create_document(
                tags = $tags
              RETURN AFTER",
         )
-        .bind(("filename", filename))
-        .bind(("filepath", filepath))
-        .bind(("filetype", filetype))
-        .bind(("size", size as i64))
+        .bind(("filename", params.filename))
+        .bind(("filepath", params.filepath))
+        .bind(("filetype", params.filetype))
+        .bind(("size", params.size.cast_signed()))
         .bind(("now", now))
         .bind(("owner", owner))
         .bind(("collection", collection))
-        .bind(("tags", tags))
+        .bind(("tags", params.tags))
         .await?
         .take(0)?;
 
@@ -137,6 +140,7 @@ pub async fn create_document(
 }
 
 #[derive(Debug, Default)]
+#[allow(clippy::option_option)]
 pub struct DocumentUpdate {
     pub filename: Option<String>,
     pub collection_id: Option<Option<String>>,

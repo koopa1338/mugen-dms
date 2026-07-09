@@ -10,7 +10,7 @@ use surrealdb::{engine::any::Any, Surreal};
 use common::models::user::User;
 use crate::{
     auth::{AuthProvider, Claims},
-    db::models::DbUser,
+    db::{models::DbUser, record_id_to_string},
     error::{ApiError, ApiResult},
 };
 
@@ -111,9 +111,9 @@ async fn fetch_user_by_username(
 }
 
 fn issue_jwt(user: &DbUser, jwt_secret: &str) -> Result<String, ApiError> {
-    let expiry = (Utc::now() + chrono::Duration::hours(24)).timestamp() as u64;
+    let expiry = (Utc::now() + chrono::Duration::hours(24)).timestamp().cast_unsigned();
     let claims = Claims {
-        sub: user.id.to_string(),
+        sub: record_id_to_string(&user.id),
         username: user.username.clone(),
         bucket_path: user.bucket_path.clone(),
         exp: expiry,
@@ -128,7 +128,7 @@ fn issue_jwt(user: &DbUser, jwt_secret: &str) -> Result<String, ApiError> {
 
 pub fn db_user_to_common(db: DbUser) -> User {
     User {
-        id: Some(db.id.to_string()),
+        id: Some(record_id_to_string(&db.id)),
         username: db.username,
         email: db.email,
         created_at: db.created_at,

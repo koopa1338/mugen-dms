@@ -4,18 +4,18 @@ use tracing_attributes::instrument;
 
 use common::models::collection::Collection;
 use crate::{
-    db::{models::DbCollection, parse_thing},
+    db::{models::DbCollection, parse_thing, record_id_to_string},
     error::{ApiError, ApiResult},
 };
 
 impl From<DbCollection> for Collection {
     fn from(db: DbCollection) -> Self {
         Self {
-            id: Some(db.id.to_string()),
+            id: Some(record_id_to_string(&db.id)),
             name: db.name,
             created_at: db.created_at,
             updated_at: db.updated_at,
-            owner_id: db.owner.to_string(),
+            owner_id: record_id_to_string(&db.owner),
         }
     }
 }

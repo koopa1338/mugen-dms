@@ -1,9 +1,6 @@
 pub mod middleware;
 pub mod password;
 
-pub use middleware::AuthUser;
-pub use password::{PasswordAuthProvider, PasswordCredentials, RegistrationData};
-
 use std::future::Future;
 use common::models::user::User;
 use serde::de::DeserializeOwned;

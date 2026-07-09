@@ -15,7 +15,7 @@ use crate::auth::middleware::JwtSecret;
 use crate::auth::AuthProvider;
 use crate::storage::StorageBackend;
 
-const LOCALHOST: Ipv4Addr = Ipv4Addr::new(127, 0, 0, 1);
+const LOCALHOST: Ipv4Addr = Ipv4Addr::LOCALHOST;
 const BACKEND_PORT: u16 = 4000;
 
 #[derive(Clone, Parser)]
@@ -59,7 +59,7 @@ impl<S, A> AppState<S, A> {
 }
 
 /// Mounts all API routes and starts the backend server.
-pub async fn api_routes<S, A>(app_state: AppState<S, A>)
+pub async fn api_routes<S, A>(app_state: AppState<S, A>) -> Result<(), Box<dyn std::error::Error + Send + Sync>>
 where
     S: StorageBackend + Clone + Send + Sync + 'static,
     A: AuthProvider + Clone + Send + Sync + 'static,
@@ -109,6 +109,7 @@ where
         .await
         .expect("Error creating TCP listener");
     serve(listener, backend)
-        .await
-        .expect("Error serving backend");
+        .await?;
+
+    Ok(())
 }

@@ -31,15 +31,12 @@ pub type ApiResult<T> = Result<T, ApiError>;
 
 impl From<surrealdb::Error> for ApiError {
     fn from(err: surrealdb::Error) -> Self {
-        match &err {
-            // Parse errors mean the caller passed a malformed record ID — that's a 422.
-            surrealdb::Error::Api(surrealdb::error::Api::ParseError { .. }) => {
-                ApiError::Validation(err.to_string())
-            }
-            _ => {
-                tracing::error!("SurrealDB error: {err}");
-                ApiError::Internal(err.to_string())
-            }
+        let msg = err.to_string();
+        if msg.contains("parse") || msg.contains("Parse") {
+            ApiError::Validation(msg)
+        } else {
+            tracing::error!("SurrealDB error: {err}");
+            ApiError::Internal(msg)
         }
     }
 }

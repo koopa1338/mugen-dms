@@ -1,44 +1,46 @@
 use gloo_file::FileList;
-use leptos::*;
+use leptos::prelude::*;
+use leptos::{html, ev};
 use std::future::Future;
 use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlInputElement;
 
 #[component]
 pub fn Upload<T>(
-    #[prop(optional, into)] accept: MaybeSignal<String>,
-    #[prop(optional, into)] multiple: MaybeSignal<bool>,
+    #[prop(optional, into)] accept: Signal<String>,
+    #[prop(optional, into)] multiple: Signal<bool>,
     #[prop(into)] callback: Callback<FileList, T>,
-    #[prop(optional)] children: Option<Children>,
+    #[prop(optional)] children: Option<ChildrenFn>,
 ) -> impl IntoView
 where
     T: Future<Output = ()> + 'static,
 {
     let on_file_addition = move |files: FileList| {
-        spawn_local(Callback::call(&callback, files));
+        spawn_local(callback.run(files));
     };
 
-    let input_ref = create_node_ref::<html::Input>();
+    let input_ref = NodeRef::<html::Input>::new();
 
     let on_change = move |_| {
-        if let Some(input_ref) = input_ref.get_untracked() {
-            if let Some(files) = input_ref.files() {
+        if let Some(input_el) = input_ref.get() {
+            if let Some(files) = input_el.files() {
                 on_file_addition(FileList::from(files));
             }
         }
     };
     let on_click = move |_| {
-        if let Some(input_ref) = input_ref.get_untracked() {
-            let _ = input_ref.show_picker();
+        if let Some(input_el) = input_ref.get() {
+            let _ = HtmlInputElement::show_picker(&input_el);
         }
     };
 
-    let is_trigger_dragover = create_rw_signal(false);
+    let is_trigger_dragover = RwSignal::new(false);
     let on_trigger_drop = move |event: ev::DragEvent| {
         event.prevent_default();
         if let Some(data) = event.data_transfer() {
-            if let Some(input) = input_ref.get_untracked() {
+            if let Some(input_el) = input_ref.get() {
                 if let Some(files) = data.files() {
-                    let ft = input.accept();
+                    let ft = input_el.accept();
                     let accepted = ft.split(',').collect::<Vec<_>>();
                     let mut all_files_valid = true;
                     for idx in 0..files.length() {
@@ -46,7 +48,7 @@ where
                             let file_type = file.type_();
                             let contain = accepted.contains(&file_type.as_str());
                             if !contain {
-                                logging::warn!("filetype of file was {file_type} but only one of the following filetypes is allowed: {accepted:#?}");
+                                leptos::logging::warn!("filetype of file was {file_type} but only one of the following filetypes is allowed: {accepted:#?}");
                             }
                             all_files_valid &= contain;
                         }
@@ -86,7 +88,7 @@ where
                 >
                     <input
                         class="hidden invisible"
-                        ref=input_ref
+                        node_ref=input_ref
                         type="file"
                         accept=move || accept.get()
                         multiple=move || multiple.get()

@@ -163,13 +163,15 @@ where
 
     let doc = svc::create_document(
         &state.db,
-        name,
-        filepath,
-        filetype,
-        size,
-        &auth.user_id,
-        collection_id.as_deref(),
-        tags,
+        svc::CreateDocumentParams {
+            filename: name,
+            filepath,
+            filetype,
+            size,
+            owner_id: auth.user_id,
+            collection_id,
+            tags,
+        },
     )
     .await?;
 
@@ -178,6 +180,7 @@ where
 }
 
 #[derive(Debug, Deserialize)]
+#[allow(clippy::option_option)]
 struct UpdateMetadataBody {
     filename: Option<String>,
     collection_id: Option<Option<String>>,
