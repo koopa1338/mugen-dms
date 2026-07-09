@@ -4,4 +4,4 @@ members = ["backend", "common", "frontend"]
 
 [workspace.package]
 authors = ["koopa1338 <sinner1991@gmail.com>"]
-edition = "2021"
+edition = "2024"
