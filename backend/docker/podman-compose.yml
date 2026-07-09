@@ -9,13 +9,5 @@ services:
     volumes:
       - surrealdb_data:/data
 
-  # Uncomment when Meilisearch integration is added
-  # meilisearch:
-  #   image: getmeili/meilisearch:latest
-  #   ports:
-  #     - "7700:7700"
-  #   volumes:
-  #     - meili_data:/meili_data
-
 volumes:
   surrealdb_data:
