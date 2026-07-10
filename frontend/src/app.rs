@@ -1,10 +1,16 @@
 use leptos::prelude::*;
 use leptos_meta::provide_meta_context;
-use leptos_router::components::{Router, Routes, Route};
+use leptos_router::components::{Route, Router, Routes};
 use leptos_router::path;
 
 use crate::components::sidebar::Sidebar;
-use crate::routes::{about::About, dashboard::Dashboard, document::Documents};
+use crate::routes::{
+    about::About,
+    collection::{CollectionDetail, CollectionList},
+    dashboard::Dashboard,
+    document::{DocumentDetail, Documents},
+    settings::Settings,
+};
 
 #[component]
 pub fn App() -> impl IntoView {
@@ -17,10 +23,10 @@ pub fn App() -> impl IntoView {
                 <Routes fallback=|| view! { "Page not found" }>
                     <Route path=path!("/") view=Dashboard/>
                     <Route path=path!("/documents") view=Documents/>
-                    <Route path=path!("/documents/:id") view=Dashboard/>
-                    <Route path=path!("/collections/:id") view=Dashboard/>
-                    <Route path=path!("/collections") view=Dashboard/>
-                    <Route path=path!("/settings") view=Dashboard/>
+                    <Route path=path!("/documents/:id") view=DocumentDetail/>
+                    <Route path=path!("/collections/:id") view=CollectionDetail/>
+                    <Route path=path!("/collections") view=CollectionList/>
+                    <Route path=path!("/settings") view=Settings/>
                     <Route path=path!("/about") view=About/>
                 </Routes>
             </main>

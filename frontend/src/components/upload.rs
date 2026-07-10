@@ -22,11 +22,10 @@ where
     let input_ref = NodeRef::<html::Input>::new();
 
     let on_change = move |_| {
-        if let Some(input_el) = input_ref.get() {
-            if let Some(files) = input_el.files() {
+        if let Some(input_el) = input_ref.get()
+            && let Some(files) = input_el.files() {
                 on_file_addition(FileList::from(files));
             }
-        }
     };
     let on_click = move |_| {
         if let Some(input_el) = input_ref.get() {
@@ -37,9 +36,9 @@ where
     let is_trigger_dragover = RwSignal::new(false);
     let on_trigger_drop = move |event: ev::DragEvent| {
         event.prevent_default();
-        if let Some(data) = event.data_transfer() {
-            if let Some(input_el) = input_ref.get() {
-                if let Some(files) = data.files() {
+        if let Some(data) = event.data_transfer()
+            && let Some(input_el) = input_ref.get()
+                && let Some(files) = data.files() {
                     let ft = input_el.accept();
                     let accepted = ft.split(',').collect::<Vec<_>>();
                     let mut all_files_valid = true;
@@ -57,8 +56,6 @@ where
                         on_file_addition(FileList::from(files));
                     }
                 }
-            }
-        }
 
         is_trigger_dragover.set(false);
     };
