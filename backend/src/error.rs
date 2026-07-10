@@ -14,9 +14,6 @@ pub enum ApiError {
     #[error("Internal error: {0}")]
     Internal(String),
 
-    #[error("Request timeout: {0}")]
-    Timeout(String),
-
     #[error("Validation error: {0}")]
     Validation(String),
 
@@ -53,7 +50,6 @@ impl ApiError {
         match self {
             Self::NotFound(_) => StatusCode::NOT_FOUND,
             Self::Internal(_) | Self::Io(_) => StatusCode::INTERNAL_SERVER_ERROR,
-            Self::Timeout(_) => StatusCode::REQUEST_TIMEOUT,
             Self::Validation(_) => StatusCode::UNPROCESSABLE_ENTITY,
             Self::Unauthorized(_) => StatusCode::UNAUTHORIZED,
         }
@@ -62,7 +58,11 @@ impl ApiError {
 
 impl IntoResponse for ApiError {
     fn into_response(self) -> Response {
-        let body = json!({ "error": self.to_string() });
+        let msg = match &self {
+            Self::Internal(_) | Self::Io(_) => "An internal error occurred".to_string(),
+            _ => self.to_string(),
+        };
+        let body = json!({ "error": msg });
         (self.status_code(), Json(body)).into_response()
     }
 }

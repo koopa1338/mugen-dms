@@ -6,11 +6,11 @@ use tracing_attributes::instrument;
 pub async fn scanner_cron() -> JoinHandle<()> {
     let interval: u64 = dotenv::var("SCANNER_INTERVAL").map_or(30, |v| v.parse().unwrap_or(30));
 
-    let handle = tokio::spawn(async move {
+    
+    tokio::spawn(async move {
         loop {
             tracing::debug!("checking scanned folder (unimplemented)");
             tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
         }
-    });
-    handle
+    })
 }

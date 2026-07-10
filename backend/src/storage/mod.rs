@@ -12,6 +12,7 @@ use crate::error::ApiError;
 ///
 /// Swap in an S3Storage implementation (using `aws-sdk-s3` or `object_store`)
 /// without changing any call sites.
+#[allow(dead_code)]
 pub trait StorageBackend: Send + Sync {
     fn store(&self, bucket: &str, key: &str, data: &[u8]) -> impl Future<Output = Result<(), ApiError>> + Send;
     fn retrieve(&self, bucket: &str, key: &str) -> impl Future<Output = Result<Vec<u8>, ApiError>> + Send;

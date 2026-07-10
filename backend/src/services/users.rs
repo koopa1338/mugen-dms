@@ -8,6 +8,7 @@ use crate::{
     error::{ApiError, ApiResult},
 };
 
+#[allow(dead_code)]
 #[instrument(skip(db))]
 pub async fn get_user_by_id(db: &Surreal<Any>, id: &str) -> ApiResult<User> {
     let thing = parse_thing(id)?;
@@ -20,6 +21,7 @@ pub async fn get_user_by_id(db: &Surreal<Any>, id: &str) -> ApiResult<User> {
         .ok_or_else(|| ApiError::NotFound(format!("User {id} not found")))
 }
 
+#[allow(dead_code)]
 #[instrument(skip(db))]
 pub async fn get_user_by_username(db: &Surreal<Any>, username: &str) -> ApiResult<User> {
     let mut result = db
