@@ -1,8 +1,9 @@
 use axum::{
+    body::Body,
     extract::{Multipart, Path, Query, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
 use serde::Deserialize;
@@ -50,7 +51,9 @@ where
                 "/:id",
                 get(document_by_id).delete(document_delete),
             )
-            .route("/:id/metadata", axum::routing::put(document_update_metadata)),
+            .route("/:id/metadata", axum::routing::put(document_update_metadata))
+            .route("/:id/download", get(document_download))
+            .route("/raw", post(document_raw_upload)),
     )
 }
 
@@ -201,12 +204,11 @@ where
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(clippy::option_option)]
 struct UpdateMetadataBody {
     filename: Option<String>,
-    collection_id: Option<Option<String>>,
+    collection_id: Option<String>,
     tags: Option<Vec<String>>,
-    ocr_text: Option<Option<String>>,
+    ocr_text: Option<String>,
 }
 
 #[instrument(skip(state))]
@@ -256,12 +258,94 @@ where
     }
 
     // Split filepath "bucket/key" to delete from storage
-    if let Some((bucket, key)) = doc.filepath.split_once('/') {
-        if let Err(e) = state.storage.delete(bucket, key).await {
+    if let Some((bucket, key)) = doc.filepath.split_once('/')
+        && let Err(e) = state.storage.delete(bucket, key).await {
             // Log but don't fail — DB record is already gone
             tracing::warn!("Failed to delete file from storage: {e}");
         }
-    }
 
     Ok(Json(doc))
+}
+
+#[instrument(skip(state))]
+async fn document_download<S, A>(
+    auth: AuthUser,
+    State(state): State<AppState<S, A>>,
+    Path(id): Path<String>,
+) -> ApiResult<impl IntoResponse>
+where
+    S: StorageBackend + Clone + Send + Sync + 'static,
+    A: AuthProvider + Clone + Send + Sync + 'static,
+{
+    let doc = svc::get_document_by_id(&state.db, &id).await?;
+    if doc.owner_id != auth.user_id {
+        return Err(ApiError::Unauthorized("Access denied".to_string()));
+    }
+
+    // Split filepath "bucket/key" to retrieve from storage
+    let (bucket, key) = doc
+        .filepath
+        .split_once('/')
+        .ok_or_else(|| ApiError::Internal("Invalid file path in database".to_string()))?;
+
+    let bytes = state.storage.retrieve(bucket, key).await?;
+    let disposition = format!("attachment; filename=\"{}\"", doc.filename);
+
+    Ok((
+        [(axum::http::header::CONTENT_DISPOSITION, disposition)],
+        bytes,
+    ))
+}
+
+/// Maximum upload size: 100 MB.
+const MAX_UPLOAD_SIZE: usize = 100 * 1024 * 1024;
+
+/// Upload a file as raw body (no multipart). Useful for WASM frontends.
+#[instrument(skip(state))]
+async fn document_raw_upload<S, A>(
+    auth: AuthUser,
+    State(state): State<AppState<S, A>>,
+    body: Body,
+) -> ApiResult<impl IntoResponse>
+where
+    S: StorageBackend + Clone + Send + Sync + 'static,
+    A: AuthProvider + Clone + Send + Sync + 'static,
+{
+    let bytes = axum::body::to_bytes(body, MAX_UPLOAD_SIZE)
+        .await
+        .map_err(|_e| ApiError::Validation(format!("Request body too large (max {} MB)", MAX_UPLOAD_SIZE / 1024 / 1024)))?;
+
+    if bytes.is_empty() {
+        return Err(ApiError::Validation("Empty request body".to_string()));
+    }
+
+    let size = bytes.len() as u64;
+    let filetype = infer::get(&bytes).map(|t| t.mime_type().to_string());
+    let key = svc::make_storage_key("uploaded");
+
+    let bucket_path = get_user_bucket_path(&state.db, &auth.user_id).await?;
+
+    state
+        .storage
+        .store(&bucket_path, &key, &bytes)
+        .await?;
+
+    let filepath = format!("{}/{}", bucket_path, key);
+
+    let doc = svc::create_document(
+        &state.db,
+        svc::CreateDocumentParams {
+            filename: "uploaded".to_string(),
+            filepath,
+            filetype,
+            size,
+            owner_id: auth.user_id,
+            collection_id: None,
+            tags: Vec::new(),
+        },
+    )
+    .await?;
+
+    tracing::debug!("Raw uploaded document: {:?}", doc.id);
+    Ok((StatusCode::CREATED, Json(doc)))
 }
