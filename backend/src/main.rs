@@ -32,7 +32,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let db = db_config::get_db(&config).await?;
     let storage = FilesystemStorage::new(config.storage_root.clone());
     let auth = PasswordAuthProvider::new(db.clone());
-    let state = app::AppState::new(db, storage, auth, config.jwt_secret.clone());
+    let state = app::AppState::new(db, storage, auth, config.jwt_secret.clone(), config.port);
 
     let backend = app::api_routes(state);
     scanner_cron().await;

@@ -16,7 +16,6 @@ use crate::auth::AuthProvider;
 use crate::storage::StorageBackend;
 
 const LOCALHOST: Ipv4Addr = Ipv4Addr::LOCALHOST;
-const BACKEND_PORT: u16 = 4000;
 
 #[derive(Clone, Parser)]
 pub struct Config {
@@ -38,6 +37,10 @@ pub struct Config {
     /// Secret key for JWT signing and verification
     #[clap(long, env)]
     pub jwt_secret: String,
+
+    /// Port to listen on
+    #[clap(long, env, default_value_t = 4000)]
+    pub port: u16,
 }
 
 /// Global application state.
@@ -50,11 +53,12 @@ pub struct AppState<S, A> {
     pub storage: S,
     pub auth: A,
     pub jwt_secret: String,
+    pub port: u16,
 }
 
 impl<S, A> AppState<S, A> {
-    pub fn new(db: Surreal<Any>, storage: S, auth: A, jwt_secret: String) -> Self {
-        Self { db, storage, auth, jwt_secret }
+    pub fn new(db: Surreal<Any>, storage: S, auth: A, jwt_secret: String, port: u16) -> Self {
+        Self { db, storage, auth, jwt_secret, port }
     }
 }
 
@@ -66,6 +70,7 @@ where
 {
     use crate::handler::{auth, collections, documents};
 
+    let port = app_state.port;
     let jwt_secret = app_state.jwt_secret.clone();
 
     let backend = Router::new()
@@ -103,9 +108,9 @@ where
                 .into_inner(),
         );
 
-    tracing::debug!("Serving backend on {LOCALHOST}:{BACKEND_PORT}");
+    tracing::debug!("Serving backend on {LOCALHOST}:{port}");
 
-    let listener = TcpListener::bind((LOCALHOST, BACKEND_PORT))
+    let listener = TcpListener::bind((LOCALHOST, port))
         .await
         .expect("Error creating TCP listener");
     serve(listener, backend)
