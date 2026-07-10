@@ -4,41 +4,30 @@ use leptos::prelude::*;
 pub fn About() -> impl IntoView {
     view! {
         <div class="rounded bg-gray-900 p-3 text-gray-500">
-            <h2 class="text-2xl font-bold mb-4">"Overview"</h2>
+            <h2 class="text-2xl font-bold mb-4">"About Mugen-DMS"</h2>
             <p>
-                "Mugen-dms is an open-source document management software, offering powerful and efficient solutions built entirely in Rust. It utilizes Leptos for the frontend and Axum with SurrealDB for the backend, ensuring a seamless and performant user experience."
+                "Mugen-DMS is an open-source document management system written in Rust. The frontend uses Leptos (compiled to WASM), and the backend runs on Axum with SurrealDB for persistence."
             </p>
 
-            <h2 class="text-2xl font-bold mt-6 mb-4">"Key Perks"</h2>
-            <ul class="list-disc ml-6">
-                <li>
-                    "Outstanding Performance: Mugen-dms is designed for high-speed document handling and management."
-                </li>
-                <li>
-                    "Emphasis on Safety: Rust's strong type system and memory safety guarantee secure operations."
-                </li>
-                <li>
-                    "Low Resource Footprint: We prioritize efficiency and minimize resource consumption."
-                </li>
-                <li>
-                    "Easy Setup: Mugen-dms comes with a straightforward and user-friendly installation process."
-                </li>
-                <li>
-                    "Open Source: Developed and maintained by a single contributor, available for the community."
-                </li>
+            <h2 class="text-2xl font-bold mt-6 mb-4">"Tech Stack"</h2>
+            <ul class="list-disc ml-6 space-y-1">
+                <li>"Frontend: Leptos 0.8 / WASM / Tailwind CSS"</li>
+                <li>"Backend: Axum 0.8 / Tokio"</li>
+                <li>"Database: SurrealDB 3.x"</li>
+                <li>"Authentication: JWT + Argon2 password hashing"</li>
+                <li>"Storage: Pluggable filesystem/S3 backend"</li>
             </ul>
 
-            <h2 class="text-2xl font-bold mt-6 mb-4">"Contact the Maintainer"</h2>
+            <h2 class="text-2xl font-bold mt-6 mb-4">"Getting Help"</h2>
             <p>
-                "If you have any issues or feature requests, feel free to open an issue on github "
+                "Report issues or request features on GitHub:"
                 <a
-                    class="transition-all duration-100 ease-in-out text-bold text-white hover:text-amber-600"
+                    class="text-white hover:text-amber-600 underline"
                     href="https://github.com/koopa1338/mugen-dms"
                     target="_blank"
-                    title="Link to github repository"
                 >
-                    here
-                </a> "."
+                    github.com/koopa1338/mugen-dms
+                </a>
             </p>
         </div>
     }
