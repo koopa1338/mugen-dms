@@ -101,6 +101,14 @@ pub async fn update_collection(
 #[instrument(skip(db))]
 pub async fn delete_collection(db: &Surreal<Any>, id: &str) -> ApiResult<Collection> {
     let thing = parse_thing(id)?;
+
+    // Unset collection reference on all documents before deleting
+    db.query(
+        "UPDATE document WHERE collection = $col SET collection = NONE"
+    )
+    .bind(("col", thing.clone()))
+    .await?;
+
     let col: Option<DbCollection> = db
         .query("DELETE $id RETURN BEFORE")
         .bind(("id", thing))
