@@ -140,12 +140,11 @@ pub async fn create_document(db: &Surreal<Any>, params: CreateDocumentParams) ->
 }
 
 #[derive(Debug, Default)]
-#[allow(clippy::option_option)]
 pub struct DocumentUpdate {
     pub filename: Option<String>,
-    pub collection_id: Option<Option<String>>,
+    pub collection_id: Option<String>,
     pub tags: Option<Vec<String>>,
-    pub ocr_text: Option<Option<String>>,
+    pub ocr_text: Option<String>,
 }
 
 #[instrument(skip(db))]
@@ -155,10 +154,7 @@ pub async fn update_document(
     update: DocumentUpdate,
 ) -> ApiResult<Document> {
     let thing = parse_thing(id)?;
-    let collection: Option<Option<_>> = update
-        .collection_id
-        .map(|opt| opt.map(|s| parse_thing(&s)).transpose())
-        .transpose()?;
+    let collection: Option<_> = update.collection_id.as_ref().map(|s| parse_thing(s)).transpose()?;
 
     let doc: Option<DbDocument> = db
         .query(
@@ -172,9 +168,9 @@ pub async fn update_document(
         )
         .bind(("id", thing))
         .bind(("filename", update.filename))
-        .bind(("collection", collection.flatten()))
+        .bind(("collection", collection))
         .bind(("tags", update.tags))
-        .bind(("ocr_text", update.ocr_text.flatten()))
+        .bind(("ocr_text", update.ocr_text))
         .await?
         .take(0)?;
 
