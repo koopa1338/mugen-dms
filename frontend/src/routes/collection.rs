@@ -3,6 +3,7 @@ use common::models::document::Document;
 use gloo_net::http::Method;
 use leptos::html;
 use leptos::prelude::*;
+use leptos_router::components::A;
 use leptos_router::hooks::use_params_map;
 use leptos_use::{use_scroll_with_options, UseScrollOptions};
 use wasm_bindgen::JsCast;
@@ -11,6 +12,82 @@ use wasm_bindgen_futures::spawn_local;
 use crate::api::api_call;
 use crate::components::grid::Grid;
 use crate::ChronoFormat;
+
+#[component]
+pub(crate) fn CollectionList() -> impl IntoView {
+    let (collections, set_collections) = signal(Vec::<Collection>::new());
+    let (loading, set_loading) = signal(true);
+    let (error, set_error) = signal(false);
+    let (creating, set_creating) = signal(false);
+    let (new_name, set_new_name) = signal(String::new());
+
+    let fetch_collections = move || {
+        spawn_local(async move {
+            set_loading.set(true);
+            match api_call::<Vec<Collection>, ()>("api/collections", Method::GET, None, None).await {
+                Ok(cols) => { set_collections.set(cols); set_error.set(false); }
+                Err(_) => set_error.set(true),
+            }
+            set_loading.set(false);
+        });
+    };
+
+    Effect::new(move |_| { fetch_collections(); });
+
+    let show_collections = move || !loading.get() && !error.get() && !collections.read().is_empty();
+
+    let handle_create = move || {
+        let name = new_name.get_untracked();
+        if name.is_empty() { return; }
+        spawn_local(async move {
+            let _ = api_call::<Collection, _>(
+                "api/collections", Method::POST,
+                Some(serde_json::json!({ "name": name })), None,
+            ).await;
+            set_creating.set(false);
+            set_new_name.set(String::new());
+            fetch_collections();
+        });
+    };
+
+    view! {
+        <div class="space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-white">"Collections"</h2>
+                <button class="px-3 py-1 bg-amber-600 text-white rounded hover:bg-amber-700 text-sm" on:click=move |_| set_creating.update(|v| *v = true)>"+ New Collection"</button>
+            </div>
+
+            <Show when=move || creating.get() fallback=|| ().into_view()>
+                <div class="rounded bg-gray-900 p-3 flex gap-2">
+                    <input type="text" placeholder="Collection name" class="bg-gray-800 text-white px-3 py-1 rounded border border-gray-700 focus:border-blue-500 focus:outline-none flex-1" prop:value=new_name on:input=move |ev| { if let Some(input) = ev.target().and_then(|t| t.dyn_into::<web_sys::HtmlInputElement>().ok()) { set_new_name.set(input.value()); } } on:keydown=move |ev| if ev.key_code() == 13 { handle_create(); } />
+                    <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm" on:click=move |_| handle_create()>"Create"</button>
+                    <button class="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm" on:click=move |_| set_creating.set(false)>"Cancel"</button>
+                </div>
+            </Show>
+
+            <Show when=show_collections fallback=move || {
+                if loading.get() {
+                    view! { <p class="text-gray-400">"Loading..."</p> }.into_view()
+                } else if error.get() {
+                    view! { <p class="text-red-400">"Failed to load collections"</p> }.into_view()
+                } else {
+                    view! { <p class="text-gray-400">"No collections yet. Create one to get started."</p> }.into_view()
+                }
+            }>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <For each=move || collections.read().clone() key=|col| col.id.clone() let:col>
+                        <A href=format!("/collections/{}", col.id.clone().unwrap_or_default())>
+                            <div class="text-left rounded bg-gray-900 p-4 hover:bg-gray-800 transition-all duration-100 border border-transparent hover:border-slate-700">
+                                <h3 class="text-lg font-semibold text-white">{col.name.clone()}</h3>
+                                <p class="text-gray-500 text-sm mt-1">"Created: " {col.created_at.display()}</p>
+                            </div>
+                        </A>
+                    </For>
+                </div>
+            </Show>
+        </div>
+    }
+}
 
 #[component]
 pub(crate) fn CollectionDetail() -> impl IntoView {
@@ -30,11 +107,11 @@ fn CollectionInfo() -> impl IntoView {
         p.get("id").clone().unwrap_or_default()
     };
 
-    let (collection, set_collection) = create_signal::<Option<Collection>>(None);
-    let (loading, set_loading) = create_signal(true);
-    let (error, set_error) = create_signal(false);
-    let (editing, set_editing) = create_signal(false);
-    let (new_name, set_new_name) = create_signal(String::new());
+    let (collection, set_collection) = signal::<Option<Collection>>(None);
+    let (loading, set_loading) = signal(true);
+    let (error, set_error) = signal(false);
+    let (editing, set_editing) = signal(false);
+    let (new_name, set_new_name) = signal(String::new());
 
     let fetch_collection = move || {
         let id = collection_id();
@@ -59,7 +136,7 @@ fn CollectionInfo() -> impl IntoView {
         });
     };
 
-    create_effect(move |_| {
+    Effect::new(move |_| {
         fetch_collection();
     });
 
@@ -96,57 +173,49 @@ fn CollectionInfo() -> impl IntoView {
         });
     };
 
-    let col_for_view = collection.clone();
-    let loading_for_view = loading.clone();
-    let error_for_view = error.clone();
-    let editing_for_view = editing.clone();
-    let set_editing_for_view = set_editing.clone();
+    let show_collection = move || !loading.get() && !error.get() && collection.get().is_some();
 
     view! {
         <div class="rounded bg-gray-900 p-4 mb-3">
-            <Show when=move || loading_for_view.get() fallback=move || {
-                view! {
-                    <Show when=move || error_for_view.get() fallback=move || {
-                        view! {
-                            <Show when=move || col_for_view.get().is_some() fallback=move || view! { <p class="text-gray-400">"Collection not found"</p> }>
-                                <div class="flex items-center justify-between mb-3">
-                                    {col_for_view.read().as_ref().map(|col| view! {
-                                        <div>
-                                            <h2 class="text-xl font-bold text-white">{col.name.clone()}</h2>
-                                            <p class="text-gray-500 text-sm mt-1">"ID: " {col.id.clone().unwrap_or_default()}</p>
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button
-                                                class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                                                on:click=move |_| set_editing_for_view.update(|v| *v = true)
-                                            >"Rename"</button>
-                                            <button
-                                                class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
-                                                on:click=move |_| handle_delete()
-                                            >"Delete"</button>
-                                        </div>
-                                    })}
-                                </div>
-                                <div class="flex gap-6 text-sm text-gray-400">
-                                    {col_for_view.read().as_ref().map(|col| view! {
-                                        <>
-                                            <span>"Created: " {col.created_at.display()}</span>
-                                            <span>"Updated: " {col.updated_at.display()}</span>
-                                        </>
-                                    })}
-                                </div>
-                            </Show>
-                        }
-                    }>
-                        <p class="text-red-400">Failed to load collection</p>
-                    </Show>
+            <Show when=show_collection fallback=move || {
+                if loading.get() {
+                    view! { <p class="text-gray-400">"Loading..."</p> }.into_view()
+                } else if error.get() {
+                    view! { <p class="text-red-400">"Failed to load collection"</p> }.into_view()
+                } else {
+                    view! { <p class="text-gray-400">"Collection not found"</p> }.into_view()
                 }
             }>
-                <p class="text-gray-400">Loading...</p>
+                <div class="flex items-center justify-between mb-3">
+                    {collection.read().as_ref().map(|col| view! {
+                        <div>
+                            <h2 class="text-xl font-bold text-white">{col.name.clone()}</h2>
+                            <p class="text-gray-500 text-sm mt-1">"ID: " {col.id.clone().unwrap_or_default()}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button
+                                class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                                on:click=move |_| set_editing.update(|v| *v = true)
+                            >"Rename"</button>
+                            <button
+                                class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                                on:click=move |_| handle_delete()
+                            >"Delete"</button>
+                        </div>
+                    })}
+                </div>
+                <div class="flex gap-6 text-sm text-gray-400">
+                    {collection.read().as_ref().map(|col| view! {
+                        <>
+                            <span>"Created: " {col.created_at.display()}</span>
+                            <span>"Updated: " {col.updated_at.display()}</span>
+                        </>
+                    })}
+                </div>
             </Show>
 
             // Rename form
-            <Show when=move || editing_for_view.get() fallback=|| view! {}.into_view()>
+            <Show when=move || editing.get() fallback=|| ().into_view()>
                 <div class="flex gap-2 mt-2">
                     <input
                         type="text"
@@ -196,11 +265,13 @@ fn DocumentsByCollection() -> impl IntoView {
         }
         spawn_local(async move {
             loading.set(true);
+            // Frontend uses 1-indexed pages; backend expects 0-indexed
+            let backend_page = page_val.saturating_sub(1);
             let result = api_call::<Vec<Document>, ()>(
                 &format!("api/documents?collection_id={id}"),
                 Method::GET,
                 None,
-                Some(vec![("page", &page_val.to_string())]),
+                Some(vec![("page", &backend_page.to_string())]),
             ).await;
             loading.set(false);
 
@@ -229,14 +300,12 @@ fn DocumentsByCollection() -> impl IntoView {
         });
     };
 
-    let initial_fetch = true;
-
     Effect::new(move |_| {
         if user_scroll_return.arrived_state.get().bottom && !user_scroll_return.is_scrolling.get() && has_more.get() && !loading.get() {
             page.update(|p| *p = p.saturating_add(1));
             (user_scroll_return.measure)();
             fetch_documents(page.get(), true);
-        } else if initial_fetch && page.get() == 1 {
+        } else if page.get() == 1 {
             fetch_documents(1, false);
         }
     });

@@ -18,7 +18,9 @@ where
     T: for<'de> Deserialize<'de> + Serialize,
     P: Serialize,
 {
-    let mut builder = RequestBuilder::new(&format!("http://localhost:4000/{path}"))
+    // Change this for production deployments
+    const BASE_URL: &str = "http://localhost:4000";
+    let mut builder = RequestBuilder::new(&format!("{BASE_URL}/{path}"))
         .method(method);
     if let Some(params) = query_params {
         builder = builder.query(params);

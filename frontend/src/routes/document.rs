@@ -2,12 +2,79 @@ use common::models::document::Document;
 use gloo_net::http::Method;
 use leptos::prelude::*;
 use leptos::html;
+use leptos_router::hooks::use_params_map;
 use leptos_use::{use_scroll_with_options, UseScrollOptions};
 use wasm_bindgen_futures::spawn_local;
 
 use crate::api::api_call;
 use crate::components::grid::Grid;
 use crate::ChronoFormat;
+
+fn download_doc(doc_id: String) {
+    if doc_id.is_empty() { return; }
+    let url = format!("/api/documents/{}/download", doc_id);
+    if let Some(window) = web_sys::window() {
+        let _ = window.open_with_url(&url);
+    }
+}
+
+#[component]
+pub(crate) fn DocumentDetail() -> impl IntoView {
+    let params = use_params_map();
+
+    let (doc, set_doc) = signal::<Option<Document>>(None);
+    let (loading, set_loading) = signal(true);
+    let (error, set_error) = signal(false);
+
+    let fetch_doc = move || {
+        let id = params.get().get("id").clone().unwrap_or_default();
+        if id.is_empty() { return; }
+        spawn_local(async move {
+            set_loading.set(true);
+            match api_call::<Document, ()>(&format!("api/documents/{id}"), Method::GET, None, None).await {
+                Ok(d) => { set_doc.set(Some(d)); set_error.set(false); }
+                Err(_) => set_error.set(true),
+            }
+            set_loading.set(false);
+        });
+    };
+
+    Effect::new(move |_| { fetch_doc(); });
+
+    let show_content = move || !loading.get() && !error.get() && doc.get().is_some();
+
+    view! {
+        <div class="space-y-4">
+            <Show when=show_content fallback=move || {
+                if loading.get() {
+                    view! { <p class="text-gray-400">"Loading..."</p> }.into_view()
+                } else if error.get() {
+                    view! { <p class="text-red-400">"Failed to load document"</p> }.into_view()
+                } else {
+                    view! { <p class="text-gray-400">"Document not found"</p> }.into_view()
+                }
+            }>
+                <div class="rounded bg-gray-900 p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h2 class="text-xl font-bold text-white">{doc.read().as_ref().map(|d| d.filename.clone()).unwrap_or_default()}</h2>
+                            <p class="text-gray-500 text-sm mt-1">"ID: " {doc.read().as_ref().map(|d| d.id.clone()).unwrap_or_default()}</p>
+                        </div>
+                        <button class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm" on:click=move |_| download_doc(doc.read().as_ref().and_then(|d| d.id.clone()).unwrap_or_default())>"Download"</button>
+                    </div>
+                    <div class="flex gap-6 text-sm text-gray-400">
+                        <span>"Type: " {doc.read().as_ref().and_then(|d| d.filetype.clone()).unwrap_or_else(|| "\u{2014}".to_string())}</span>
+                        <span>"Size: " {doc.read().as_ref().map(|d| d.size.to_string()).unwrap_or_default()}</span>
+                    </div>
+                    <div class="flex gap-6 text-sm text-gray-400 mt-2">
+                        <span>"Created: " {doc.read().as_ref().map(|d| d.created_at.display()).unwrap_or_default()}</span>
+                        <span>"Updated: " {doc.read().as_ref().map(|d| d.updated_at.display()).unwrap_or_default()}</span>
+                    </div>
+                </div>
+            </Show>
+        </div>
+    }
+}
 
 #[component]
 pub(crate) fn Documents() -> impl IntoView {
@@ -31,11 +98,13 @@ pub(crate) fn DocumentsTable() -> impl IntoView {
     let fetch_documents = move |page_val: u32, append: bool| {
         spawn_local(async move {
             loading.set(true);
+            // Frontend uses 1-indexed pages; backend expects 0-indexed
+            let backend_page = page_val.saturating_sub(1);
             let result = api_call::<Vec<Document>, ()>(
                 "api/documents",
                 Method::GET,
                 None,
-                Some(vec![("page", &page_val.to_string())]),
+                Some(vec![("page", &backend_page.to_string())]),
             ).await;
             loading.set(false);
 
